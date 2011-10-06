@@ -1,0 +1,25 @@
+<package>
+
+  <!-- Package summary -->
+  <description brief="Tele-operation framework.">
+
+    This package provides header files and a library which implement a
+    framework for generic handling of tele-operation devices.
+
+  </description>
+  <author>Kevin LeBlanc</author>
+  <license>BSD</license>
+  <url></url>
+
+  <!-- External dependencies -->
+  <rosdep name="boost" />
+
+  <!-- Export -->
+  <export>
+    <cpp
+      cflags="-I${prefix}/include"
+      lflags="-L${prefix}/lib -Wl,-rpath,${prefix}/lib -lteleop_source -lteleop_common"
+    />
+  </export>
+
+</package>

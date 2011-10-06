@@ -1,0 +1,20 @@
+<package>
+
+  <!-- Package summary -->
+  <description brief="Tele-operation nodes and utilities for ROS.">
+
+    This package provides ROS nodes and utilities related to tele-operation.
+
+  </description>
+  <author>Kevin LeBlanc</author>
+  <license>BSD</license>
+  <url></url>
+
+  <!-- Package dependencies -->
+  <depend package="teleop_framework" />
+  <depend package="teleop_source_keyboard" />
+  <depend package="teleop_source_joystick" />
+  <depend package="teleop_msgs" />
+  <depend package="roscpp" />
+
+</package>

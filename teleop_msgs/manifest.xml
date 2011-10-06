@@ -1,0 +1,13 @@
+<package>
+
+  <!-- Package summary -->
+  <description brief="Tele-operation messages.">
+
+    This package provides tele-operation message types.
+
+  </description>
+  <author>Kevin LeBlanc</author>
+  <license>BSD</license>
+  <url></url>
+
+</package>

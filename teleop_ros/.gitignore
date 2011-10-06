@@ -1,0 +1,7 @@
+bin
+build
+lib
+.cproject
+.project
+.pydevproject
+cmake_install.cmake

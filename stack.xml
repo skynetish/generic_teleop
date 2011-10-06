@@ -1,0 +1,22 @@
+<stack>
+
+  <!-- Stack summary -->
+  <description brief="Tele-operation framework.">
+
+    This stack contains packages which define and use various tele-operation
+    source and sink devices.
+
+  </description>
+  <author>Kevin LeBlanc</author>
+  <license>BSD</license>
+
+  <!-- roslib, rosbuild, etc. -->
+  <depend stack="ros"/>
+
+  <!-- geometry_msgs, nav_msgs, etc. -->
+  <depend stack="common_msgs"/>
+
+  <!-- roscpp, rospy, etc. -->
+  <depend stack="ros_comm" />
+
+</stack>
