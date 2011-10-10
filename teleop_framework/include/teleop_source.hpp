@@ -66,18 +66,6 @@ typedef enum {
 } ListenResult;
 
 /**
- * Callback to report an updated teleop state.  This is called from the teleop
- * source listening thread.
- *
- *   @param teleopState [in] - the latest teleop state
- *   @param stopping [in] - true if thread is stopping
- *   @param error [in] - true if there were errors
- */
-typedef void (*TeleopSourceCallback)(const TeleopState* const teleopState,
-                                     bool stopping,
-                                     bool error);
-
-/**
  * This class provides a framework for generic handling of tele-operation
  * sources.  The start() and stop() methods start and stop a listening loop
  * which runs in a separate thread.  This loop listens for teleop device events
@@ -94,12 +82,31 @@ typedef void (*TeleopSourceCallback)(const TeleopState* const teleopState,
  * situations.
  *
  * Note that messages and errors are simply printed on stdout and stderr, which
- * means that output may be garbled if multiple threads within the same process
+ * means that output may be garbled if other threads within the same process
  * are printing at the same time.
  */
 class TeleopSource : boost::noncopyable {
 
 public:
+
+  /**
+   * Callback class used to report an updated teleop state.
+   */
+  class TeleopSourceCallback {
+
+  public:
+
+    /**
+     * Callback used to report an updated teleop state.  This is called from the
+     * teleop source listening thread.
+     *
+     *   @param teleopState [in] - the latest teleop state
+     *   @param stopping [in] - true if thread is stopping
+     *   @param error [in] - true if there were errors
+     */
+    virtual void callback(const TeleopState* const teleopState, bool stopping, bool error) = 0;
+
+  }; //class
 
   /**@{ Listen timeout in seconds - check for interruption this often */
   static const int LISTEN_TIMEOUT_DEFAULT = 1;
@@ -118,7 +125,7 @@ public:
    *
    *   @param callback [in] - callback to use to report status
    */
-  TeleopSource(TeleopSourceCallback callback);
+  TeleopSource(TeleopSourceCallback* callback);
 
   /**
    * Destructor.
@@ -221,7 +228,7 @@ public:
 private:
 
   /** Callback */
-  TeleopSourceCallback mCallback;
+  TeleopSourceCallback* mCallback;
 
   /** Listen timeout in seconds - check for interruption this often */
   int mListenTimeout;

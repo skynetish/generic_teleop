@@ -50,12 +50,12 @@
 //Defines
 //=============================================================================
 
-//Ensure we're using the right joystick driver
+//Ensure we're using a valid joystick driver
 #ifndef JS_VERSION
 #error "JS_VERSION undefined"
 #else
 #if (JS_VERSION < 0x010000)
-#error "JS_VERSION < 0x010000"
+#error "JS_VERSION too low"
 #endif
 #endif
 
@@ -71,12 +71,20 @@ namespace teleop {
 
 
 //=============================================================================
+//Static member definitions for non-integral types
+//=============================================================================
+std::string TeleopSourceJoystick::DEFAULT_DEVICE = std::string("/dev/input/js0");
+
+
+
+
+//=============================================================================
 //Method definitions
 //=============================================================================
-TeleopSourceJoystick::TeleopSourceJoystick(TeleopSourceCallback callback,
+TeleopSourceJoystick::TeleopSourceJoystick(TeleopSourceCallback* callback,
                                            std::string device)
-  : TeleopSource(callback), mDevice(device), mFileDescriptor(-1),
-    mNumAxes(0), mNumButtons(0) {
+  : TeleopSource(callback), mDevice(device), mJoystickName(std::string("none")),
+    mFileDescriptor(-1), mNumAxes(0), mNumButtons(0) {
   //Initialise array members
   for (int i = 0; i < ABS_CNT; i++) {
     mAxisMap[i] = ABS_MISC;
@@ -112,13 +120,16 @@ bool TeleopSourceJoystick::prepareToListen() {
     return false;
   }
 
-  //Print welcome message
+  //Get joystick name
   char name[128];
   if (ioctl(mFileDescriptor, JSIOCGNAME(sizeof(name)), name) < 0) {
-    strncpy(name, "Unknown", sizeof(name));
+    strncpy(name, "unknown", sizeof(name));
   }
+  mJoystickName = std::string(name);
+
+  //Print welcome message
   fprintf(stdout, "Device file:       %s\n", mDevice.c_str());
-  fprintf(stdout, "Joystick type:     %s\n", name);
+  fprintf(stdout, "Joystick name:     %s\n", mJoystickName.c_str());
   fprintf(stdout, "Num axes:          %u\n", mNumAxes);
   for (int i = 0; i < mNumAxes; i++) {
     fprintf(stdout, "  axis[%2d]   = 0x%04x -> %04d -> %s\n",
@@ -224,6 +235,8 @@ bool TeleopSourceJoystick::doneListening() {
   if ((-1 != mFileDescriptor) && (0 != close(mFileDescriptor))) {
     fprintf(stderr, "TeleopSourceJoystick::doneListening: error closing joystick device\n");
     return false;
+  } else {
+    mFileDescriptor = -1;
   }
 
   //Return success
@@ -295,10 +308,6 @@ ListenResult TeleopSourceJoystick::handleEvent(const js_event* const event, Tele
   return LISTEN_RESULT_UNCHANGED;
 }
 //=============================================================================
-std::string TeleopSourceJoystick::getDefaultDevice() {
-  return std::string("/dev/input/js0");
-}
-//=============================================================================
 TeleopAxisValue TeleopSourceJoystick::axisDriverValueToTeleopValue(__s16 axisValue) {
   return (TeleopAxisValue)(axisValue)/32767.0;
 }
@@ -359,6 +368,10 @@ TeleopButtonType TeleopSourceJoystick::buttonDriverTypeToTeleopType(__u16 button
     case BTN_TRIGGER:   return TELEOP_BUTTON_TYPE_TRIGGER;
   }
   return TELEOP_BUTTON_TYPE_UNKNOWN;
+}
+//=============================================================================
+std::string TeleopSourceJoystick::getJoystickName() {
+  return mJoystickName;
 }
 //=============================================================================
 

@@ -93,7 +93,7 @@ public:
    *
    *   @param callback [in] - callback to use to report status
    */
-  TeleopSourceKeyboard(TeleopSourceCallback callback);
+  TeleopSourceKeyboard(TeleopSourceCallback* callback);
 
   /**
    * Set the number of steps required to reach the maximum value for all axes.

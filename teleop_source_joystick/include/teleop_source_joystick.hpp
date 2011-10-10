@@ -66,25 +66,31 @@ class TeleopSourceJoystick : public TeleopSource {
 
 public:
 
+  /** Default device */
+  static std::string DEFAULT_DEVICE;
+
   /**
-   * Constructor
+   * Constructor.
    *
    *   @param callback [in] - callback to use to report status
    *   @param device [in] - device file
    */
-  TeleopSourceJoystick(TeleopSourceCallback callback, std::string device = getDefaultDevice());
+  TeleopSourceJoystick(TeleopSourceCallback* callback, std::string device = DEFAULT_DEVICE);
 
   /**
-   * Get default device
+   * Get joystick name.
    *
-   *   @return default device
+   *   @return joystick name
    */
-  static std::string getDefaultDevice();
+  std::string getJoystickName();
 
 private:
 
   /** Device */
   std::string mDevice;
+
+  /** Joystick name */
+  std::string mJoystickName;
 
   /** File descriptor*/
   int mFileDescriptor;

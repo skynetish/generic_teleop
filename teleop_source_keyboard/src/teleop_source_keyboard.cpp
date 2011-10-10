@@ -54,7 +54,7 @@ namespace teleop {
 //=============================================================================
 //Method definitions
 //=============================================================================
-TeleopSourceKeyboard::TeleopSourceKeyboard(TeleopSourceCallback callback)
+TeleopSourceKeyboard::TeleopSourceKeyboard(TeleopSourceCallback* callback)
   : TeleopSource(callback) {
   //Set step size using setter in order to update both steps and step size
   setSteps(STEPS_DEFAULT);

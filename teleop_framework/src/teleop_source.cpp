@@ -50,7 +50,7 @@ namespace teleop {
 //=============================================================================
 //Method definitions
 //=============================================================================
-TeleopSource::TeleopSource(TeleopSourceCallback callback)
+TeleopSource::TeleopSource(TeleopSourceCallback* callback)
   : mCallback(callback), mListenTimeout(LISTEN_TIMEOUT_DEFAULT) {
   //Initialise array members
   for (int i = 0; i < TELEOP_AXIS_TYPE_COUNT; i++) {
@@ -168,7 +168,7 @@ void TeleopSource::listenLoop() {
         axisDeadZoneLock.unlock();
 
         //Call callback
-        mCallback(&teleopState, false, false);
+        mCallback->callback(&teleopState, false, false);
         break;
       }
       default:
@@ -188,7 +188,7 @@ void TeleopSource::listenLoop() {
   }
 
   //On termination call the callback one more time with the latest status
-  mCallback(&teleopState, true, error);
+  mCallback->callback(&teleopState, true, error);
 }
 //=============================================================================
 bool TeleopSource::setListenTimeout(int listenTimeout) {
