@@ -58,9 +58,12 @@
 /**@{ Parameter default values */
 #define PARAM_DEFAULT_TOPIC             "teleop"
 #define PARAM_DEFAULT_TYPE              "keyboard"
-#define PARAM_DEFAULT_JOYSTICK_DEVICE   ((std::string)teleop::TeleopSourceJoystick::DEFAULT_DEVICE)
-#define PARAM_DEFAULT_KEYBOARD_STEPS    ((int)teleop::TeleopSourceKeyboard::STEPS_DEFAULT)
-#define PARAM_DEFAULT_AXIS_DEAD_ZONE    ((teleop::TeleopAxisValue)teleop::TeleopSource::AXIS_DEAD_ZONE_DEFAULT)
+#define PARAM_DEFAULT_JOYSTICK_DEVICE \
+    ((std::string)teleop::TeleopSourceJoystick::DEFAULT_DEVICE)
+#define PARAM_DEFAULT_KEYBOARD_STEPS \
+    ((int)teleop::TeleopSourceKeyboard::STEPS_DEFAULT)
+#define PARAM_DEFAULT_AXIS_DEAD_ZONE \
+    ((teleop::TeleopAxisValue)teleop::TeleopSource::AXIS_DEAD_ZONE_DEFAULT)
 /**@}*/
 
 
@@ -194,14 +197,14 @@ void signalHandler(int signalNumber) {
     return;
   }
 
-  //Stop and free the teleop source
+  //Stop and free teleop source (NULL check ensures this is only done once)
   if (NULL != gTeleopSource) {
     gTeleopSource->stop();
     delete gTeleopSource;
     gTeleopSource = NULL;
   }
 
-  //Shutdown ROS to end spinning (OK if this gets called more than once)
+  //Shutdown ROS to end spinning (OK if this is done more than once)
   ros::shutdown();
 }
 //=============================================================================

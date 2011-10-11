@@ -71,7 +71,7 @@ bool TeleopSource::start() {
     return false;
   }
 
-  //Lock access to thread state to avoid creating multiple listening threads
+  //Lock access to thread state
   boost::lock_guard<boost::recursive_mutex> threadLock(mThreadMutex);
 
   //Check if running
@@ -91,12 +91,15 @@ bool TeleopSource::start() {
 }
 //=============================================================================
 bool TeleopSource::stop() {
+  //Lock access to thread state
+  boost::lock_guard<boost::recursive_mutex> threadLock(mThreadMutex);
+
   //Check if running
   if (!isRunning()) {
     return true;
   }
 
-  //Interrupt (no need to use mutex, multiple interrupts are fine)
+  //Interrupt
   mThread.interrupt();
 
   //Wait for thread to finish
@@ -113,7 +116,7 @@ bool TeleopSource::stop() {
 }
 //=============================================================================
 bool TeleopSource::isRunning() {
-  //Lock access to thread state to avoid creating multiple listening threads
+  //Lock access to thread state
   boost::lock_guard<boost::recursive_mutex> threadLock(mThreadMutex);
 
   //Check if thread has same ID as default thread (which is "Not-A-Thread")
@@ -121,9 +124,9 @@ bool TeleopSource::isRunning() {
 }
 //=============================================================================
 void TeleopSource::listenLoop() {
-  TeleopState teleopState;  //latest teleop state
-  int listenResult;         //listen result
-  bool error = false;       //recall errors
+  TeleopState teleopState;    //latest teleop state
+  ListenResult listenResult;  //listen result
+  bool error = false;         //true on error
 
   //Loop until interrupted or error occurs
   while (!error && !boost::this_thread::interruption_requested()) {
@@ -173,7 +176,8 @@ void TeleopSource::listenLoop() {
       }
       default:
         //Invalid result
-        fprintf(stderr, "TeleopSource::listenLoop: invalid result from listen() (%d)\n", listenResult);
+        fprintf(stderr, "TeleopSource::listenLoop: invalid result from listen() (%d)\n",
+                listenResult);
         error = true;
         break;
     }
@@ -193,7 +197,8 @@ void TeleopSource::listenLoop() {
 //=============================================================================
 bool TeleopSource::setListenTimeout(int listenTimeout) {
   if (LISTEN_TIMEOUT_MIN > listenTimeout || LISTEN_TIMEOUT_MAX < listenTimeout) {
-    fprintf(stderr, "TeleopSource::setListenTimeout: invalid listen timeout (%d)\n", listenTimeout);
+    fprintf(stderr, "TeleopSource::setListenTimeout: invalid listen timeout (%d)\n",
+            listenTimeout);
     return false;
   }
 
@@ -211,7 +216,8 @@ int TeleopSource::getListenTimeout() {
 //=============================================================================
 bool TeleopSource::setAxisDeadZoneForAllAxes(TeleopAxisValue axisDeadZone) {
   if (AXIS_DEAD_ZONE_MIN > axisDeadZone || AXIS_DEAD_ZONE_MAX < axisDeadZone) {
-    fprintf(stderr, "TeleopSource::setAxisDeadZoneForAllAxes: invalid axis dead zone (%f)\n", axisDeadZone);
+    fprintf(stderr, "TeleopSource::setAxisDeadZoneForAllAxes: invalid axis dead zone (%f)\n",
+            axisDeadZone);
     return false;
   }
 

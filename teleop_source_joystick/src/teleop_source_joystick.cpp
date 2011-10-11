@@ -123,7 +123,8 @@ bool TeleopSourceJoystick::prepareToListen() {
   //Get joystick name
   char name[128];
   if (ioctl(mFileDescriptor, JSIOCGNAME(sizeof(name)), name) < 0) {
-    strncpy(name, "unknown", sizeof(name));
+    fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error reading name\n");
+    return false;
   }
   mJoystickName = std::string(name);
 
@@ -151,7 +152,8 @@ bool TeleopSourceJoystick::prepareToListen() {
   return true;
 }
 //=============================================================================
-ListenResult TeleopSourceJoystick::listen(int timeoutSeconds, TeleopState* const teleopState) {
+TeleopSource::ListenResult TeleopSourceJoystick::listen(int timeoutSeconds,
+                                                        TeleopState* const teleopState) {
   //Sanity check
   if (NULL == teleopState) {
     fprintf(stderr, "TeleopSourceJoystick::listen: NULL teleop state\n");
@@ -243,7 +245,8 @@ bool TeleopSourceJoystick::doneListening() {
   return true;
 }
 //=============================================================================
-ListenResult TeleopSourceJoystick::handleEvent(const js_event* const event, TeleopState* const teleopState) {
+TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* const event,
+                                                             TeleopState* const teleopState) {
   //Handle known events
   switch(event->type)
   {

@@ -79,7 +79,8 @@ bool TeleopSourceKeyboard::prepareToListen() {
   return true;
 }
 //=============================================================================
-ListenResult TeleopSourceKeyboard::listen(int timeoutSeconds, TeleopState* const teleopState) {
+TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutSeconds,
+                                                        TeleopState* const teleopState) {
   //Sanity check
   if (NULL == teleopState) {
     fprintf(stderr, "TeleopSourceKeyboard::listen: NULL teleop state\n");
@@ -138,7 +139,8 @@ bool TeleopSourceKeyboard::doneListening() {
   return true;
 }
 //=============================================================================
-ListenResult TeleopSourceKeyboard::handleEvent(char c, TeleopState* const teleopState) {
+TeleopSource::ListenResult TeleopSourceKeyboard::handleEvent(char c,
+                                                             TeleopState* const teleopState) {
   //Lock access to steps and step size
   boost::lock_guard<boost::mutex> stepsLock(mStepsMutex);
 

@@ -58,13 +58,6 @@ namespace teleop {
 //Types
 //=============================================================================
 
-/** Return values for listen method */
-typedef enum {
-  LISTEN_RESULT_ERROR,
-  LISTEN_RESULT_UNCHANGED,
-  LISTEN_RESULT_CHANGED
-} ListenResult;
-
 /**
  * This class provides a framework for generic handling of tele-operation
  * sources.  The start() and stop() methods start and stop a listening loop
@@ -81,24 +74,24 @@ typedef enum {
  * especially since copying a teleop source is probably not very useful in most
  * situations.
  *
- * Note that messages and errors are simply printed on stdout and stderr, which
- * means that output may be garbled if other threads within the same process
- * are printing at the same time.
+ * Note that messages and errors are simply printed on stdout and stderr,
+ * respectively, which means that output may be garbled if other threads within
+ * the same process are printing at the same time.
  */
 class TeleopSource : boost::noncopyable {
 
 public:
 
-  /**
-   * Callback class used to report an updated teleop state.
-   */
+  /** Callback class used to report an updated teleop state. */
   class TeleopSourceCallback {
 
   public:
 
     /**
-     * Callback used to report an updated teleop state.  This is called from the
-     * teleop source listening thread.
+     * Callback used to report an updated teleop state.  This is called from
+     * the teleop source listening thread.  If stopping is true, the listening
+     * thread is about to end.  However, even if stopping is true, the user
+     * should still normally call stop() to ensure that cleanup is performed.
      *
      *   @param teleopState [in] - the latest teleop state
      *   @param stopping [in] - true if thread is stopping
@@ -107,6 +100,13 @@ public:
     virtual void callback(const TeleopState* const teleopState, bool stopping, bool error) = 0;
 
   }; //class
+
+  /** Return values for listen method */
+  typedef enum {
+    LISTEN_RESULT_ERROR,
+    LISTEN_RESULT_UNCHANGED,
+    LISTEN_RESULT_CHANGED
+  } ListenResult;
 
   /**@{ Listen timeout in seconds - check for interruption this often */
   static const int LISTEN_TIMEOUT_DEFAULT = 1;
@@ -242,7 +242,7 @@ private:
   /** Listening thread */
   boost::thread mThread;
 
-  /** Mutex to avoid creating multiple listening threads */
+  /** Mutex for protecting listening thread */
   boost::recursive_mutex mThreadMutex;
 
   /** Mutex for protecting listen timeout */
