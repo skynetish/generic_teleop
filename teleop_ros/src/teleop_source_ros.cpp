@@ -50,6 +50,7 @@
 /**@{ Parameter keys */
 #define PARAM_KEY_TOPIC                 "topic"
 #define PARAM_KEY_TYPE                  "type"
+#define PARAM_KEY_LISTEN_TIMEOUT        "listen_timeout"
 #define PARAM_KEY_JOYSTICK_DEVICE       "joystick_device"
 #define PARAM_KEY_KEYBOARD_STEPS        "keyboard_steps"
 #define PARAM_KEY_AXIS_DEAD_ZONE        "axis_dead_zone"
@@ -58,6 +59,8 @@
 /**@{ Parameter default values */
 #define PARAM_DEFAULT_TOPIC             "teleop"
 #define PARAM_DEFAULT_TYPE              "keyboard"
+#define PARAM_DEFAULT_LISTEN_TIMEOUT \
+    ((int)teleop::TeleopSource::LISTEN_TIMEOUT_DEFAULT)
 #define PARAM_DEFAULT_JOYSTICK_DEVICE \
     ((std::string)teleop::TeleopSourceJoystick::DEFAULT_DEVICE)
 #define PARAM_DEFAULT_KEYBOARD_STEPS \
@@ -171,6 +174,7 @@ void signalHandler(int signalNumber);
  *
  *   @param teleopSourceCallback - callback to use
  *   @param type - string containing teleop type
+ *   @param listenTimeout - listen timeout value used by teleop source
  *   @param axisDeadZone - default dead zone
  *   @param keyboardSteps - if this is a keyboard, use this many steps
  *   @param joystickDevice - if this is a joystick, use this device
@@ -179,6 +183,7 @@ void signalHandler(int signalNumber);
  */
 teleop::TeleopSource* teleopSourceFactory(teleop::TeleopSource::TeleopSourceCallback* callback,
                                           std::string type,
+                                          int listenTimeout,
                                           double axisDeadZone,
                                           int keyboardSteps,
                                           std::string joystickDevice);
@@ -210,6 +215,7 @@ void signalHandler(int signalNumber) {
 //=============================================================================
 teleop::TeleopSource* teleopSourceFactory(teleop::TeleopSource::TeleopSourceCallback* callback,
                                           std::string type,
+                                          int listenTimeout,
                                           double axisDeadZone,
                                           int keyboardSteps,
                                           std::string joystickDevice) {
@@ -229,6 +235,7 @@ teleop::TeleopSource* teleopSourceFactory(teleop::TeleopSource::TeleopSourceCall
     ROS_ERROR("Unknown teleop source type\n");
     return NULL;
   }
+  teleopSource->setListenTimeout(listenTimeout);
   teleopSource->setAxisDeadZoneForAllAxes(axisDeadZone);
   return teleopSource;
 }
@@ -255,6 +262,7 @@ int main(int argc, char** argv)
   //Declare parameters
   std::string topic;
   std::string type;
+  int listenTimeout;
   std::string joystickDevice;
   int keyboardSteps;
   double axisDeadZone;
@@ -262,6 +270,7 @@ int main(int argc, char** argv)
   //Read parameters and set default values
   nodeHandle.param(PARAM_KEY_TOPIC,           topic,          std::string(PARAM_DEFAULT_TOPIC));
   nodeHandle.param(PARAM_KEY_TYPE,            type,           std::string(PARAM_DEFAULT_TYPE));
+  nodeHandle.param(PARAM_KEY_LISTEN_TIMEOUT,  listenTimeout,  PARAM_DEFAULT_LISTEN_TIMEOUT);
   nodeHandle.param(PARAM_KEY_JOYSTICK_DEVICE, joystickDevice, PARAM_DEFAULT_JOYSTICK_DEVICE);
   nodeHandle.param(PARAM_KEY_KEYBOARD_STEPS,  keyboardSteps,  PARAM_DEFAULT_KEYBOARD_STEPS);
   nodeHandle.param(PARAM_KEY_AXIS_DEAD_ZONE,  axisDeadZone,   PARAM_DEFAULT_AXIS_DEAD_ZONE);
@@ -269,6 +278,7 @@ int main(int argc, char** argv)
   //Advertise parameters for introspection
   nodeHandle.setParam(PARAM_KEY_TOPIC,           topic);
   nodeHandle.setParam(PARAM_KEY_TYPE,            type);
+  nodeHandle.setParam(PARAM_KEY_LISTEN_TIMEOUT,  listenTimeout);
   nodeHandle.setParam(PARAM_KEY_JOYSTICK_DEVICE, joystickDevice);
   nodeHandle.setParam(PARAM_KEY_KEYBOARD_STEPS,  keyboardSteps);
   nodeHandle.setParam(PARAM_KEY_AXIS_DEAD_ZONE,  axisDeadZone);
@@ -281,8 +291,12 @@ int main(int argc, char** argv)
   TeleopSourceCallbackROS callback(&publisher);
 
   //Create teleop source and point to it with the global gTeleopSource
-  gTeleopSource =
-      teleopSourceFactory(&callback, type, axisDeadZone, keyboardSteps, joystickDevice);
+  gTeleopSource = teleopSourceFactory(&callback,
+                                      type,
+                                      listenTimeout,
+                                      axisDeadZone,
+                                      keyboardSteps,
+                                      joystickDevice);
   if (NULL == gTeleopSource) {
     ROS_ERROR("NULL teleop source\n");
     return 1;
