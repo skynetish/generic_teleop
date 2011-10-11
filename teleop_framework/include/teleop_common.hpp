@@ -140,15 +140,15 @@ typedef struct {
 //=============================================================================
 
 /**@{ Axis range (0=off) */
-const TeleopAxisValue TELEOP_AXIS_MIN = -1.0;
-const TeleopAxisValue TELEOP_AXIS_MAX = 1.0;
+static const TeleopAxisValue TELEOP_AXIS_MIN = -1.0;
+static const TeleopAxisValue TELEOP_AXIS_MAX = 1.0;
 /**@}*/
 
 /** Number of axis types */
-const int TELEOP_AXIS_TYPE_COUNT = (TELEOP_AXIS_TYPE_LAST - TELEOP_AXIS_TYPE_FIRST + 1);
+static const int TELEOP_AXIS_TYPE_COUNT = (TELEOP_AXIS_TYPE_LAST - TELEOP_AXIS_TYPE_FIRST + 1);
 
 /** Number of button types */
-const int TELEOP_BUTTON_TYPE_COUNT = (TELEOP_BUTTON_TYPE_LAST - TELEOP_BUTTON_TYPE_FIRST + 1);
+static const int TELEOP_BUTTON_TYPE_COUNT = (TELEOP_BUTTON_TYPE_LAST - TELEOP_BUTTON_TYPE_FIRST + 1);
 
 
 
@@ -164,7 +164,7 @@ const int TELEOP_BUTTON_TYPE_COUNT = (TELEOP_BUTTON_TYPE_LAST - TELEOP_BUTTON_TY
  *
  *   @return axis type name
  */
-std::string teleopAxisName(TeleopAxisType axisType);
+extern std::string teleopAxisName(TeleopAxisType axisType);
 
 /**
  * Function to determine button type name.
@@ -173,7 +173,7 @@ std::string teleopAxisName(TeleopAxisType axisType);
  *
  *   @return button type name
  */
-std::string teleopButtonName(TeleopButtonType buttonType);
+extern std::string teleopButtonName(TeleopButtonType buttonType);
 
 
 
