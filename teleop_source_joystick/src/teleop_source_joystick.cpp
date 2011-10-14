@@ -73,7 +73,7 @@ namespace teleop {
 //=============================================================================
 //Static member definitions for non-integral types
 //=============================================================================
-std::string TeleopSourceJoystick::DEFAULT_DEVICE = std::string("/dev/input/js0");
+const std::string TeleopSourceJoystick::DEFAULT_DEVICE = std::string("/dev/input/js0");
 
 
 
@@ -95,6 +95,14 @@ TeleopSourceJoystick::TeleopSourceJoystick(TeleopSourceCallback* callback,
 }
 //=============================================================================
 bool TeleopSourceJoystick::prepareToListen() {
+  //Close device if it was open
+  if ((-1 != mFileDescriptor) && (0 != close(mFileDescriptor))) {
+    fprintf(stderr, "TeleopSourceJoystick::doneListening: error closing device\n");
+    return false;
+  } else {
+    mFileDescriptor = -1;
+  }
+
   //Open device in non-blocking mode
   mFileDescriptor = open(mDevice.c_str(), O_RDONLY | O_NONBLOCK);
   if (-1 == mFileDescriptor) {
@@ -103,26 +111,26 @@ bool TeleopSourceJoystick::prepareToListen() {
   }
 
   //Get number of axes and buttons and corresponding maps
-  if (-1 == ioctl(mFileDescriptor, JSIOCGAXES, &mNumAxes)) {
+  if (0 > ioctl(mFileDescriptor, JSIOCGAXES, &mNumAxes)) {
     fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error reading number of axes\n");
     return false;
   }
-  if (-1 == ioctl(mFileDescriptor, JSIOCGAXMAP, mAxisMap)) {
+  if (0 > ioctl(mFileDescriptor, JSIOCGAXMAP, mAxisMap)) {
     fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error reading axis map\n");
     return false;
   }
-  if (-1 == ioctl(mFileDescriptor, JSIOCGBUTTONS, &mNumButtons)) {
+  if (0 > ioctl(mFileDescriptor, JSIOCGBUTTONS, &mNumButtons)) {
     fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error reading number of buttons\n");
     return false;
   }
-  if (-1 == ioctl(mFileDescriptor, JSIOCGBTNMAP, mButtonMap)) {
+  if (0 > ioctl(mFileDescriptor, JSIOCGBTNMAP, mButtonMap)) {
     fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error reading button map\n");
     return false;
   }
 
   //Get joystick name
   char name[128];
-  if (ioctl(mFileDescriptor, JSIOCGNAME(sizeof(name)), name) < 0) {
+  if (0 > ioctl(mFileDescriptor, JSIOCGNAME(sizeof(name)), name)) {
     fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error reading name\n");
     return false;
   }
@@ -221,21 +229,24 @@ TeleopSource::ListenResult TeleopSourceJoystick::listen(int timeoutSeconds,
           stateChanged = true;
           break;
         case LISTEN_RESULT_ERROR:
+          fprintf(stderr, "TeleopSourceJoystick::listen: error in handleEvent()\n");
+          return LISTEN_RESULT_ERROR;
         default:
+          fprintf(stderr, "TeleopSourceJoystick::listen: invalid result from handleEvent()\n");
           return LISTEN_RESULT_ERROR;
       }
     } else {
       //Error
-      fprintf(stderr, "TeleopSourceJoystick::listen: invalid number of bytes during read()\n");
+      fprintf(stderr, "TeleopSourceJoystick::listen: error in read()\n");
       return LISTEN_RESULT_ERROR;
     }
   }
 }
 //=============================================================================
 bool TeleopSourceJoystick::doneListening() {
-  //Close joystick device if it was open
+  //Close device if it was open
   if ((-1 != mFileDescriptor) && (0 != close(mFileDescriptor))) {
-    fprintf(stderr, "TeleopSourceJoystick::doneListening: error closing joystick device\n");
+    fprintf(stderr, "TeleopSourceJoystick::doneListening: error closing device\n");
     return false;
   } else {
     mFileDescriptor = -1;
@@ -256,6 +267,7 @@ TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* con
     case JS_EVENT_AXIS:
       //Event number shouldn't be bigger than the vector
       if(event->number >= teleopState->axes.size()) {
+        fprintf(stderr, "TeleopSourceJoystick::handleEvent: invalid axis event number\n");
         return LISTEN_RESULT_ERROR;
       }
 
@@ -298,6 +310,7 @@ TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* con
     case JS_EVENT_BUTTON:
       //Event number shouldn't be bigger than the vector
       if(event->number >= teleopState->buttons.size()) {
+        fprintf(stderr, "TeleopSourceJoystick::handleEvent: invalid button event number\n");
         return LISTEN_RESULT_ERROR;
       }
 

@@ -277,12 +277,14 @@ private:
   boost::mutex mAxisInvertedMutex;
 
   /**
-   * Executes main listen loop (run in separate thread).
+   * Executes main listen loop (run in listening thread).
    */
   void listenLoop();
 
   /**
-   * Prepare to listen (open files, etc.).
+   * Prepare to listen (open files, etc.).  The framework guarantees that this
+   * will not be called multiple times unless stop() has called doneListening()
+   * in between.
    *
    *   @return true on success
    */
@@ -293,7 +295,8 @@ private:
    * reached.  When events occur, updates the teleop state.  The timeout could
    * also be inherited, but the interface is cleaner if sub-classes don't need
    * to worry about inherited members.  Since this method is called from the
-   * listening thread, it must be careful when using modifiable class members.
+   * listening thread, modifiable class members should be used carefully, and
+   * protected as needed.
    *
    *   @param timeoutSeconds [in] - timeout value in seconds
    *   @param teleop [in/out] - the current teleop output, to be updated
@@ -304,7 +307,10 @@ private:
   virtual ListenResult listen(int timeoutSeconds, TeleopState* const teleop) = 0;
 
   /**
-   * Done listening (close files, etc.).
+   * Done listening (close files, etc.).  The framework guarantees that this
+   * will not be called until start() has called prepareToListen(), and it will
+   * not be called multiple times unless start() has called prepareToListen() in
+   * between.
    *
    *   @return true on success
    */

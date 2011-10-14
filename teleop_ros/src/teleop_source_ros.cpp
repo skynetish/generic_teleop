@@ -86,7 +86,7 @@ public:
   /**
    * Constructor.
    */
-  TeleopSourceCallbackROS(ros::Publisher* publisher);
+  TeleopSourceCallbackROS(const ros::Publisher* const publisher);
 
   /**
    * Override virtual method from parent.
@@ -96,7 +96,7 @@ public:
 private:
 
   /** Publisher given to constructor and used in callback */
-  ros::Publisher* mPublisher;
+  const ros::Publisher* const mPublisher;
 
   /** Teleop message is a member to avoid re-creation for each callback call */
   teleop_msgs::State mTeleopStateMsg;
@@ -119,8 +119,10 @@ void signalHandler(int signalNumber);
 
 /**
  * Clean up and shutdown.
+ *
+ *   @param teleopSource - teleop source to shutdown
  */
-void quit();
+void quit(teleop::TeleopSource* teleopSource);
 
 /**
  * Utility function for creating appropriate teleop source
@@ -157,7 +159,7 @@ teleop::TeleopSource* gTeleopSource = NULL;
 //=============================================================================
 //Method definitions
 //=============================================================================
-TeleopSourceCallbackROS::TeleopSourceCallbackROS(ros::Publisher* publisher)
+TeleopSourceCallbackROS::TeleopSourceCallbackROS(const ros::Publisher* const publisher)
 : mPublisher(publisher) {
 }
 //=============================================================================
@@ -210,10 +212,10 @@ void TeleopSourceCallbackROS::callback(const teleop::TeleopState* const teleopSt
 //Function definitions
 //=============================================================================
 void signalHandler(int signalNumber) {
-  quit();
+  quit(gTeleopSource);
 }
 //=============================================================================
-void quit() {
+void quit(teleop::TeleopSource* teleopSource) {
   //Use a static mutex to ensure we only delete the teleop source once
   static boost::mutex signalMutex;
   boost::unique_lock<boost::mutex> signalMutexLock(signalMutex, boost::try_to_lock);
@@ -222,10 +224,10 @@ void quit() {
   }
 
   //Stop and free teleop source (NULL check ensures this is only done once)
-  if (NULL != gTeleopSource) {
-    gTeleopSource->stop();
-    delete gTeleopSource;
-    gTeleopSource = NULL;
+  if (NULL != teleopSource) {
+    teleopSource->stop();
+    delete teleopSource;
+    teleopSource = NULL;
   }
 
   //Shutdown ROS to end spinning (OK if this is done more than once)
@@ -326,12 +328,14 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  //While ROS is running
+  //While ROS is running, check to see if the teleop source has stopped
+  //executing.  This should only happen on fatal errors.  Otherwise we
+  //could just do a ros::spin().
   ros::Rate rate(10);
   while (ros::ok()) {
     //If listening thread is no longer executing quit
     if (!gTeleopSource->isExecuting()) {
-      quit();
+      quit(gTeleopSource);
     }
 
     //Sleep away the rest of this iteration

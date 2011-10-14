@@ -67,11 +67,11 @@ TeleopSource::~TeleopSource() {
 bool TeleopSource::start() {
   //Sanity check callback here (rather than throwing a constructor exception)
   if (NULL == mCallback) {
-    fprintf(stderr, "TeleopSource::start: invalid callback\n");
+    fprintf(stderr, "TeleopSource::start: NULL callback\n");
     return false;
   }
 
-  //Lock access to thread state and thread executing
+  //Lock access to thread state and thread executing flag
   boost::lock_guard<boost::recursive_mutex> threadLock(mThreadMutex);
   boost::lock_guard<boost::mutex> threadExecutingLock(mThreadExecutingMutex);
 
@@ -85,6 +85,8 @@ bool TeleopSource::start() {
 
     //Create thread which executes listen loop
     mThread = boost::thread(&TeleopSource::listenLoop, this);
+
+    //Indicate that thread is executing
     mThreadExecuting = true;
   }
 
@@ -95,7 +97,7 @@ bool TeleopSource::start() {
 bool TeleopSource::stop() {
   //Make sure this isn't called from the listening thread
   if (mThread.get_id() == boost::this_thread::get_id()) {
-    fprintf(stderr, "TeleopSource::stop: cannot be done from listening thread\n");
+    fprintf(stderr, "TeleopSource::stop: cannot be called from listening thread\n");
     return false;
   }
 
@@ -205,7 +207,7 @@ void TeleopSource::listenLoop() {
     teleopState.buttons[i].value = 0;
   }
 
-  //On termination call the callback one more time with the latest status
+  //On termination call callback with latest (zeroed) status
   mCallback->callback(&teleopState, true, error);
 
   //Lock access to thread executing

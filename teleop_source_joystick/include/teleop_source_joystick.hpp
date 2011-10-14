@@ -67,7 +67,7 @@ class TeleopSourceJoystick : public TeleopSource {
 public:
 
   /** Default device */
-  static std::string DEFAULT_DEVICE;
+  static const std::string DEFAULT_DEVICE;
 
   /**
    * Constructor.

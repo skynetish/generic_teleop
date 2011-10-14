@@ -2,3 +2,7 @@ bin
 build
 msg_gen
 src
+.cproject
+.project
+.pydevproject
+cmake_install.cmake
