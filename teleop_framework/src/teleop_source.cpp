@@ -51,7 +51,7 @@ namespace teleop {
 //Method definitions
 //=============================================================================
 TeleopSource::TeleopSource(TeleopSourceCallback* callback)
-  : mCallback(callback), mListenTimeout(LISTEN_TIMEOUT_DEFAULT) {
+  : mCallback(callback), mListenTimeout(LISTEN_TIMEOUT_DEFAULT), mThreadExecuting(false) {
   //Initialise array members
   for (int i = 0; i < TELEOP_AXIS_TYPE_COUNT; i++) {
     mAxisDeadZone[i] = AXIS_DEAD_ZONE_DEFAULT;
@@ -71,11 +71,12 @@ bool TeleopSource::start() {
     return false;
   }
 
-  //Lock access to thread state
+  //Lock access to thread state and thread executing
   boost::lock_guard<boost::recursive_mutex> threadLock(mThreadMutex);
+  boost::lock_guard<boost::mutex> threadExecutingLock(mThreadExecutingMutex);
 
-  //Check if running
-  if (!isRunning()) {
+  //Check if started
+  if (!isStarted()) {
     //Prepare to listen
     if (!prepareToListen()) {
       fprintf(stderr, "TeleopSource::start: error in prepareToListen()\n");
@@ -84,6 +85,7 @@ bool TeleopSource::start() {
 
     //Create thread which executes listen loop
     mThread = boost::thread(&TeleopSource::listenLoop, this);
+    mThreadExecuting = true;
   }
 
   //Return result
@@ -91,11 +93,17 @@ bool TeleopSource::start() {
 }
 //=============================================================================
 bool TeleopSource::stop() {
+  //Make sure this isn't called from the listening thread
+  if (mThread.get_id() == boost::this_thread::get_id()) {
+    fprintf(stderr, "TeleopSource::stop: cannot be done from listening thread\n");
+    return false;
+  }
+
   //Lock access to thread state
   boost::lock_guard<boost::recursive_mutex> threadLock(mThreadMutex);
 
-  //Check if running
-  if (!isRunning()) {
+  //Check if started
+  if (!isStarted()) {
     return true;
   }
 
@@ -115,12 +123,18 @@ bool TeleopSource::stop() {
   return true;
 }
 //=============================================================================
-bool TeleopSource::isRunning() {
+bool TeleopSource::isStarted() {
   //Lock access to thread state
   boost::lock_guard<boost::recursive_mutex> threadLock(mThreadMutex);
 
   //Check if thread has same ID as default thread (which is "Not-A-Thread")
   return (boost::thread::id() != mThread.get_id());
+}
+//=============================================================================
+bool TeleopSource::isExecuting() {
+  //Lock access to thread executing
+  boost::lock_guard<boost::mutex> threadExecutingLock(mThreadExecutingMutex);
+  return mThreadExecuting;
 }
 //=============================================================================
 void TeleopSource::listenLoop() {
@@ -193,6 +207,12 @@ void TeleopSource::listenLoop() {
 
   //On termination call the callback one more time with the latest status
   mCallback->callback(&teleopState, true, error);
+
+  //Lock access to thread executing
+  boost::lock_guard<boost::mutex> threadExecutingLock(mThreadExecutingMutex);
+
+  //Indicate that the thread is no longer executing
+  mThreadExecuting = false;
 }
 //=============================================================================
 bool TeleopSource::setListenTimeout(int listenTimeout) {

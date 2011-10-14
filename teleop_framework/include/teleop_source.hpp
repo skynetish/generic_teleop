@@ -89,9 +89,13 @@ public:
 
     /**
      * Callback used to report an updated teleop state.  This is called from
-     * the teleop source listening thread.  If stopping is true, the listening
-     * thread is about to end.  However, even if stopping is true, the user
-     * should still normally call stop() to ensure that cleanup is performed.
+     * the teleop source listening thread.  If "stopping" is true, the
+     * listening thread is stopping its execution.  If "error" is true, there
+     * has been an error.  For fatal errors, both "stopping" and "error" will
+     * be true.  Note that even if stopping is true, the user should still call
+     * the stop() method to ensure that cleanup is performed.  Also, note that
+     * stop cannot be called from the listening thread, which means that it
+     * cannot be called from within the callback method.
      *
      *   @param teleopState [in] - the latest teleop state
      *   @param stopping [in] - true if thread is stopping
@@ -140,18 +144,30 @@ public:
   bool start();
 
   /**
-   * Stop listening thread.
+   * Stop listening thread.  Cannot be called from the listening thread itself,
+   * which means it cannot be called from the callback.
    *
    *   @return true on success
    */
   bool stop();
 
   /**
-   * Check if listening thread is running.
+   * Check if listening thread has been started (and not stopped).  This will
+   * be false before the thread has been started, and after the stop() method
+   * has been called.
    *
    *   @return true if running.
    */
-  bool isRunning();
+  bool isStarted();
+
+  /**
+   * Check if listening thread is actually executing something.  This will be
+   * false before the thread has been started, and after the thread has stopped
+   * executing (due to a call to stop() or a fatal error).
+   *
+   *   @return true if executing.
+   */
+  bool isExecuting();
 
   /**
    * Set listen timeout which specifies how often to check for interruption.
@@ -242,8 +258,14 @@ private:
   /** Listening thread */
   boost::thread mThread;
 
-  /** Mutex for protecting listening thread */
+  /** Listening thread is executing */
+  bool mThreadExecuting;
+
+  /** Mutex for protecting listening thread state */
   boost::recursive_mutex mThreadMutex;
+
+  /** Mutex for protecting thread executing flag */
+  boost::mutex mThreadExecutingMutex;
 
   /** Mutex for protecting listen timeout */
   boost::mutex mListenTimeoutMutex;
