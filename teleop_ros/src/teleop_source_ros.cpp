@@ -39,6 +39,7 @@
 #include <ros/ros.h>
 #include <boost/thread.hpp>
 #include <csignal>
+#include <cstdio>
 
 
 
@@ -143,6 +144,11 @@ teleop::TeleopSource* teleopSourceFactory(teleop::TeleopSource::TeleopSourceCall
                                           int keyboardSteps,
                                           std::string joystickDevice);
 
+/**
+ * Print usage information.
+ */
+void printUsage(int argc, char** argv);
+
 
 
 
@@ -223,7 +229,7 @@ void quit(teleop::TeleopSource* teleopSource) {
     return;
   }
 
-  //Stop and free teleop source (NULL check ensures this is only done once)
+  //Free teleop source (mutex and NULL check ensure this only happens once)
   if (NULL != teleopSource) {
     teleopSource->stop();
     delete teleopSource;
@@ -261,6 +267,21 @@ teleop::TeleopSource* teleopSourceFactory(teleop::TeleopSource::TeleopSourceCall
   return teleopSource;
 }
 //=============================================================================
+void printUsage(int argc, char** argv) {
+  printf("\n");
+  printf("Usage:\n");
+  printf("    %s [params]\n", basename(argv[0]));
+  printf("\n");
+  printf("Parameters and their default values\n");
+  printf("    _%s:=%s\n",    PARAM_KEY_TYPE,            PARAM_DEFAULT_TYPE);
+  printf("    _%s:=%s\n",    PARAM_KEY_TOPIC,           PARAM_DEFAULT_TOPIC);
+  printf("    _%s:=%d\n",    PARAM_KEY_LISTEN_TIMEOUT,  PARAM_DEFAULT_LISTEN_TIMEOUT);
+  printf("    _%s:=%.02f\n", PARAM_KEY_AXIS_DEAD_ZONE,  PARAM_DEFAULT_AXIS_DEAD_ZONE);
+  printf("    _%s:=%d\n",    PARAM_KEY_KEYBOARD_STEPS,  PARAM_DEFAULT_KEYBOARD_STEPS);
+  printf("    _%s:=%s\n",    PARAM_KEY_JOYSTICK_DEVICE, (PARAM_DEFAULT_JOYSTICK_DEVICE).c_str());
+  printf("\n");
+}
+//=============================================================================
 
 
 
@@ -270,8 +291,17 @@ teleop::TeleopSource* teleopSourceFactory(teleop::TeleopSource::TeleopSourceCall
 //=============================================================================
 int main(int argc, char** argv)
 {
+  //Check for "-h" or "--help"
+  for (int i = 1; i < argc; i++) {
+    if ((0 == strncmp(argv[i], "-h", strlen("-h")))
+        || (0 == strncmp(argv[i], "--help", strlen("--help")))) {
+      printUsage(argc, argv);
+      return 0;
+    }
+  }
+
   //Initialise ROS (exceptions ignored intentionally)
-  ros::init(argc, argv, "teleop_source_ros", ros::init_options::NoSigintHandler);
+  ros::init(argc, argv, basename(argv[0]), ros::init_options::NoSigintHandler);
 
   //Set signal handler
   signal(SIGINT, signalHandler);
@@ -329,8 +359,10 @@ int main(int argc, char** argv)
   }
 
   //While ROS is running, check to see if the teleop source has stopped
-  //executing.  This should only happen on fatal errors.  Otherwise we
-  //could just do a ros::spin().
+  //executing.  This is only needed in order to detect fatal errors. Normally
+  //the loop will be stopped due to SIGINT (CTRL-C), which will trigger a call
+  //to quit().  If we didn't care about fatal errors we could just do a
+  //ros::spin() here instead.
   ros::Rate rate(10);
   while (ros::ok()) {
     //If listening thread is no longer executing quit

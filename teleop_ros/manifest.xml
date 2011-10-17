@@ -4,6 +4,8 @@
   <description brief="Tele-operation nodes and utilities for ROS.">
 
     This package provides ROS nodes and utilities related to tele-operation.
+    The teleop_source_ros node reads and publishes the state of a given
+    tele-operation device (e.g. a keyboard, a joystick, etc.).
 
   </description>
   <author>Kevin LeBlanc</author>
