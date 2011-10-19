@@ -60,14 +60,15 @@ TeleopSource::TeleopSource(TeleopSourceCallback* callback)
 }
 //=============================================================================
 TeleopSource::~TeleopSource() {
-  //Stop listening thread
-  stop();
+  //The stop() method should be called in sub-classes, since it calls the
+  //virtual method doneListening(), which we're not allowed to call.  There is
+  //no other cleanup to be performed here.
 }
 //=============================================================================
 bool TeleopSource::start() {
   //Sanity check callback here (rather than throwing a constructor exception)
   if (NULL == mCallback) {
-    fprintf(stderr, "TeleopSource::start: NULL callback\n");
+    std::fprintf(stderr, "TeleopSource::start: NULL callback\n");
     return false;
   }
 
@@ -79,12 +80,12 @@ bool TeleopSource::start() {
   if (!isStarted()) {
     //Prepare to listen
     if (!prepareToListen()) {
-      fprintf(stderr, "TeleopSource::start: error in prepareToListen()\n");
+      std::fprintf(stderr, "TeleopSource::start: error in prepareToListen()\n");
       return false;
     }
 
     //Create thread which executes listen loop
-    mThread = boost::thread(&TeleopSource::listenLoop, this);
+    mThread = boost::thread(&TeleopSource::listeningThread, this);
 
     //Indicate that thread is executing
     mThreadExecuting = true;
@@ -95,14 +96,14 @@ bool TeleopSource::start() {
 }
 //=============================================================================
 bool TeleopSource::stop() {
-  //Make sure this isn't called from the listening thread
-  if (mThread.get_id() == boost::this_thread::get_id()) {
-    fprintf(stderr, "TeleopSource::stop: cannot be called from listening thread\n");
-    return false;
-  }
-
   //Lock access to thread state
   boost::lock_guard<boost::recursive_mutex> threadLock(mThreadMutex);
+
+  //Make sure this isn't called from the listening thread
+  if (mThread.get_id() == boost::this_thread::get_id()) {
+    std::fprintf(stderr, "TeleopSource::stop: cannot be called from listening thread\n");
+    return false;
+  }
 
   //Check if started
   if (!isStarted()) {
@@ -117,7 +118,7 @@ bool TeleopSource::stop() {
 
   //Done listening
   if (!doneListening()) {
-    fprintf(stderr, "TeleopSource::stop: error in doneListening()\n");
+    std::fprintf(stderr, "TeleopSource::stop: error in doneListening()\n");
     return false;
   }
 
@@ -139,7 +140,7 @@ bool TeleopSource::isExecuting() {
   return mThreadExecuting;
 }
 //=============================================================================
-void TeleopSource::listenLoop() {
+void TeleopSource::listeningThread() {
   TeleopState teleopState;    //latest teleop state
   ListenResult listenResult;  //listen result
   bool error = false;         //true on error
@@ -160,7 +161,7 @@ void TeleopSource::listenLoop() {
     switch (listenResult) {
       case LISTEN_RESULT_ERROR:
         //Error
-        fprintf(stderr, "TeleopSource::listenLoop: error in listen()\n");
+        std::fprintf(stderr, "TeleopSource::listenLoop: error in listen()\n");
         error = true;
         break;
       case LISTEN_RESULT_UNCHANGED:
@@ -187,12 +188,12 @@ void TeleopSource::listenLoop() {
         axisDeadZoneLock.unlock();
 
         //Call callback
-        mCallback->callback(&teleopState, false, false);
+        mCallback->updated(&teleopState, false, false);
         break;
       }
       default:
         //Invalid result
-        fprintf(stderr, "TeleopSource::listenLoop: invalid result from listen() (%d)\n",
+        std::fprintf(stderr, "TeleopSource::listenLoop: invalid result from listen() (%d)\n",
                 listenResult);
         error = true;
         break;
@@ -207,19 +208,39 @@ void TeleopSource::listenLoop() {
     teleopState.buttons[i].value = 0;
   }
 
-  //On termination call callback with latest (zeroed) status
-  mCallback->callback(&teleopState, true, error);
+  //On termination call updated callback with latest (zeroed) status and
+  //the appropriate stopping and error flags.
+  mCallback->updated(&teleopState, true, error);
 
   //Lock access to thread executing
   boost::lock_guard<boost::mutex> threadExecutingLock(mThreadExecutingMutex);
 
   //Indicate that the thread is no longer executing
   mThreadExecuting = false;
+
+  //Lock access to thread stopped
+  boost::lock_guard<boost::mutex> threadStoppedLock(mThreadStoppedMutex);
+
+  //Call stopped callback from its own thread and detach it
+  boost::thread stoppedThread = boost::thread(&TeleopSource::stoppingThread, this, error);
+  stoppedThread.detach();
 }
 //=============================================================================
+void TeleopSource::stoppingThread(bool error) {
+  //Lock access to thread stopped just to ensure that the thread has had time
+  //to finish before we call the stopped callback.  We unlock the mutex
+  //immediately, since this object may be destroyed in the stopped callback,
+  //in which case we're not allowed to hold on to any mutexes.
+  boost::unique_lock<boost::mutex> threadStoppedLock(mThreadStoppedMutex);
+  threadStoppedLock.unlock();
+
+  //Call stopped callback
+  mCallback->stopped(error);
+}
+  //=============================================================================
 bool TeleopSource::setListenTimeout(int listenTimeout) {
   if (LISTEN_TIMEOUT_MIN > listenTimeout || LISTEN_TIMEOUT_MAX < listenTimeout) {
-    fprintf(stderr, "TeleopSource::setListenTimeout: invalid listen timeout (%d)\n",
+    std::fprintf(stderr, "TeleopSource::setListenTimeout: invalid listen timeout (%d)\n",
             listenTimeout);
     return false;
   }
@@ -238,7 +259,7 @@ int TeleopSource::getListenTimeout() {
 //=============================================================================
 bool TeleopSource::setAxisDeadZoneForAllAxes(TeleopAxisValue axisDeadZone) {
   if (AXIS_DEAD_ZONE_MIN > axisDeadZone || AXIS_DEAD_ZONE_MAX < axisDeadZone) {
-    fprintf(stderr, "TeleopSource::setAxisDeadZoneForAllAxes: invalid axis dead zone (%f)\n",
+    std::fprintf(stderr, "TeleopSource::setAxisDeadZoneForAllAxes: invalid axis dead zone (%f)\n",
             axisDeadZone);
     return false;
   }
@@ -253,7 +274,7 @@ bool TeleopSource::setAxisDeadZoneForAllAxes(TeleopAxisValue axisDeadZone) {
 //=============================================================================
 bool TeleopSource::setAxisDeadZone(TeleopAxisValue axisDeadZone, TeleopAxisType axisType) {
   if (AXIS_DEAD_ZONE_MIN > axisDeadZone || AXIS_DEAD_ZONE_MAX < axisDeadZone) {
-    fprintf(stderr, "TeleopSource::setAxisDeadZone: invalid axis dead zone (%f)\n", axisDeadZone);
+    std::fprintf(stderr, "TeleopSource::setAxisDeadZone: invalid axis dead zone (%f)\n", axisDeadZone);
     return false;
   }
 

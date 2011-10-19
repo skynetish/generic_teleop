@@ -62,7 +62,8 @@ namespace teleop {
  * This class provides a framework for generic handling of tele-operation
  * sources.  The start() and stop() methods start and stop a listening loop
  * which runs in a separate thread.  This loop listens for teleop device events
- * and reports them using the provided callback.
+ * and reports them using the update() callback.  Listen thread termination is
+ * signalled using the stopped() callback.
  *
  * Sub-classes for each teleop source type must implement the given pure
  * virtual methods to perform the actual listening, as well as related
@@ -82,26 +83,48 @@ class TeleopSource : boost::noncopyable {
 
 public:
 
-  /** Callback class used to report an updated teleop state. */
+  /**
+   * Callback class which reports teleop state updates and listening thread
+   * termination.  TeleopSource users should use a sub-class to handle events.
+   */
   class TeleopSourceCallback {
 
   public:
 
     /**
      * Callback used to report an updated teleop state.  This is called from
-     * the teleop source listening thread.  If "stopping" is true, the
+     * the teleop source listening thread.  As such, this method should return
+     * fairly quickly, to avoid losing teleop events.  An alternative could be
+     * to create a new thread for each call, but this could cause performance,
+     * buffering and synchronisation problems.  If "stopping" is true, the
      * listening thread is stopping its execution.  If "error" is true, there
      * has been an error.  For fatal errors, both "stopping" and "error" will
      * be true.  Note that even if stopping is true, the user should still call
      * the stop() method to ensure that cleanup is performed.  Also, note that
-     * stop cannot be called from the listening thread, which means that it
-     * cannot be called from within the callback method.
+     * stop() cannot be called from the listening thread, which means that it
+     * cannot be called from within this callback method.  It can, however, be
+     * called from the stopped() method.
      *
      *   @param teleopState [in] - the latest teleop state
-     *   @param stopping [in] - true if thread is stopping
+     *   @param stopping [in] - true if listening thread is stopping
      *   @param error [in] - true if there were errors
      */
-    virtual void callback(const TeleopState* const teleopState, bool stopping, bool error) = 0;
+    virtual void updated(const TeleopState* const teleopState, bool stopping, bool error) = 0;
+
+    /**
+     * Callback used to report that the teleop source has stopped (at some
+     * point in the past).  This is called from its own (detached) thread.  If
+     * "error" is true, the stoppage was due to an error.  Note that because
+     * this runs in its own thread, there is no guarantee that another thread
+     * hasn't started the teleop source again since it was stopped.  Also, this
+     * method can be used to start(), stop(), or even destroy the teleop
+     * source, since it runs in it's own detached thread.  In particular, this
+     * callback is a good place to call the stop() method, to ensure that
+     * cleanup is performed.
+     *
+     *   @param error [in] - true if there were errors
+     */
+    virtual void stopped(bool error) = 0;
 
   }; //class
 
@@ -112,10 +135,10 @@ public:
     LISTEN_RESULT_CHANGED
   } ListenResult;
 
-  /**@{ Listen timeout in seconds - check for interruption this often */
-  static const int LISTEN_TIMEOUT_DEFAULT = 1;
+  /**@{ Listen timeout in milliseconds - check for interruption this often */
+  static const int LISTEN_TIMEOUT_DEFAULT = 200;
   static const int LISTEN_TIMEOUT_MIN = 0;
-  static const int LISTEN_TIMEOUT_MAX = 3600;
+  static const int LISTEN_TIMEOUT_MAX = 60000;
   /**@}*/
 
   /**@{ Axis dead zone - values smaller than this are set to 0.0 */
@@ -132,7 +155,11 @@ public:
   TeleopSource(TeleopSourceCallback* callback);
 
   /**
-   * Destructor.
+   * Destructor.  Ideally we'd like to call stop() from the destructor.  But
+   * stop() calls doneListening(), which is a virtual method (and it should be,
+   * since the base class can't clean up for the sub-class).  Since C++ doesn't
+   * allow virtual methods to be called from the destructor, most sub-classes
+   * should (at least) call stop() from their destructors.
    */
   virtual ~TeleopSource();
 
@@ -172,7 +199,7 @@ public:
   /**
    * Set listen timeout which specifies how often to check for interruption.
    *
-   *   @param listenTimeout [in] - listen timeout in seconds
+   *   @param listenTimeout [in] - listen timeout in milliseconds
    *
    *   @return true on success
    */
@@ -181,7 +208,7 @@ public:
   /**
    * Get listen timeout.
    *
-   *   @return listen timeout
+   *   @return listen timeout in milliseconds
    */
   int getListenTimeout();
 
@@ -246,7 +273,7 @@ private:
   /** Callback */
   TeleopSourceCallback* mCallback;
 
-  /** Listen timeout in seconds - check for interruption this often */
+  /** Listen timeout in milliseconds - check for interruption this often */
   int mListenTimeout;
 
   /** Axis dead zones - values smaller than this are set to 0.0 */
@@ -276,10 +303,18 @@ private:
   /** Mutex for protecting axis inverted */
   boost::mutex mAxisInvertedMutex;
 
+  /** Mutex for ensuring that stopped is not called until execution stops */
+  boost::mutex mThreadStoppedMutex;
+
   /**
    * Executes main listen loop (run in listening thread).
    */
-  void listenLoop();
+  void listeningThread();
+
+  /**
+   * Calls stopped callback (run in own detached thread).
+   */
+  void stoppingThread(bool error);
 
   /**
    * Prepare to listen (open files, etc.).  The framework guarantees that this
@@ -298,13 +333,13 @@ private:
    * listening thread, modifiable class members should be used carefully, and
    * protected as needed.
    *
-   *   @param timeoutSeconds [in] - timeout value in seconds
+   *   @param timeoutMilliseconds [in] - timeout value in milliseconds
    *   @param teleop [in/out] - the current teleop output, to be updated
    *
    *   @return LISTEN_ERROR on error, LISTEN_STATE_UNCHANGED on timeout or no
    *           change to state, LISTEN_STATE_CHANGED if state updated
    */
-  virtual ListenResult listen(int timeoutSeconds, TeleopState* const teleop) = 0;
+  virtual ListenResult listen(int timeoutMilliseconds, TeleopState* const teleop) = 0;
 
   /**
    * Done listening (close files, etc.).  The framework guarantees that this

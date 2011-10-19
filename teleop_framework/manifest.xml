@@ -6,9 +6,9 @@
     This package provides header files and libraries which implement a
     framework for generic handling of tele-operation devices.  Different types
     of tele-operation sources can be implemented as sub-classes of the provided
-    TeleopSource class, and these can be used by different types of
-    tele-operation sinks (e.g. mobile robot bases, robot arms, pan-tilt units,
-    robot swarms, etc.).
+    TeleopSource class (e.g. keyboards, joysticks, etc.), and these can be used
+    by different types of tele-operation sinks (e.g. mobile robot bases, robot
+    arms, pan-tilt units, robot swarms, etc.).
 
   </description>
   <author>Kevin LeBlanc</author>

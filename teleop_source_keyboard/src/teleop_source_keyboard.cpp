@@ -55,37 +55,55 @@ namespace teleop {
 //Method definitions
 //=============================================================================
 TeleopSourceKeyboard::TeleopSourceKeyboard(TeleopSourceCallback* callback)
-  : TeleopSource(callback) {
+  : TeleopSource(callback), mOldTermiosSet(false) {
   //Set step size using setter in order to update both steps and step size
   setSteps(STEPS_DEFAULT);
 }
 //=============================================================================
+TeleopSourceKeyboard::~TeleopSourceKeyboard() {
+  //Stop this source
+  stop();
+}
+//=============================================================================
 bool TeleopSourceKeyboard::prepareToListen() {
-  //Raw termios settings
-  struct termios rawTermios;
+  //Lock access to members
+  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
 
-  //Remember old termios settings for stdin
-  tcgetattr(STDIN_FILENO, &mOldTermios);
-  memcpy(&rawTermios, &mOldTermios, sizeof(struct termios));
+  //Save termios settings only if they were not already saved.  This means this
+  //method can be called multiple times without problems.
+  if (!mOldTermiosSet) {
+    //Raw termios settings
+    struct termios rawTermios;
 
-  //Update stdin to use raw mode
-  rawTermios.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &rawTermios);
+    //Remember old termios settings for stdin
+    tcgetattr(STDIN_FILENO, &mOldTermios);
+    memcpy(&rawTermios, &mOldTermios, sizeof(struct termios));
+
+    //Update stdin to use raw mode
+    rawTermios.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &rawTermios);
+
+    //Note that old termios is set and should not be overwritten
+    mOldTermiosSet = true;
+  }
 
   //Print welcome message
-  fprintf(stdout, "Use arrow keys to move and space to stop...\n");
+  std::fprintf(stdout, "\n\nUse arrow keys to move and space to stop.  Press CTRL-C to quit.\n");
 
   //Return result
   return true;
 }
 //=============================================================================
-TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutSeconds,
+TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutMilliseconds,
                                                         TeleopState* const teleopState) {
   //Sanity check
   if (NULL == teleopState) {
-    fprintf(stderr, "TeleopSourceKeyboard::listen: NULL teleop state\n");
+    std::fprintf(stderr, "TeleopSourceKeyboard::listen: NULL teleop state\n");
     return LISTEN_RESULT_ERROR;
   }
+
+  //Lock access to members
+  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
 
   //Ensure state has correct number and types of axes and buttons
   if (2 != teleopState->axes.size()) {
@@ -104,10 +122,10 @@ TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutSeconds,
   FD_ZERO (&fileDescriptorSet);
   FD_SET (STDIN_FILENO, &fileDescriptorSet);
 
-  //Initialise timeout value in seconds for select
+  //Initialise timeout value for select
   struct timeval timeout;
-  timeout.tv_sec = timeoutSeconds;
-  timeout.tv_usec = 0;
+  timeout.tv_sec = timeoutMilliseconds / 1000;
+  timeout.tv_usec = (timeoutMilliseconds % 1000) * 1000;
 
   //Use select to see if anything shows up before timeout
   int result = select(FD_SETSIZE, &fileDescriptorSet, NULL, NULL, &timeout);
@@ -116,14 +134,14 @@ TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutSeconds,
     return LISTEN_RESULT_UNCHANGED;
   } else if (-1 == result) {
     //Error
-    fprintf(stderr, "TeleopSourceKeyboard::listen: error in select() (%d)\n", errno);
+    std::fprintf(stderr, "TeleopSourceKeyboard::listen: error in select() (%d)\n", errno);
     return LISTEN_RESULT_ERROR;
   }
 
   //Data available, read one event
   char c;
   if(0 >= read(STDIN_FILENO, &c, 1)) {
-    fprintf(stderr, "TeleopSourceKeyboard::listen: error in read()\n");
+    std::fprintf(stderr, "TeleopSourceKeyboard::listen: error in read()\n");
     return LISTEN_RESULT_ERROR;
   }
 
@@ -132,8 +150,15 @@ TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutSeconds,
 }
 //=============================================================================
 bool TeleopSourceKeyboard::doneListening() {
-  //Restore stdin to old values
-  tcsetattr(STDIN_FILENO, TCSANOW, &mOldTermios);
+  //Lock access to members
+  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+
+  //Restore termios settings only if they were saved.  This means this method
+  //can be called multiple times without problems.
+  if (mOldTermiosSet) {
+    tcsetattr(STDIN_FILENO, TCSANOW, &mOldTermios);
+    mOldTermiosSet = false;
+  }
 
   //Return result
   return true;
@@ -141,8 +166,8 @@ bool TeleopSourceKeyboard::doneListening() {
 //=============================================================================
 TeleopSource::ListenResult TeleopSourceKeyboard::handleEvent(char c,
                                                              TeleopState* const teleopState) {
-  //Lock access to steps and step size
-  boost::lock_guard<boost::mutex> stepsLock(mStepsMutex);
+  //Lock access to members
+  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
 
   //Handle known events
   switch(c) {
@@ -193,21 +218,28 @@ TeleopSource::ListenResult TeleopSourceKeyboard::handleEvent(char c,
 }
 //=============================================================================
 bool TeleopSourceKeyboard::setSteps(int steps) {
+  //Sanity check
   if (STEPS_MIN > steps || STEPS_MAX < steps) {
-    fprintf(stderr, "TeleopSourceKeyboard::setSteps: invalid steps (%d)\n", steps);
+    std::fprintf(stderr, "TeleopSourceKeyboard::setSteps: invalid steps (%d)\n", steps);
     return false;
   }
 
-  //Lock access to steps and step size
-  boost::lock_guard<boost::mutex> stepsLock(mStepsMutex);
+  //Lock access to members
+  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+
+  //Set steps and step size
   mSteps = steps;
   mStepSize = (TeleopAxisValue)(TELEOP_AXIS_MAX - TELEOP_AXIS_MIN)/(2*mSteps);
+
+  //Return result
   return true;
 }
 //=============================================================================
 int TeleopSourceKeyboard::getSteps() {
-  //Lock access to steps and step size
-  boost::lock_guard<boost::mutex> stepsLock(mStepsMutex);
+  //Lock access to members
+  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+
+  //Return steps
   return mSteps;
 }
 //=============================================================================

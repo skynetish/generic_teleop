@@ -96,6 +96,11 @@ public:
   TeleopSourceKeyboard(TeleopSourceCallback* callback);
 
   /**
+   * Destructor.
+   */
+  ~TeleopSourceKeyboard();
+
+  /**
    * Set the number of steps required to reach the maximum value for all axes.
    *
    *   @param steps [in] - number of steps
@@ -121,17 +126,20 @@ private:
   static const int KEYCODE_LEFT  = 0x44;
   /**@}*/
 
+  /** Mutex for protecting all members from multi-threaded access */
+  boost::recursive_mutex mMemberMutex;
+
   /** Number of steps needed to reach max value for each axis */
   int mSteps;
 
   /** Size of each step for each axis */
   TeleopAxisValue mStepSize;
 
-  /** Mutex for protecting steps and step size */
-  boost::mutex mStepsMutex;
-
   /** Old termios settings */
   struct termios mOldTermios;
+
+  /** Old termios settings are set */
+  bool mOldTermiosSet;
 
   /**
    * Handle a given event.
@@ -152,7 +160,7 @@ private:
   /**
    * Override virtual method from parent.
    */
-  ListenResult listen(int timeoutSeconds, TeleopState* const teleop);
+  ListenResult listen(int timeoutMilliseconds, TeleopState* const teleop);
 
   /**
    * Override virtual method from parent.

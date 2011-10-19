@@ -11,7 +11,10 @@
   <license>BSD</license>
   <url></url>
 
-  <!-- Dependencies -->
+  <!-- External dependencies -->
+  <rosdep name="boost" />
+
+  <!-- Package dependencies -->
   <depend package="teleop_framework" />
 
   <!-- Export -->

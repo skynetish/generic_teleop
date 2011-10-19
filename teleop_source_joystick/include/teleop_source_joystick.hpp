@@ -78,6 +78,11 @@ public:
   TeleopSourceJoystick(TeleopSourceCallback* callback, std::string device = DEFAULT_DEVICE);
 
   /**
+   * Destructor.
+   */
+  ~TeleopSourceJoystick();
+
+  /**
    * Get joystick name.
    *
    *   @return joystick name
@@ -85,6 +90,9 @@ public:
   std::string getJoystickName();
 
 private:
+
+  /** Mutex for protecting all members from multi-threaded access */
+  boost::recursive_mutex mMemberMutex;
 
   /** Device */
   std::string mDevice;
@@ -106,6 +114,32 @@ private:
 
   /** Button type map from driver */
   __u16 mButtonMap[KEY_MAX - BTN_MISC + 1];
+
+  /**
+   * Handle a given event.
+   *
+   *   @param event [in] - event to handle
+   *   @param teleop [in/out] - the current teleop output, to be updated
+   *
+   *   @return LISTEN_ERROR on error, LISTEN_STATE_UNCHANGED on timeout or no
+   *           change to state, LISTEN_STATE_CHANGED if state updated
+   */
+  ListenResult handleEvent(const js_event* const event, TeleopState* const teleopState);
+
+  /**
+   * Override virtual method from parent.
+   */
+  bool prepareToListen();
+
+  /**
+   * Override virtual method from parent.
+   */
+  ListenResult listen(int timeoutMilliseconds, TeleopState* const teleop);
+
+  /**
+   * Override virtual method from parent.
+   */
+  bool doneListening();
 
   /**
    * Convert driver axis value to teleop axis value.
@@ -142,32 +176,6 @@ private:
    *   @return teleop button type
    */
   static TeleopButtonType buttonDriverTypeToTeleopType(__u16 buttonType);
-
-  /**
-   * Handle a given event.
-   *
-   *   @param event [in] - event to handle
-   *   @param teleop [in/out] - the current teleop output, to be updated
-   *
-   *   @return LISTEN_ERROR on error, LISTEN_STATE_UNCHANGED on timeout or no
-   *           change to state, LISTEN_STATE_CHANGED if state updated
-   */
-  ListenResult handleEvent(const js_event* const event, TeleopState* const teleopState);
-
-  /**
-   * Override virtual method from parent.
-   */
-  bool prepareToListen();
-
-  /**
-   * Override virtual method from parent.
-   */
-  ListenResult listen(int timeoutSeconds, TeleopState* const teleop);
-
-  /**
-   * Override virtual method from parent.
-   */
-  bool doneListening();
 
 }; //class
 

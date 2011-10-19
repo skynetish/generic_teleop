@@ -48,6 +48,11 @@
 //Defines
 //=============================================================================
 
+/**@{ Teleop types */
+#define TELEOP_TYPE_JOYSTICK            "joystick"
+#define TELEOP_TYPE_KEYBOARD            "keyboard"
+/**@}*/
+
 /**@{ Parameter keys */
 #define PARAM_KEY_TOPIC                 "topic"
 #define PARAM_KEY_TYPE                  "type"
@@ -59,7 +64,7 @@
 
 /**@{ Parameter default values */
 #define PARAM_DEFAULT_TOPIC             "teleop"
-#define PARAM_DEFAULT_TYPE              "keyboard"
+#define PARAM_DEFAULT_TYPE              TELEOP_TYPE_KEYBOARD
 #define PARAM_DEFAULT_LISTEN_TIMEOUT \
     ((int)teleop::TeleopSource::LISTEN_TIMEOUT_DEFAULT)
 #define PARAM_DEFAULT_JOYSTICK_DEVICE \
@@ -92,7 +97,12 @@ public:
   /**
    * Override virtual method from parent.
    */
-  void callback(const teleop::TeleopState* const teleopState, bool stopping, bool error);
+  void updated(const teleop::TeleopState* const teleopState, bool stopping, bool error);
+
+  /**
+   * Override virtual method from parent.
+   */
+  void stopped(bool error);
 
 private:
 
@@ -120,17 +130,15 @@ void signalHandler(int signalNumber);
 
 /**
  * Clean up and shutdown.
- *
- *   @param teleopSource - teleop source to shutdown
  */
-void quit(teleop::TeleopSource* teleopSource);
+void quit();
 
 /**
- * Utility function for creating appropriate teleop source
+ * Utility function for creating a teleop source
  *
  *   @param teleopSourceCallback - callback object to use
  *   @param type - teleop type
- *   @param listenTimeout - listen timeout value used by teleop source
+ *   @param listenTimeout - listen timeout value in milliseconds
  *   @param axisDeadZone - default dead zone
  *   @param keyboardSteps - if this is a keyboard, use this many steps
  *   @param joystickDevice - if this is a joystick, use this device
@@ -145,9 +153,14 @@ teleop::TeleopSource* teleopSourceFactory(teleop::TeleopSource::TeleopSourceCall
                                           std::string joystickDevice);
 
 /**
- * Print usage information.
+ * Check if we should just print usage information, and if so, print it.
+ *
+ *   @param argc - number of command line arguments
+ *   @param argv - command line arguments
+ *
+ *   @return true if usage was printed
  */
-void printUsage(int argc, char** argv);
+bool printUsage(int argc, char** argv);
 
 
 
@@ -156,7 +169,10 @@ void printUsage(int argc, char** argv);
 //Globals
 //=============================================================================
 
-/** Teleop source must be accessible from signal handler */
+/**
+ * The teleop source must be accessible from quit(), which is called from a
+ * number of places (such as a signal handler and a callback method).
+ */
 teleop::TeleopSource* gTeleopSource = NULL;
 
 
@@ -169,18 +185,18 @@ TeleopSourceCallbackROS::TeleopSourceCallbackROS(const ros::Publisher* const pub
 : mPublisher(publisher) {
 }
 //=============================================================================
-void TeleopSourceCallbackROS::callback(const teleop::TeleopState* const teleopState,
-                                       bool stopping,
-                                       bool error) {
+void TeleopSourceCallbackROS::updated(const teleop::TeleopState* const teleopState,
+                                      bool stopping,
+                                      bool error) {
   //Sanity check publisher
   if (NULL == mPublisher) {
-    ROS_ERROR("teleopSourceCallback: NULL publisher\n");
+    ROS_ERROR("updated: NULL publisher");
     return;
   }
 
   //Sanity check teleopState
   if (NULL == teleopState) {
-    ROS_ERROR("teleopSourceCallback: NULL teleopState\n");
+    ROS_ERROR("updated: NULL teleopState");
     return;
   }
 
@@ -203,11 +219,18 @@ void TeleopSourceCallbackROS::callback(const teleop::TeleopState* const teleopSt
   //Publish result
   mPublisher->publish(mTeleopStateMsg);
 
-  //On error just print a message.  The listening thread stopping is detected
-  //elsewhere.
+  //On stopping and/or error just print a message.  The listening thread
+  //stopping is handled in the stopped callback.
   if (error) {
-    ROS_ERROR("teleopSourceCallback: listening thread error\n");
+    ROS_ERROR("updated: error detected");
   }
+  if (stopping) {
+    ROS_INFO("updated: stopping");
+  }
+}
+//=============================================================================
+void TeleopSourceCallbackROS::stopped(bool error) {
+  quit();
 }
 //=============================================================================
 
@@ -218,10 +241,10 @@ void TeleopSourceCallbackROS::callback(const teleop::TeleopState* const teleopSt
 //Function definitions
 //=============================================================================
 void signalHandler(int signalNumber) {
-  quit(gTeleopSource);
+  quit();
 }
 //=============================================================================
-void quit(teleop::TeleopSource* teleopSource) {
+void quit() {
   //Use a static mutex to ensure we only delete the teleop source once
   static boost::mutex signalMutex;
   boost::unique_lock<boost::mutex> signalMutexLock(signalMutex, boost::try_to_lock);
@@ -230,13 +253,13 @@ void quit(teleop::TeleopSource* teleopSource) {
   }
 
   //Free teleop source (mutex and NULL check ensure this only happens once)
-  if (NULL != teleopSource) {
-    teleopSource->stop();
-    delete teleopSource;
-    teleopSource = NULL;
+  if (NULL != gTeleopSource) {
+    gTeleopSource->stop();
+    delete gTeleopSource;
+    gTeleopSource = NULL;
   }
 
-  //Shutdown ROS to end spinning (OK if this is done more than once)
+  //Shutdown ROS to end spinning (OK if this happens more than once)
   ros::shutdown();
 }
 //=============================================================================
@@ -249,17 +272,17 @@ teleop::TeleopSource* teleopSourceFactory(teleop::TeleopSource::TeleopSourceCall
   teleop::TeleopSource* teleopSource;
   if (0 == type.compare("")) {
     return NULL;
-  } else if (0 == type.compare("keyboard")) {
+  } else if (0 == type.compare(TELEOP_TYPE_KEYBOARD)) {
     teleop::TeleopSourceKeyboard* teleopSourceKeyboard;
     teleopSourceKeyboard = new teleop::TeleopSourceKeyboard(callback);
     teleopSourceKeyboard->setSteps(keyboardSteps);
     teleopSource = teleopSourceKeyboard;
-  } else if (0 == type.compare("joystick")) {
+  } else if (0 == type.compare(TELEOP_TYPE_JOYSTICK)) {
     teleop::TeleopSourceJoystick* teleopSourceJoystick;
     teleopSourceJoystick = new teleop::TeleopSourceJoystick(callback, joystickDevice);
     teleopSource = teleopSourceJoystick;
   } else {
-    ROS_ERROR("Unknown teleop source type\n");
+    ROS_ERROR("teleopSourceFactory: unknown teleop source type");
     return NULL;
   }
   teleopSource->setListenTimeout(listenTimeout);
@@ -267,19 +290,26 @@ teleop::TeleopSource* teleopSourceFactory(teleop::TeleopSource::TeleopSourceCall
   return teleopSource;
 }
 //=============================================================================
-void printUsage(int argc, char** argv) {
-  printf("\n");
-  printf("Usage:\n");
-  printf("    %s [params]\n", basename(argv[0]));
-  printf("\n");
-  printf("Parameters and their default values\n");
-  printf("    _%s:=%s\n",    PARAM_KEY_TYPE,            PARAM_DEFAULT_TYPE);
-  printf("    _%s:=%s\n",    PARAM_KEY_TOPIC,           PARAM_DEFAULT_TOPIC);
-  printf("    _%s:=%d\n",    PARAM_KEY_LISTEN_TIMEOUT,  PARAM_DEFAULT_LISTEN_TIMEOUT);
-  printf("    _%s:=%.02f\n", PARAM_KEY_AXIS_DEAD_ZONE,  PARAM_DEFAULT_AXIS_DEAD_ZONE);
-  printf("    _%s:=%d\n",    PARAM_KEY_KEYBOARD_STEPS,  PARAM_DEFAULT_KEYBOARD_STEPS);
-  printf("    _%s:=%s\n",    PARAM_KEY_JOYSTICK_DEVICE, (PARAM_DEFAULT_JOYSTICK_DEVICE).c_str());
-  printf("\n");
+bool printUsage(int argc, char** argv) {
+  //Check for "-h" or "--help", if found, print usage
+  for (int i = 1; i < argc; i++) {
+    if ((0 == strcmp(argv[i], "-h")) || (0 == strcmp(argv[i], "--help"))) {
+      std::printf("\n");
+      std::printf("Usage:\n");
+      std::printf("    %s [params]\n", basename(argv[0]));
+      std::printf("\n");
+      std::printf("Parameters and their default values\n");
+      std::printf("    _%s:=%s\n",    PARAM_KEY_TYPE,            PARAM_DEFAULT_TYPE);
+      std::printf("    _%s:=%s\n",    PARAM_KEY_TOPIC,           PARAM_DEFAULT_TOPIC);
+      std::printf("    _%s:=%d\n",    PARAM_KEY_LISTEN_TIMEOUT,  PARAM_DEFAULT_LISTEN_TIMEOUT);
+      std::printf("    _%s:=%.02f\n", PARAM_KEY_AXIS_DEAD_ZONE,  PARAM_DEFAULT_AXIS_DEAD_ZONE);
+      std::printf("    _%s:=%d\n",    PARAM_KEY_KEYBOARD_STEPS,  PARAM_DEFAULT_KEYBOARD_STEPS);
+      std::printf("    _%s:=%s\n",    PARAM_KEY_JOYSTICK_DEVICE, (PARAM_DEFAULT_JOYSTICK_DEVICE).c_str());
+      std::printf("\n");
+      return true;
+    }
+  }
+  return false;
 }
 //=============================================================================
 
@@ -291,13 +321,9 @@ void printUsage(int argc, char** argv) {
 //=============================================================================
 int main(int argc, char** argv)
 {
-  //Check for "-h" or "--help"
-  for (int i = 1; i < argc; i++) {
-    if ((0 == strncmp(argv[i], "-h", strlen("-h")))
-        || (0 == strncmp(argv[i], "--help", strlen("--help")))) {
-      printUsage(argc, argv);
-      return 0;
-    }
+  //Check if we should just print usage information and quit
+  if (printUsage(argc, argv)) {
+    return 0;
   }
 
   //Initialise ROS (exceptions ignored intentionally)
@@ -340,7 +366,8 @@ int main(int argc, char** argv)
   //Create callback object using publisher
   TeleopSourceCallbackROS callback(&publisher);
 
-  //Create teleop source and point to it with the global gTeleopSource
+  //Create teleop source and point to it with the global gTeleopSource.  The
+  //created callback object will be used to handle updates and errors.
   gTeleopSource = teleopSourceFactory(&callback,
                                       type,
                                       listenTimeout,
@@ -348,31 +375,19 @@ int main(int argc, char** argv)
                                       keyboardSteps,
                                       joystickDevice);
   if (NULL == gTeleopSource) {
-    ROS_ERROR("NULL teleop source\n");
+    ROS_ERROR("main: NULL teleop source");
     return 1;
   }
 
   //Start teleop source
   if (!gTeleopSource->start()) {
-    ROS_ERROR("Error starting teleop source\n");
+    ROS_ERROR("main: error starting teleop source");
     return 1;
   }
 
-  //While ROS is running, check to see if the teleop source has stopped
-  //executing.  This is only needed in order to detect fatal errors. Normally
-  //the loop will be stopped due to SIGINT (CTRL-C), which will trigger a call
-  //to quit().  If we didn't care about fatal errors we could just do a
-  //ros::spin() here instead.
-  ros::Rate rate(10);
-  while (ros::ok()) {
-    //If listening thread is no longer executing quit
-    if (!gTeleopSource->isExecuting()) {
-      quit(gTeleopSource);
-    }
+  //Spin until shutdown is called in quit()
+  ros::spin();
 
-    //Sleep away the rest of this iteration
-    rate.sleep();
-  }
-
+  //Done
   return 0;
 }
