@@ -111,11 +111,10 @@ bool TeleopSourceJoystick::prepareToListen() {
   //Lock access to members
   boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
 
-  //Close device if it was open.  This means this method can be called
+  //If device already open do nothing.  This means this method can be called
   //multiple times without problems.
-  if (!doneListening()) {
-    std::fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error closing device\n");
-    return false;
+  if (-1 != mFileDescriptor) {
+    return true;
   }
 
   //Open device in non-blocking mode
