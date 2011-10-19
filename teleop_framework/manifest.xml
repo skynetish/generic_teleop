@@ -22,7 +22,7 @@
   <export>
     <cpp
       cflags="-I${prefix}/include"
-      lflags="-L${prefix}/lib -Wl,-rpath,${prefix}/lib -lteleop_source -lteleop_common"
+      lflags="-L${prefix}/lib -Wl,-rpath,${prefix}/lib -lteleop_framework"
     />
   </export>
 

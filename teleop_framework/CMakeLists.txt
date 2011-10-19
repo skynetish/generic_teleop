@@ -11,9 +11,6 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 # Add boost
 rosbuild_add_boost_directories()
 
-# Create common library
-rosbuild_add_library(teleop_common src/teleop_common.cpp)
-
-# Create source library
-rosbuild_add_library(teleop_source src/teleop_source.cpp)
-rosbuild_link_boost(teleop_source thread)
+# Create library
+rosbuild_add_library(teleop_framework src/teleop_common.cpp src/teleop_source.cpp)
+rosbuild_link_boost(teleop_framework thread)
