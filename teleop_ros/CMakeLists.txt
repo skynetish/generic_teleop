@@ -10,4 +10,4 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 # Create executable
 rosbuild_add_executable(teleop_source_ros src/teleop_source_ros.cpp)
-rosbuild_link_boost(teleop_source_ros thread)
+

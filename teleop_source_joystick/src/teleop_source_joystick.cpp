@@ -81,10 +81,15 @@ const std::string TeleopSourceJoystick::DEFAULT_DEVICE = std::string("/dev/input
 //=============================================================================
 //Method definitions
 //=============================================================================
-TeleopSourceJoystick::TeleopSourceJoystick(TeleopSourceCallback* callback,
-                                           std::string device)
-  : TeleopSource(callback), mDevice(device), mJoystickName(std::string("none")),
-    mFileDescriptor(-1), mNumAxes(0), mNumButtons(0) {
+TeleopSourceJoystick::TeleopSourceJoystick(TeleopSourceCallback* callback, std::string device) :
+  TeleopSource(callback),
+  mPrepared(false),
+  mDevice(device),
+  mJoystickName(std::string("none")),
+  mFileDescriptor(-1),
+  mNumAxes(0),
+  mNumButtons(0) {
+
   //Initialise array members
   for (int i = 0; i < ABS_CNT; i++) {
     mAxisMap[i] = ABS_MISC;
@@ -95,65 +100,81 @@ TeleopSourceJoystick::TeleopSourceJoystick(TeleopSourceCallback* callback,
 }
 //=============================================================================
 TeleopSourceJoystick::~TeleopSourceJoystick() {
-  //Stop this source
-  stop();
+  //Sub-classes of TeleopSource must do this
+  preDestroy();
 }
 //=============================================================================
 std::string TeleopSourceJoystick::getJoystickName() {
   //Lock access to members
-  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
 
   //Return joystick name
   return mJoystickName;
 }
 //=============================================================================
-bool TeleopSourceJoystick::prepareToListen() {
+bool TeleopSourceJoystick::listenPrepare() {
   //Lock access to members
-  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
 
-  //If device already open do nothing.  This means this method can be called
+  //If already prepared we're done.  This means this method can be called
   //multiple times without problems.
-  if (-1 != mFileDescriptor) {
+  if (mPrepared) {
     return true;
+  }
+
+  //If device is already open something is wrong
+  if (-1 != mFileDescriptor) {
+    std::fprintf(stderr, "TeleopSourceJoystick::listenPrepare: device already open\n");
+    return false;
   }
 
   //Open device in non-blocking mode
   mFileDescriptor = open(mDevice.c_str(), O_RDONLY | O_NONBLOCK);
   if (-1 == mFileDescriptor) {
-    std::fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error opening device\n");
+    std::fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error opening device\n");
     return false;
   }
 
   //Get number of axes and buttons and corresponding maps
   if (0 > ioctl(mFileDescriptor, JSIOCGAXES, &mNumAxes)) {
-    std::fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error reading number of axes\n");
+    std::fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error reading number of axes\n");
+    close(mFileDescriptor);
+    mFileDescriptor = -1;
     return false;
   }
   if (0 > ioctl(mFileDescriptor, JSIOCGAXMAP, mAxisMap)) {
-    std::fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error reading axis map\n");
+    std::fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error reading axis map\n");
+    close(mFileDescriptor);
+    mFileDescriptor = -1;
     return false;
   }
   if (0 > ioctl(mFileDescriptor, JSIOCGBUTTONS, &mNumButtons)) {
-    std::fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error reading number of buttons\n");
+    std::fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error reading number of buttons\n");
+    close(mFileDescriptor);
+    mFileDescriptor = -1;
     return false;
   }
   if (0 > ioctl(mFileDescriptor, JSIOCGBTNMAP, mButtonMap)) {
-    std::fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error reading button map\n");
+    std::fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error reading button map\n");
+    close(mFileDescriptor);
+    mFileDescriptor = -1;
     return false;
   }
 
   //Get joystick name
   char name[128];
   if (0 > ioctl(mFileDescriptor, JSIOCGNAME(sizeof(name)), name)) {
-    std::fprintf(stderr, "TeleopSourceJoystick::prepareToListen: error reading name\n");
+    std::fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error reading name\n");
+    close(mFileDescriptor);
+    mFileDescriptor = -1;
     return false;
   }
   mJoystickName = std::string(name);
 
-  //Print welcome message
-  std::fprintf(stdout, "Device file:       %s\n", mDevice.c_str());
-  std::fprintf(stdout, "Joystick name:     %s\n", mJoystickName.c_str());
-  std::fprintf(stdout, "Num axes:          %u\n", mNumAxes);
+  //Print joystick info
+  std::fprintf(stdout, "Device file:  %s\n", mDevice.c_str());
+  std::fprintf(stdout, "Device name:  %s\n", mJoystickName.c_str());
+  std::fprintf(stdout, "Num axes:     %u\n", mNumAxes);
   for (int i = 0; i < mNumAxes; i++) {
     std::fprintf(stdout, "  axis[%2d]   = 0x%04x -> %04d -> %s\n",
             i,
@@ -161,7 +182,7 @@ bool TeleopSourceJoystick::prepareToListen() {
             axisDriverTypeToTeleopType(mAxisMap[i]),
             teleopAxisName(axisDriverTypeToTeleopType(mAxisMap[i])).c_str());
   }
-  std::fprintf(stdout, "Num buttons:       %u\n", mNumButtons);
+  std::fprintf(stdout, "Num buttons:  %u\n", mNumButtons);
   for (int i = 0; i < mNumButtons; i++) {
     std::fprintf(stdout, "  button[%2d] = 0x%04x -> %04d -> %s\n",
             i,
@@ -172,6 +193,9 @@ bool TeleopSourceJoystick::prepareToListen() {
 
   //Print welcome message
   std::fprintf(stdout, "\n\nJoystick is ready.  Press CTRL-C to quit.\n");
+
+  //Note that we're prepared
+  mPrepared = true;
 
   //Return success
   return true;
@@ -186,7 +210,13 @@ TeleopSource::ListenResult TeleopSourceJoystick::listen(int timeoutMilliseconds,
   }
 
   //Lock access to members
-  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
+
+  //Ensure we're prepared
+  if (!mPrepared) {
+    std::fprintf(stderr, "TeleopSourceJoystick::listen: not prepared\n");
+    return LISTEN_RESULT_ERROR;
+  }
 
   //Ensure state has correct number and types of axes and buttons
   if (mNumAxes != teleopState->axes.size()) {
@@ -263,18 +293,29 @@ TeleopSource::ListenResult TeleopSourceJoystick::listen(int timeoutMilliseconds,
   }
 }
 //=============================================================================
-bool TeleopSourceJoystick::doneListening() {
+bool TeleopSourceJoystick::listenCleanup() {
   //Lock access to members
-  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
 
-  //Close device only if it was open.  This means this method can be called
+  //If we're not prepared we're done.  This means this method can be called
   //multiple times without problems.
-  if ((-1 != mFileDescriptor) && (0 != close(mFileDescriptor))) {
-    std::fprintf(stderr, "TeleopSourceJoystick::doneListening: error closing device\n");
-    return false;
-  } else {
-    mFileDescriptor = -1;
+  if (!mPrepared) {
+    return true;
   }
+
+  //Print error message if device is not open or if we can't close it, but
+  //either way we keep going and clean up as best we can.
+  if (-1 == mFileDescriptor) {
+    std::fprintf(stderr, "TeleopSourceJoystick::listenCleanup: device not open\n");
+  } else if (0 != close(mFileDescriptor)) {
+    std::fprintf(stderr, "TeleopSourceJoystick::listenCleanup: error closing device\n");
+  }
+
+  //Restore file descriptor value
+  mFileDescriptor = -1;
+
+  //Note that we're not prepared
+  mPrepared = false;
 
   //Return success
   return true;
@@ -282,9 +323,6 @@ bool TeleopSourceJoystick::doneListening() {
 //=============================================================================
 TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* const event,
                                                              TeleopState* const teleopState) {
-  //Lock access to members
-  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
-
   //Handle known events
   switch(event->type)
   {

@@ -110,7 +110,7 @@ public:
   bool setSteps(int steps);
 
   /**
-   * Get steps.
+   * Get the number of steps required to reach the maximum value for all axes.
    *
    *   @return steps
    */
@@ -127,7 +127,10 @@ private:
   /**@}*/
 
   /** Mutex for protecting all members from multi-threaded access */
-  boost::recursive_mutex mMemberMutex;
+  boost::mutex mMemberMutex;
+
+  /** Flag indicating if we are prepared to listen */
+  bool mPrepared;
 
   /** Number of steps needed to reach max value for each axis */
   int mSteps;
@@ -137,9 +140,6 @@ private:
 
   /** Old termios settings */
   struct termios mOldTermios;
-
-  /** Old termios settings are set */
-  bool mOldTermiosSet;
 
   /**
    * Handle a given event.
@@ -155,7 +155,7 @@ private:
   /**
    * Override virtual method from parent.
    */
-  bool prepareToListen();
+  bool listenPrepare();
 
   /**
    * Override virtual method from parent.
@@ -165,7 +165,7 @@ private:
   /**
    * Override virtual method from parent.
    */
-  bool doneListening();
+  bool listenCleanup();
 
 }; //class
 

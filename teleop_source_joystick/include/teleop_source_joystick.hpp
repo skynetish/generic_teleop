@@ -60,7 +60,8 @@ namespace teleop {
 //=============================================================================
 
 /**
- * This class implements a joystick teleop source.
+ * This class implements a joystick teleop source using the standard Linux
+ * kernel joystick driver.
  */
 class TeleopSourceJoystick : public TeleopSource {
 
@@ -92,7 +93,10 @@ public:
 private:
 
   /** Mutex for protecting all members from multi-threaded access */
-  boost::recursive_mutex mMemberMutex;
+  boost::mutex mMemberMutex;
+
+  /** Flag indicating if we are prepared to listen */
+  bool mPrepared;
 
   /** Device */
   std::string mDevice;
@@ -129,7 +133,7 @@ private:
   /**
    * Override virtual method from parent.
    */
-  bool prepareToListen();
+  bool listenPrepare();
 
   /**
    * Override virtual method from parent.
@@ -139,7 +143,7 @@ private:
   /**
    * Override virtual method from parent.
    */
-  bool doneListening();
+  bool listenCleanup();
 
   /**
    * Convert driver axis value to teleop axis value.

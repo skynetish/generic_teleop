@@ -37,7 +37,6 @@
 #include <teleop_source_joystick.hpp>
 #include <teleop_msgs/State.h>
 #include <ros/ros.h>
-#include <boost/thread.hpp>
 #include <csignal>
 #include <cstdio>
 
@@ -83,16 +82,18 @@
 //=============================================================================
 
 /**
- * Instance of the teleop source callback class used by this node.
+ * Instance of the teleop source callback class used by this node.  A publisher
+ * must be provided to the constructor, and this publisher should not be
+ * destroyed until the source has been stopped.
  */
-class TeleopSourceCallbackROS : public teleop::TeleopSource::TeleopSourceCallback {
+class TeleopSourceCallbackRos : public teleop::TeleopSource::TeleopSourceCallback {
 
 public:
 
   /**
    * Constructor.
    */
-  TeleopSourceCallbackROS(const ros::Publisher* const publisher);
+  TeleopSourceCallbackRos(const ros::Publisher* const publisher);
 
   /**
    * Override virtual method from parent.
@@ -102,7 +103,7 @@ public:
   /**
    * Override virtual method from parent.
    */
-  void stopped(bool error);
+  void stopping(bool error);
 
 private:
 
@@ -166,26 +167,13 @@ bool printUsage(int argc, char** argv);
 
 
 //=============================================================================
-//Globals
-//=============================================================================
-
-/**
- * The teleop source must be accessible from quit(), which is called from a
- * number of places (such as a signal handler and a callback method).
- */
-teleop::TeleopSource* gTeleopSource = NULL;
-
-
-
-
-//=============================================================================
 //Method definitions
 //=============================================================================
-TeleopSourceCallbackROS::TeleopSourceCallbackROS(const ros::Publisher* const publisher)
-: mPublisher(publisher) {
+TeleopSourceCallbackRos::TeleopSourceCallbackRos(const ros::Publisher* const publisher) :
+  mPublisher(publisher) {
 }
 //=============================================================================
-void TeleopSourceCallbackROS::updated(const teleop::TeleopState* const teleopState,
+void TeleopSourceCallbackRos::updated(const teleop::TeleopState* const teleopState,
                                       bool stopping,
                                       bool error) {
   //Sanity check publisher
@@ -219,17 +207,19 @@ void TeleopSourceCallbackROS::updated(const teleop::TeleopState* const teleopSta
   //Publish result
   mPublisher->publish(mTeleopStateMsg);
 
-  //On stopping and/or error just print a message.  The listening thread
-  //stopping is handled in the stopped callback.
+  //On error just print a message.
   if (error) {
     ROS_ERROR("updated: error detected");
   }
+
+  //On stopping just print a message
   if (stopping) {
     ROS_INFO("updated: stopping");
   }
 }
 //=============================================================================
-void TeleopSourceCallbackROS::stopped(bool error) {
+void TeleopSourceCallbackRos::stopping(bool error) {
+  ROS_INFO("stopping: stopping");
   quit();
 }
 //=============================================================================
@@ -245,21 +235,7 @@ void signalHandler(int signalNumber) {
 }
 //=============================================================================
 void quit() {
-  //Use a static mutex to ensure we only delete the teleop source once
-  static boost::mutex signalMutex;
-  boost::unique_lock<boost::mutex> signalMutexLock(signalMutex, boost::try_to_lock);
-  if (!signalMutexLock.owns_lock()) {
-    return;
-  }
-
-  //Free teleop source (mutex and NULL check ensure this only happens once)
-  if (NULL != gTeleopSource) {
-    gTeleopSource->stop();
-    delete gTeleopSource;
-    gTeleopSource = NULL;
-  }
-
-  //Shutdown ROS to end spinning (OK if this happens more than once)
+  //Shutdown ROS to end spinning
   ros::shutdown();
 }
 //=============================================================================
@@ -343,7 +319,7 @@ int main(int argc, char** argv)
   int keyboardSteps;
   double axisDeadZone;
 
-  //Read parameters and set default values
+  //Read parameters and/or set default values
   nodeHandle.param(PARAM_KEY_TOPIC,           topic,          std::string(PARAM_DEFAULT_TOPIC));
   nodeHandle.param(PARAM_KEY_TYPE,            type,           std::string(PARAM_DEFAULT_TYPE));
   nodeHandle.param(PARAM_KEY_LISTEN_TIMEOUT,  listenTimeout,  PARAM_DEFAULT_LISTEN_TIMEOUT);
@@ -351,7 +327,7 @@ int main(int argc, char** argv)
   nodeHandle.param(PARAM_KEY_KEYBOARD_STEPS,  keyboardSteps,  PARAM_DEFAULT_KEYBOARD_STEPS);
   nodeHandle.param(PARAM_KEY_AXIS_DEAD_ZONE,  axisDeadZone,   PARAM_DEFAULT_AXIS_DEAD_ZONE);
 
-  //Advertise parameters for introspection
+  //Advertise all parameters for introspection
   nodeHandle.setParam(PARAM_KEY_TOPIC,           topic);
   nodeHandle.setParam(PARAM_KEY_TYPE,            type);
   nodeHandle.setParam(PARAM_KEY_LISTEN_TIMEOUT,  listenTimeout);
@@ -363,30 +339,34 @@ int main(int argc, char** argv)
   //publisher should basically just always contain the latest teleop state.
   ros::Publisher publisher = nodeHandle.advertise<teleop_msgs::State>(topic, 1, true);
 
-  //Create callback object using publisher
-  TeleopSourceCallbackROS callback(&publisher);
+  //Create callback using publisher
+  TeleopSourceCallbackRos callback(&publisher);
 
-  //Create teleop source and point to it with the global gTeleopSource.  The
-  //created callback object will be used to handle updates and errors.
-  gTeleopSource = teleopSourceFactory(&callback,
-                                      type,
-                                      listenTimeout,
-                                      axisDeadZone,
-                                      keyboardSteps,
-                                      joystickDevice);
-  if (NULL == gTeleopSource) {
+  //Create teleop source using callback
+  teleop::TeleopSource* teleopSource = teleopSourceFactory(&callback,
+                                                           type,
+                                                           listenTimeout,
+                                                           axisDeadZone,
+                                                           keyboardSteps,
+                                                           joystickDevice);
+  if (NULL == teleopSource) {
     ROS_ERROR("main: NULL teleop source");
     return 1;
   }
 
   //Start teleop source
-  if (!gTeleopSource->start()) {
+  if (!teleopSource->start()) {
     ROS_ERROR("main: error starting teleop source");
     return 1;
   }
 
   //Spin until shutdown is called in quit()
   ros::spin();
+
+  //Stop and free teleop source
+  teleopSource->stop();
+  teleopSource->waitForStopped();
+  delete teleopSource;
 
   //Done
   return 0;

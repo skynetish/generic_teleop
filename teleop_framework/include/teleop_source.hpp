@@ -60,14 +60,44 @@ namespace teleop {
 
 /**
  * This class provides a framework for generic handling of tele-operation
- * sources.  The start() and stop() methods start and stop a listening loop
- * which runs in a separate thread.  This loop listens for teleop device events
- * and reports them using the update() callback.  Listen thread termination is
- * signalled using the stopped() callback.
+ * sources.  The start() and stop() methods start and stop a listening thread
+ * which listens for teleop device events and reports them using the updated()
+ * callback.  When the listening thread is about to stop, for any reason, the
+ * stopping() callback is called.  The listening thread may stop due to a call
+ * to stop(), an error, or destruction of the teleop source object.
  *
- * Sub-classes for each teleop source type must implement the given pure
- * virtual methods to perform the actual listening, as well as related
- * preparation and cleanup.
+ * Both the start() and stop() methods are non-blocking.  The start() method
+ * starts the listening thread if it is not already running, and does nothing
+ * otherwise.  The stop() method interrupts the listening thread if it is
+ * running, and does nothing otherwise.  To wait for the listening thread to
+ * stop, the waitForStopped() method can be used.  The stopping() callback is
+ * called before the waitForStopped() method returns.
+ *
+ * Destruction of the teleop source object from within the updated() and
+ * stopping() callbacks is not permitted, and the result of such destruction
+ * is undefined.  The waitForStopped() method will always fail if called from
+ * either callback method.
+ *
+ * Sub-classes for each teleop source type must implement three
+ * listening-related virtual methods in order to perform the actual listening
+ * (listen()), as well as preparation (listenPrepare()) and cleanup
+ * (listenCleanup()).  They must also call the preDestroy() method from their
+ * destructors.  This method ensures that the listening thread is properly and
+ * permanently stopped, before returning.  This call needs to be in the
+ * sub-class destructors, since the virtual listening-related methods needed to
+ * cleanly stop the listening thread are not available by the time the teleop
+ * source super-class destructor is initiated.  Failure by a sub-class to call
+ * the preDestroy() method in its destructor results in undefined behaviour.
+ *
+ * The framework ensures that the three listening-related methods are always
+ * called in the following order, zero or more times, and for each sequence the
+ * methods are called from the same thread.  First, the framework performs one
+ * successful call to listenPrepare() -- a failed call to listenPrepare()
+ * aborts the sequence.  Second, the framework performs zero or more successful
+ * calls to listen() -- a failed call to listen() triggers the next step in the
+ * sequence.  Third, the framework performs one call to listenCleanup() --
+ * regardless of the result, listenCleanup() should strive to cleanup as much
+ * as possible.
  *
  * The class is non-copyable as a precaution, since many teleop sources will
  * use members or resources which are difficult to share.  This could be
@@ -75,9 +105,7 @@ namespace teleop {
  * especially since copying a teleop source is probably not very useful in most
  * situations.
  *
- * Note that messages and errors are simply printed on stdout and stderr,
- * respectively, which means that output may be garbled if other threads within
- * the same process are printing at the same time.
+ * Messages and errors are simply printed on stdout and stderr, respectively.
  */
 class TeleopSource : boost::noncopyable {
 
@@ -85,7 +113,7 @@ public:
 
   /**
    * Callback class which reports teleop state updates and listening thread
-   * termination.  TeleopSource users should use a sub-class to handle events.
+   * termination.  TeleopSource users should sub-class this to handle events.
    */
   class TeleopSourceCallback {
 
@@ -93,38 +121,33 @@ public:
 
     /**
      * Callback used to report an updated teleop state.  This is called from
-     * the teleop source listening thread.  As such, this method should return
-     * fairly quickly, to avoid losing teleop events.  An alternative could be
-     * to create a new thread for each call, but this could cause performance,
-     * buffering and synchronisation problems.  If "stopping" is true, the
-     * listening thread is stopping its execution.  If "error" is true, there
-     * has been an error.  For fatal errors, both "stopping" and "error" will
-     * be true.  Note that even if stopping is true, the user should still call
-     * the stop() method to ensure that cleanup is performed.  Also, note that
-     * stop() cannot be called from the listening thread, which means that it
-     * cannot be called from within this callback method.  It can, however, be
-     * called from the stopped() method.
+     * within the listening loop of the teleop source listening thread.  As
+     * such, this method should return quickly, to avoid losing teleop events.
+     * An alternative could be to create a new thread for each call, but this
+     * could cause performance, buffering and synchronisation problems.  The
+     * waitForStopped() method will always fail if called from this callback.
+     * Teleop source object destruction from within this callback results in
+     * undefined behaviour.
      *
      *   @param teleopState [in] - the latest teleop state
      *   @param stopping [in] - true if listening thread is stopping
-     *   @param error [in] - true if there were errors
+     *   @param error [in] - true if there were errors while listening
      */
     virtual void updated(const TeleopState* const teleopState, bool stopping, bool error) = 0;
 
     /**
-     * Callback used to report that the teleop source has stopped (at some
-     * point in the past).  This is called from its own (detached) thread.  If
-     * "error" is true, the stoppage was due to an error.  Note that because
-     * this runs in its own thread, there is no guarantee that another thread
-     * hasn't started the teleop source again since it was stopped.  Also, this
-     * method can be used to start(), stop(), or even destroy the teleop
-     * source, since it runs in it's own detached thread.  In particular, this
-     * callback is a good place to call the stop() method, to ensure that
-     * cleanup is performed.
+     * Callback used to report that the listening thread is stopping.  This is
+     * called from the teleop source listening thread, after termination of the
+     * listening loop.  The listening thread may be stopping due to a call to
+     * stop(), an error, or destruction of the teleop source object.  If the
+     * waitForStopped() method has been invoked, this callback is called before
+     * that method returns.  The waitForStopped() method will always fail if
+     * called from this callback.  Teleop source object destruction from within
+     * this callback results in undefined behaviour.().
      *
-     *   @param error [in] - true if there were errors
+     *   @param error [in] - true if stopping due to an error
      */
-    virtual void stopped(bool error) = 0;
+    virtual void stopping(bool error) = 0;
 
   }; //class
 
@@ -155,46 +178,43 @@ public:
   TeleopSource(TeleopSourceCallback* callback);
 
   /**
-   * Destructor.  Ideally we'd like to call stop() from the destructor.  But
-   * stop() calls doneListening(), which is a virtual method (and it should be,
-   * since the base class can't clean up for the sub-class).  Since C++ doesn't
-   * allow virtual methods to be called from the destructor, most sub-classes
-   * should (at least) call stop() from their destructors.
+   * Destructor.  Virtual since sub-classes may be destroyed using pointers to
+   * this (parent) class.
    */
   virtual ~TeleopSource();
 
   /**
-   * Start listening thread which reports teleop device activity.
+   * Start listening thread.  If listening thread is already running this has
+   * no effect.  This method is non-blocking.
    *
-   *   @return true on success
+   *   @return true on success (or already running)
    */
   bool start();
 
   /**
-   * Stop listening thread.  Cannot be called from the listening thread itself,
-   * which means it cannot be called from the callback.
+   * Request that the listening thread be stopped.  If the listening thread is
+   * not running this has no effect.  This method is non-blocking.
    *
-   *   @return true on success
+   *   @return true on success (or already stopped)
    */
   bool stop();
 
   /**
-   * Check if listening thread has been started (and not stopped).  This will
-   * be false before the thread has been started, and after the stop() method
-   * has been called.
+   * Block until teleop source is stopped.  This method will always fail if
+   * called from the listening thread, so it can't be used from the update() or
+   * stopping() callbacks.  This method returns after the stopping() callback
+   * is called.
+   *
+   *   @return true on success
+   */
+  bool waitForStopped();
+
+  /**
+   * Check if listening thread is running.
    *
    *   @return true if running.
    */
-  bool isStarted();
-
-  /**
-   * Check if listening thread is actually executing something.  This will be
-   * false before the thread has been started, and after the thread has stopped
-   * executing (due to a call to stop() or a fatal error).
-   *
-   *   @return true if executing.
-   */
-  bool isExecuting();
+  bool isRunning();
 
   /**
    * Set listen timeout which specifies how often to check for interruption.
@@ -268,10 +288,26 @@ public:
    */
   bool getAxisInverted(TeleopAxisType axisType);
 
+protected:
+
+  /**
+   * Cleanly and permanently stop the listening thread.  This ensures that all
+   * subsequent calls to start() will fail.  This must (always and only) be
+   * called by sub-class destructors to ensure that the framework does not try
+   * to reach virtual methods after the sub-class has been destroyed.
+   */
+  void preDestroy();
+
 private:
 
   /** Callback */
   TeleopSourceCallback* mCallback;
+
+  /** Is running flag */
+  bool mIsRunning;
+
+  /** Destruction initiated flag */
+  bool mDestructionInitiated;
 
   /** Listen timeout in milliseconds - check for interruption this often */
   int mListenTimeout;
@@ -283,16 +319,13 @@ private:
   bool mAxisInverted[TELEOP_AXIS_TYPE_COUNT];
 
   /** Listening thread */
-  boost::thread mThread;
+  boost::thread mListeningThread;
 
-  /** Listening thread is executing */
-  bool mThreadExecuting;
+  /** Mutex for protecting running status */
+  boost::mutex mIsRunningMutex;
 
-  /** Mutex for protecting listening thread state */
-  boost::recursive_mutex mThreadMutex;
-
-  /** Mutex for protecting thread executing flag */
-  boost::mutex mThreadExecutingMutex;
+  /** Mutex for protecting destruction status */
+  boost::mutex mDestructionInitiatedMutex;
 
   /** Mutex for protecting listen timeout */
   boost::mutex mListenTimeoutMutex;
@@ -303,8 +336,12 @@ private:
   /** Mutex for protecting axis inverted */
   boost::mutex mAxisInvertedMutex;
 
-  /** Mutex for ensuring that stopped is not called until execution stops */
-  boost::mutex mThreadStoppedMutex;
+  /**
+   * Check if current thread is the listening thread.
+   *
+   *   @return true if this is a special thread
+   */
+  bool isListeningThread();
 
   /**
    * Executes main listen loop (run in listening thread).
@@ -312,26 +349,20 @@ private:
   void listeningThread();
 
   /**
-   * Calls stopped callback (run in own detached thread).
-   */
-  void stoppingThread(bool error);
-
-  /**
-   * Prepare to listen (open files, etc.).  The framework guarantees that this
-   * will not be called multiple times unless stop() has called doneListening()
-   * in between.
+   * Prepare to listen (open files, etc.).  Called once from listening thread,
+   * initially or after a call to listenCleanup().
    *
    *   @return true on success
    */
-  virtual bool prepareToListen() = 0;
+  virtual bool listenPrepare() = 0;
 
   /**
    * Blocks until teleop source device events detected or the given timeout is
    * reached.  When events occur, updates the teleop state.  The timeout could
    * also be inherited, but the interface is cleaner if sub-classes don't need
-   * to worry about inherited members.  Since this method is called from the
-   * listening thread, modifiable class members should be used carefully, and
-   * protected as needed.
+   * to worry about inherited members.  Called one or more times from listening
+   * thread, between a successful call to listenPrepare() and any call to
+   * listenCleanup().
    *
    *   @param timeoutMilliseconds [in] - timeout value in milliseconds
    *   @param teleop [in/out] - the current teleop output, to be updated
@@ -342,14 +373,14 @@ private:
   virtual ListenResult listen(int timeoutMilliseconds, TeleopState* const teleop) = 0;
 
   /**
-   * Done listening (close files, etc.).  The framework guarantees that this
-   * will not be called until start() has called prepareToListen(), and it will
-   * not be called multiple times unless start() has called prepareToListen() in
-   * between.
+   * Done listening (close files, etc.).  Called once from listening thread
+   * after a successful call to listenPrepare() (and one ore more calls to
+   * listen()).  Regardless of the returned result, this method should always
+   * try to clean up as much as possible.
    *
    *   @return true on success
    */
-  virtual bool doneListening() = 0;
+  virtual bool listenCleanup() = 0;
 
 }; //class
 

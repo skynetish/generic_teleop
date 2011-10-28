@@ -54,41 +54,45 @@ namespace teleop {
 //=============================================================================
 //Method definitions
 //=============================================================================
-TeleopSourceKeyboard::TeleopSourceKeyboard(TeleopSourceCallback* callback)
-  : TeleopSource(callback), mOldTermiosSet(false) {
+TeleopSourceKeyboard::TeleopSourceKeyboard(TeleopSourceCallback* callback) :
+  TeleopSource(callback),
+  mPrepared(false) {
+
   //Set step size using setter in order to update both steps and step size
   setSteps(STEPS_DEFAULT);
 }
 //=============================================================================
 TeleopSourceKeyboard::~TeleopSourceKeyboard() {
-  //Stop this source
-  stop();
+  //Sub-classes of TeleopSource must do this
+  preDestroy();
 }
 //=============================================================================
-bool TeleopSourceKeyboard::prepareToListen() {
+bool TeleopSourceKeyboard::listenPrepare() {
   //Lock access to members
-  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
 
-  //Save termios settings only if they were not already saved.  This means this
-  //method can be called multiple times without problems.
-  if (!mOldTermiosSet) {
-    //Raw termios settings
-    struct termios rawTermios;
-
-    //Remember old termios settings for stdin
-    tcgetattr(STDIN_FILENO, &mOldTermios);
-    memcpy(&rawTermios, &mOldTermios, sizeof(struct termios));
-
-    //Update stdin to use raw mode
-    rawTermios.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &rawTermios);
-
-    //Note that old termios is set and should not be overwritten
-    mOldTermiosSet = true;
+  //If already prepared we're done.  This means this method can be called
+  //multiple times without problems.
+  if (mPrepared) {
+    return true;
   }
+
+  //Raw termios settings
+  struct termios rawTermios;
+
+  //Remember old termios settings for stdin
+  tcgetattr(STDIN_FILENO, &mOldTermios);
+  memcpy(&rawTermios, &mOldTermios, sizeof(struct termios));
+
+  //Update stdin to use raw mode
+  rawTermios.c_lflag &= ~(ICANON | ECHO);
+  tcsetattr(STDIN_FILENO, TCSANOW, &rawTermios);
 
   //Print welcome message
   std::fprintf(stdout, "\n\nUse arrow keys to move and space to stop.  Press CTRL-C to quit.\n");
+
+  //Note that we're prepared
+  mPrepared = true;
 
   //Return result
   return true;
@@ -103,7 +107,13 @@ TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutMilliseconds,
   }
 
   //Lock access to members
-  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
+
+  //Ensure we're prepared
+  if (!mPrepared) {
+    std::fprintf(stderr, "TeleopSourceKeyboard::listen: not prepared\n");
+    return LISTEN_RESULT_ERROR;
+  }
 
   //Ensure state has correct number and types of axes and buttons
   if (2 != teleopState->axes.size()) {
@@ -149,16 +159,21 @@ TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutMilliseconds,
   return handleEvent(c, teleopState);
 }
 //=============================================================================
-bool TeleopSourceKeyboard::doneListening() {
+bool TeleopSourceKeyboard::listenCleanup() {
   //Lock access to members
-  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
 
-  //Restore termios settings only if they were saved.  This means this method
-  //can be called multiple times without problems.
-  if (mOldTermiosSet) {
-    tcsetattr(STDIN_FILENO, TCSANOW, &mOldTermios);
-    mOldTermiosSet = false;
+  //If we're not prepared we're done.  This means this method can be called
+  //multiple times without problems.
+  if (!mPrepared) {
+    return true;
   }
+
+  //Restore termios settings
+  tcsetattr(STDIN_FILENO, TCSANOW, &mOldTermios);
+
+  //Note that we're not prepared
+  mPrepared = false;
 
   //Return result
   return true;
@@ -166,9 +181,6 @@ bool TeleopSourceKeyboard::doneListening() {
 //=============================================================================
 TeleopSource::ListenResult TeleopSourceKeyboard::handleEvent(char c,
                                                              TeleopState* const teleopState) {
-  //Lock access to members
-  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
-
   //Handle known events
   switch(c) {
     case KEYCODE_UP:
@@ -225,7 +237,7 @@ bool TeleopSourceKeyboard::setSteps(int steps) {
   }
 
   //Lock access to members
-  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
 
   //Set steps and step size
   mSteps = steps;
@@ -237,7 +249,7 @@ bool TeleopSourceKeyboard::setSteps(int steps) {
 //=============================================================================
 int TeleopSourceKeyboard::getSteps() {
   //Lock access to members
-  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
 
   //Return steps
   return mSteps;
