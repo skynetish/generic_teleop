@@ -83,8 +83,7 @@
 
 /**
  * Instance of the teleop source callback class used by this node.  A publisher
- * must be provided to the constructor, and this publisher should not be
- * destroyed until the source has been stopped.
+ * must be provided to the constructor.
  */
 class TeleopSourceCallbackRos : public teleop::TeleopSource::TeleopSourceCallback {
 
@@ -107,10 +106,10 @@ public:
 
 private:
 
-  /** Publisher given to constructor and used in callback */
+  /** Publisher given to constructor and used in updated() */
   const ros::Publisher* const mPublisher;
 
-  /** Teleop message is a member to avoid re-creation for each callback call */
+  /** Teleop message member avoids re-creation for each call to updated() */
   teleop_msgs::State mTeleopStateMsg;
 
 }; //class
@@ -335,8 +334,8 @@ int main(int argc, char** argv)
   nodeHandle.setParam(PARAM_KEY_KEYBOARD_STEPS,  keyboardSteps);
   nodeHandle.setParam(PARAM_KEY_AXIS_DEAD_ZONE,  axisDeadZone);
 
-  //Advertise publisher with buffer size set to 1 and latching on.  The
-  //publisher should basically just always contain the latest teleop state.
+  //Create publisher with buffer size set to 1 and latching on.  The publisher
+  //should basically just always contain the latest teleop state.
   ros::Publisher publisher = nodeHandle.advertise<teleop_msgs::State>(topic, 1, true);
 
   //Create callback using publisher
