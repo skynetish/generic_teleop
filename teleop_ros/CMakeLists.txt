@@ -8,6 +8,6 @@ rosbuild_init()
 # Cmake settings
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
-# Create executable
+# Create executables
 rosbuild_add_executable(teleop_source_ros src/teleop_source_ros.cpp)
-
+rosbuild_add_executable(teleop_sink_twist_ros src/teleop_sink_twist_ros.cpp)
