@@ -359,7 +359,7 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  //Spin until shutdown is called in quit()
+  //Spin until we're done
   ros::spin();
 
   //Stop and free teleop source

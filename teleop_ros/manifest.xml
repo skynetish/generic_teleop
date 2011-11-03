@@ -17,6 +17,7 @@
   <depend package="teleop_source_keyboard" />
   <depend package="teleop_source_joystick" />
   <depend package="teleop_msgs" />
+  <depend package="geometry_msgs" />
   <depend package="roscpp" />
 
 </package>
