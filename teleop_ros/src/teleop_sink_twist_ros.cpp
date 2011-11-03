@@ -70,6 +70,13 @@
 #define PARAM_KEY_MIN_ROT_X             "min_rot_x"
 #define PARAM_KEY_MIN_ROT_Y             "min_rot_y"
 #define PARAM_KEY_MIN_ROT_Z             "min_rot_z"
+
+#define PARAM_KEY_MAX_LIN_X             "max_lin_x"
+#define PARAM_KEY_MAX_LIN_Y             "max_lin_y"
+#define PARAM_KEY_MAX_LIN_Z             "max_lin_z"
+#define PARAM_KEY_MAX_ROT_X             "max_rot_x"
+#define PARAM_KEY_MAX_ROT_Y             "max_rot_y"
+#define PARAM_KEY_MAX_ROT_Z             "max_rot_z"
 /**@}*/
 
 /**@{ Parameter default values */
@@ -83,19 +90,19 @@
 #define PARAM_DEFAULT_HAS_ROT_Y         1
 #define PARAM_DEFAULT_HAS_ROT_Z         1
 
-#define PARAM_DEFAULT_MAX_LIN_X         (1.0)
-#define PARAM_DEFAULT_MAX_LIN_Y         (1.0)
-#define PARAM_DEFAULT_MAX_LIN_Z         (1.0)
-#define PARAM_DEFAULT_MAX_ROT_X         (M_PI)
-#define PARAM_DEFAULT_MAX_ROT_Y         (M_PI)
-#define PARAM_DEFAULT_MAX_ROT_Z         (M_PI)
-
 #define PARAM_DEFAULT_MIN_LIN_X         (-1.0)
 #define PARAM_DEFAULT_MIN_LIN_Y         (-1.0)
 #define PARAM_DEFAULT_MIN_LIN_Z         (-1.0)
 #define PARAM_DEFAULT_MIN_ROT_X         (-M_PI)
 #define PARAM_DEFAULT_MIN_ROT_Y         (-M_PI)
 #define PARAM_DEFAULT_MIN_ROT_Z         (-M_PI)
+
+#define PARAM_DEFAULT_MAX_LIN_X         (1.0)
+#define PARAM_DEFAULT_MAX_LIN_Y         (1.0)
+#define PARAM_DEFAULT_MAX_LIN_Z         (1.0)
+#define PARAM_DEFAULT_MAX_ROT_X         (M_PI)
+#define PARAM_DEFAULT_MAX_ROT_Y         (M_PI)
+#define PARAM_DEFAULT_MAX_ROT_Z         (M_PI)
 /**@}*/
 
 
@@ -115,14 +122,34 @@ public:
 
   /**
    * Constructor.
+   *
+   *   @param publisher [in] - publisher for twist messages
+   *   @param hasLinX [in] - true if sink has lin X axis
+   *   @param hasLinY [in] - true if sink has lin Y axis
+   *   @param hasLinZ [in] - true if sink has lin Z axis
+   *   @param hasRotX [in] - true if sink has rot X axis
+   *   @param hasRotY [in] - true if sink has rot Y axis
+   *   @param hasRotZ [in] - true if sink has rot Z axis
+   *   @param minLinX [in] - min value for lin X axis
+   *   @param minLinY [in] - min value for lin Y axis
+   *   @param minLinZ [in] - min value for lin Z axis
+   *   @param minRotX [in] - min value for rot X axis
+   *   @param minRotY [in] - min value for rot Y axis
+   *   @param minRotZ [in] - min value for rot Z axis
+   *   @param maxLinX [in] - max value for lin X axis
+   *   @param maxLinY [in] - max value for lin Y axis
+   *   @param maxLinZ [in] - max value for lin Z axis
+   *   @param maxRotX [in] - max value for rot X axis
+   *   @param maxRotY [in] - max value for rot Y axis
+   *   @param maxRotZ [in] - max value for rot Z axis
    */
   TeleopSinkTwistCallbackRos(const ros::Publisher* const publisher,
                              bool hasLinX, bool hasLinY, bool hasLinZ,
                              bool hasRotX, bool hasRotY, bool hasRotZ,
-                             double maxLinX, double maxLinY, double maxLinZ,
-                             double maxRotX, double maxRotY, double maxRotZ,
                              double minLinX, double minLinY, double minLinZ,
-                             double minRotX, double minRotY, double minRotZ);
+                             double minRotX, double minRotY, double minRotZ,
+                             double maxLinX, double maxLinY, double maxLinZ,
+                             double maxRotX, double maxRotY, double maxRotZ);
 
   /**
    * Destructor.
@@ -144,8 +171,8 @@ private:
 
   /**@{ Parameters for existence and range for each twist axis */
   bool mHasLinX, mHasLinY, mHasLinZ, mHasRotX, mHasRotY, mHasRotZ;
-  double mMaxLinX, mMaxLinY, mMaxLinZ, mMaxRotX, mMaxRotY, mMaxRotZ;
   double mMinLinX, mMinLinY, mMinLinZ, mMinRotX, mMinRotY, mMinRotZ;
+  double mMaxLinX, mMaxLinY, mMaxLinZ, mMaxRotX, mMaxRotY, mMaxRotZ;
   /**@}*/
 
   /**
@@ -193,7 +220,7 @@ private:
  /**
   * Signal handler
   *
-  *   @param signalNumber - received signal number
+  *   @param signalNumber [in] - received signal number
   */
  void signalHandler(int signalNumber);
 
@@ -205,8 +232,8 @@ private:
 /**
  * Check if we should just print usage information, and if so, print it.
  *
- *   @param argc - number of command line arguments
- *   @param argv - command line arguments
+ *   @param argc [in] - number of command line arguments
+ *   @param argv [in] - command line arguments
  *
  *   @return true if usage was printed
  */
@@ -221,10 +248,10 @@ bool printUsage(int argc, char** argv);
 TeleopSinkTwistCallbackRos::TeleopSinkTwistCallbackRos(const ros::Publisher* const publisher,
                                                        bool hasLinX, bool hasLinY, bool hasLinZ,
                                                        bool hasRotX, bool hasRotY, bool hasRotZ,
-                                                       double maxLinX, double maxLinY, double maxLinZ,
-                                                       double maxRotX, double maxRotY, double maxRotZ,
                                                        double minLinX, double minLinY, double minLinZ,
-                                                       double minRotX, double minRotY, double minRotZ) :
+                                                       double minRotX, double minRotY, double minRotZ,
+                                                       double maxLinX, double maxLinY, double maxLinZ,
+                                                       double maxRotX, double maxRotY, double maxRotZ) :
   mPublisher(publisher),
   mHasLinX(hasLinX),
   mHasLinY(hasLinY),
@@ -232,18 +259,18 @@ TeleopSinkTwistCallbackRos::TeleopSinkTwistCallbackRos(const ros::Publisher* con
   mHasRotX(hasRotX),
   mHasRotY(hasRotY),
   mHasRotZ(hasRotZ),
-  mMaxLinX(maxLinX),
-  mMaxLinY(maxLinY),
-  mMaxLinZ(maxLinZ),
-  mMaxRotX(maxRotX),
-  mMaxRotY(maxRotY),
-  mMaxRotZ(maxRotZ),
   mMinLinX(minLinX),
   mMinLinY(minLinY),
   mMinLinZ(minLinZ),
   mMinRotX(minRotX),
   mMinRotY(minRotY),
-  mMinRotZ(minRotZ) {
+  mMinRotZ(minRotZ),
+  mMaxLinX(maxLinX),
+  mMaxLinY(maxLinY),
+  mMaxLinZ(maxLinZ),
+  mMaxRotX(maxRotX),
+  mMaxRotY(maxRotY),
+  mMaxRotZ(maxRotZ) {
 }
 //=============================================================================
 TeleopSinkTwistCallbackRos::~TeleopSinkTwistCallbackRos() {
@@ -281,7 +308,7 @@ void TeleopSinkTwistCallbackRos::updated(const teleop_msgs::State& teleopStateMs
 }
 //=============================================================================
 bool TeleopSinkTwistCallbackRos::teleopStateToTwist(const teleop_msgs::State* const teleopStateMsg,
-                                                    geometry_msgs::Twist* const twistMsg) {
+													geometry_msgs::Twist* const twistMsg) {
   //Sanity check parameters
   if (NULL == teleopStateMsg || NULL == twistMsg) {
     ROS_ERROR("teleopStateToTwist: NULL parameter");
@@ -456,18 +483,18 @@ bool printUsage(int argc, char** argv) {
       std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_X,    PARAM_DEFAULT_HAS_ROT_X);
       std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_Y,    PARAM_DEFAULT_HAS_ROT_Y);
       std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_Z,    PARAM_DEFAULT_HAS_ROT_Z);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_X,    PARAM_DEFAULT_MAX_LIN_X);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_Y,    PARAM_DEFAULT_MAX_LIN_Y);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_Z,    PARAM_DEFAULT_MAX_LIN_Z);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_X,    PARAM_DEFAULT_MAX_ROT_X);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_Y,    PARAM_DEFAULT_MAX_ROT_Y);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_Z,    PARAM_DEFAULT_MAX_ROT_Z);
       std::printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_X,    PARAM_DEFAULT_MIN_LIN_X);
       std::printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_Y,    PARAM_DEFAULT_MIN_LIN_Y);
       std::printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_Z,    PARAM_DEFAULT_MIN_LIN_Z);
       std::printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_X,    PARAM_DEFAULT_MIN_ROT_X);
       std::printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_Y,    PARAM_DEFAULT_MIN_ROT_Y);
       std::printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_Z,    PARAM_DEFAULT_MIN_ROT_Z);
+      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_X,    PARAM_DEFAULT_MAX_LIN_X);
+      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_Y,    PARAM_DEFAULT_MAX_LIN_Y);
+      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_Z,    PARAM_DEFAULT_MAX_LIN_Z);
+      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_X,    PARAM_DEFAULT_MAX_ROT_X);
+      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_Y,    PARAM_DEFAULT_MAX_ROT_Y);
+      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_Z,    PARAM_DEFAULT_MAX_ROT_Z);
       std::printf("\n");
       return true;
     }
@@ -514,18 +541,18 @@ int main(int argc, char** argv)
   nodeHandle.param(PARAM_KEY_HAS_ROT_X,    hasRotX,     PARAM_DEFAULT_HAS_ROT_X);
   nodeHandle.param(PARAM_KEY_HAS_ROT_Y,    hasRotY,     PARAM_DEFAULT_HAS_ROT_Y);
   nodeHandle.param(PARAM_KEY_HAS_ROT_Z,    hasRotZ,     PARAM_DEFAULT_HAS_ROT_Z);
-  nodeHandle.param(PARAM_KEY_MAX_LIN_X,    maxLinX,     PARAM_DEFAULT_MAX_LIN_X);
-  nodeHandle.param(PARAM_KEY_MAX_LIN_Y,    maxLinY,     PARAM_DEFAULT_MAX_LIN_Y);
-  nodeHandle.param(PARAM_KEY_MAX_LIN_Z,    maxLinZ,     PARAM_DEFAULT_MAX_LIN_Z);
-  nodeHandle.param(PARAM_KEY_MAX_ROT_X,    maxRotX,     PARAM_DEFAULT_MAX_ROT_X);
-  nodeHandle.param(PARAM_KEY_MAX_ROT_Y,    maxRotY,     PARAM_DEFAULT_MAX_ROT_Y);
-  nodeHandle.param(PARAM_KEY_MAX_ROT_Z,    maxRotZ,     PARAM_DEFAULT_MAX_ROT_Z);
   nodeHandle.param(PARAM_KEY_MIN_LIN_X,    minLinX,     PARAM_DEFAULT_MIN_LIN_X);
   nodeHandle.param(PARAM_KEY_MIN_LIN_Y,    minLinY,     PARAM_DEFAULT_MIN_LIN_Y);
   nodeHandle.param(PARAM_KEY_MIN_LIN_Z,    minLinZ,     PARAM_DEFAULT_MIN_LIN_Z);
   nodeHandle.param(PARAM_KEY_MIN_ROT_X,    minRotX,     PARAM_DEFAULT_MIN_ROT_X);
   nodeHandle.param(PARAM_KEY_MIN_ROT_Y,    minRotY,     PARAM_DEFAULT_MIN_ROT_Y);
   nodeHandle.param(PARAM_KEY_MIN_ROT_Z,    minRotZ,     PARAM_DEFAULT_MIN_ROT_Z);
+  nodeHandle.param(PARAM_KEY_MAX_LIN_X,    maxLinX,     PARAM_DEFAULT_MAX_LIN_X);
+  nodeHandle.param(PARAM_KEY_MAX_LIN_Y,    maxLinY,     PARAM_DEFAULT_MAX_LIN_Y);
+  nodeHandle.param(PARAM_KEY_MAX_LIN_Z,    maxLinZ,     PARAM_DEFAULT_MAX_LIN_Z);
+  nodeHandle.param(PARAM_KEY_MAX_ROT_X,    maxRotX,     PARAM_DEFAULT_MAX_ROT_X);
+  nodeHandle.param(PARAM_KEY_MAX_ROT_Y,    maxRotY,     PARAM_DEFAULT_MAX_ROT_Y);
+  nodeHandle.param(PARAM_KEY_MAX_ROT_Z,    maxRotZ,     PARAM_DEFAULT_MAX_ROT_Z);
 
   //Advertise parameters for introspection
   nodeHandle.setParam(PARAM_KEY_TOPIC_TELEOP, topicTeleop);
@@ -536,18 +563,18 @@ int main(int argc, char** argv)
   nodeHandle.setParam(PARAM_KEY_HAS_ROT_X,    hasRotX);
   nodeHandle.setParam(PARAM_KEY_HAS_ROT_Y,    hasRotY);
   nodeHandle.setParam(PARAM_KEY_HAS_ROT_Z,    hasRotZ);
-  nodeHandle.setParam(PARAM_KEY_MAX_LIN_X,    maxLinX);
-  nodeHandle.setParam(PARAM_KEY_MAX_LIN_Y,    maxLinY);
-  nodeHandle.setParam(PARAM_KEY_MAX_LIN_Z,    maxLinZ);
-  nodeHandle.setParam(PARAM_KEY_MAX_ROT_X,    maxRotX);
-  nodeHandle.setParam(PARAM_KEY_MAX_ROT_Y,    maxRotY);
-  nodeHandle.setParam(PARAM_KEY_MAX_ROT_Z,    maxRotZ);
   nodeHandle.setParam(PARAM_KEY_MIN_LIN_X,    minLinX);
   nodeHandle.setParam(PARAM_KEY_MIN_LIN_Y,    minLinY);
   nodeHandle.setParam(PARAM_KEY_MIN_LIN_Z,    minLinZ);
   nodeHandle.setParam(PARAM_KEY_MIN_ROT_X,    minRotX);
   nodeHandle.setParam(PARAM_KEY_MIN_ROT_Y,    minRotY);
   nodeHandle.setParam(PARAM_KEY_MIN_ROT_Z,    minRotZ);
+  nodeHandle.setParam(PARAM_KEY_MAX_LIN_X,    maxLinX);
+  nodeHandle.setParam(PARAM_KEY_MAX_LIN_Y,    maxLinY);
+  nodeHandle.setParam(PARAM_KEY_MAX_LIN_Z,    maxLinZ);
+  nodeHandle.setParam(PARAM_KEY_MAX_ROT_X,    maxRotX);
+  nodeHandle.setParam(PARAM_KEY_MAX_ROT_Y,    maxRotY);
+  nodeHandle.setParam(PARAM_KEY_MAX_ROT_Z,    maxRotZ);
 
   //Create publisher with buffer size set to 1 and latching on.  The publisher
   //should basically just always contain the latest desired velocity.
@@ -557,8 +584,8 @@ int main(int argc, char** argv)
   TeleopSinkTwistCallbackRos callback(&publisher,
                                       0 != hasLinX, 0 != hasLinY, 0 != hasLinZ,
                                       0 != hasRotX, 0 != hasRotY, 0 != hasRotZ,
-                                      maxLinX, maxLinY, maxLinZ, maxRotX, maxRotY, maxRotZ,
-                                      minLinX, minLinY, minLinZ, minRotX, minRotY, minRotZ);
+                                      minLinX, minLinY, minLinZ, minRotX, minRotY, minRotZ,
+                                      maxLinX, maxLinY, maxLinZ, maxRotX, maxRotY, maxRotZ);
 
   //Subscribe to teleop topic using callback
   nodeHandle.subscribe(topicTeleop, 1, &TeleopSinkTwistCallbackRos::updated, &callback);

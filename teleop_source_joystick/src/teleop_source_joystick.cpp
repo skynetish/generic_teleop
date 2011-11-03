@@ -201,8 +201,7 @@ bool TeleopSourceJoystick::listenPrepare() {
   return true;
 }
 //=============================================================================
-TeleopSource::ListenResult TeleopSourceJoystick::listen(int timeoutMilliseconds,
-                                                        TeleopState* const teleopState) {
+TeleopSource::ListenResult TeleopSourceJoystick::listen(int timeoutMilliseconds, TeleopState* const teleopState) {
   //Sanity check
   if (NULL == teleopState) {
     std::fprintf(stderr, "TeleopSourceJoystick::listen: NULL teleop state\n");
@@ -226,7 +225,6 @@ TeleopSource::ListenResult TeleopSourceJoystick::listen(int timeoutMilliseconds,
       teleopState->axes[i].value = 0.0;
     }
   }
-
   if (mNumButtons != teleopState->buttons.size()) {
     teleopState->buttons.resize(mNumButtons);
     for (size_t i = 0; i < mNumButtons; i++) {
@@ -322,7 +320,7 @@ bool TeleopSourceJoystick::listenCleanup() {
 }
 //=============================================================================
 TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* const event,
-                                                             TeleopState* const teleopState) {
+		                                                     TeleopState* const teleopState) {
   //Handle known events
   switch(event->type)
   {
@@ -364,6 +362,7 @@ TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* con
           teleopState->axes[event->number].value *= -1.0;
           break;
         default:
+          //Ignore other axes
           break;
       }
 

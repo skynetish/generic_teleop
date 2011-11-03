@@ -145,12 +145,10 @@ static const TeleopAxisValue TELEOP_AXIS_MAX = 1.0;
 /**@}*/
 
 /** Number of axis types */
-static const int TELEOP_AXIS_TYPE_COUNT =
-    (TELEOP_AXIS_TYPE_LAST - TELEOP_AXIS_TYPE_FIRST + 1);
+static const int TELEOP_AXIS_TYPE_COUNT = (TELEOP_AXIS_TYPE_LAST - TELEOP_AXIS_TYPE_FIRST + 1);
 
 /** Number of button types */
-static const int TELEOP_BUTTON_TYPE_COUNT =
-    (TELEOP_BUTTON_TYPE_LAST - TELEOP_BUTTON_TYPE_FIRST + 1);
+static const int TELEOP_BUTTON_TYPE_COUNT = (TELEOP_BUTTON_TYPE_LAST - TELEOP_BUTTON_TYPE_FIRST + 1);
 
 
 
@@ -162,7 +160,7 @@ static const int TELEOP_BUTTON_TYPE_COUNT =
 /**
  * Function to determine axis type name.
  *
- *   @param axisType - axis type
+ *   @param axisType [in] - axis type
  *
  *   @return axis type name
  */
@@ -171,7 +169,7 @@ extern std::string teleopAxisName(TeleopAxisType axisType);
 /**
  * Function to determine button type name.
  *
- *   @param buttonType - button type
+ *   @param buttonType [in] - button type
  *
  *   @return button type name
  */

@@ -229,7 +229,7 @@ void TeleopSource::listeningThread() {
     switch (listenResult) {
       case LISTEN_RESULT_ERROR:
         //Error
-        std::fprintf(stderr, "TeleopSource::listenLoop: error in listen()\n");
+        std::fprintf(stderr, "TeleopSource::listeningThread: error in listen()\n");
         error = true;
         break;
       case LISTEN_RESULT_UNCHANGED:
@@ -260,8 +260,7 @@ void TeleopSource::listeningThread() {
       }
       default:
         //Invalid result
-        std::fprintf(stderr, "TeleopSource::listenLoop: invalid result from listen() (%d)\n",
-                listenResult);
+        std::fprintf(stderr, "TeleopSource::listeningThread: invalid result from listen() (%d)\n", listenResult);
         error = true;
         break;
     }
@@ -281,7 +280,7 @@ void TeleopSource::listeningThread() {
 
   //Listen cleanup
   if (!listenCleanup()) {
-    std::fprintf(stderr, "TeleopSource::listenLoop: error in listenCleanup()\n");
+    std::fprintf(stderr, "TeleopSource::listeningThread: error in listenCleanup()\n");
   }
 
   //Call stopping callback
@@ -296,8 +295,7 @@ void TeleopSource::listeningThread() {
   //=============================================================================
 bool TeleopSource::setListenTimeout(int listenTimeout) {
   if (LISTEN_TIMEOUT_MIN > listenTimeout || LISTEN_TIMEOUT_MAX < listenTimeout) {
-    std::fprintf(stderr, "TeleopSource::setListenTimeout: invalid listen timeout (%d)\n",
-            listenTimeout);
+    std::fprintf(stderr, "TeleopSource::setListenTimeout: invalid listen timeout (%d)\n", listenTimeout);
     return false;
   }
 
@@ -315,8 +313,7 @@ int TeleopSource::getListenTimeout() {
 //=============================================================================
 bool TeleopSource::setAxisDeadZoneForAllAxes(TeleopAxisValue axisDeadZone) {
   if (AXIS_DEAD_ZONE_MIN > axisDeadZone || AXIS_DEAD_ZONE_MAX < axisDeadZone) {
-    std::fprintf(stderr, "TeleopSource::setAxisDeadZoneForAllAxes: invalid axis dead zone (%f)\n",
-            axisDeadZone);
+    std::fprintf(stderr, "TeleopSource::setAxisDeadZoneForAllAxes: invalid axis dead zone (%f)\n", axisDeadZone);
     return false;
   }
 
@@ -355,8 +352,7 @@ bool TeleopSource::setAxisInvertedForAllAxes(bool axisInverted) {
   return true;
 }
 //=============================================================================
-bool TeleopSource::setAxisInverted(bool axisInverted,
-                                   TeleopAxisType axisType) {
+bool TeleopSource::setAxisInverted(bool axisInverted, TeleopAxisType axisType) {
   //Lock access to axis inverted
   boost::lock_guard<boost::mutex> axisInvertedLock(mAxisInvertedMutex);
   mAxisInverted[axisType] = axisInverted;

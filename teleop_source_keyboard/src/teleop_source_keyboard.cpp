@@ -98,8 +98,7 @@ bool TeleopSourceKeyboard::listenPrepare() {
   return true;
 }
 //=============================================================================
-TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutMilliseconds,
-                                                        TeleopState* const teleopState) {
+TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutMilliseconds, TeleopState* const teleopState) {
   //Sanity check
   if (NULL == teleopState) {
     std::fprintf(stderr, "TeleopSourceKeyboard::listen: NULL teleop state\n");
@@ -179,8 +178,7 @@ bool TeleopSourceKeyboard::listenCleanup() {
   return true;
 }
 //=============================================================================
-TeleopSource::ListenResult TeleopSourceKeyboard::handleEvent(char c,
-                                                             TeleopState* const teleopState) {
+TeleopSource::ListenResult TeleopSourceKeyboard::handleEvent(char c, TeleopState* const teleopState) {
   //Handle known events
   switch(c) {
     case KEYCODE_UP:

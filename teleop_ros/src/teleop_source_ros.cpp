@@ -64,14 +64,10 @@
 /**@{ Parameter default values */
 #define PARAM_DEFAULT_TOPIC             "teleop"
 #define PARAM_DEFAULT_TYPE              TELEOP_TYPE_KEYBOARD
-#define PARAM_DEFAULT_LISTEN_TIMEOUT \
-    ((int)teleop::TeleopSource::LISTEN_TIMEOUT_DEFAULT)
-#define PARAM_DEFAULT_JOYSTICK_DEVICE \
-    ((std::string)teleop::TeleopSourceJoystick::DEFAULT_DEVICE)
-#define PARAM_DEFAULT_KEYBOARD_STEPS \
-    ((int)teleop::TeleopSourceKeyboard::STEPS_DEFAULT)
-#define PARAM_DEFAULT_AXIS_DEAD_ZONE \
-    ((teleop::TeleopAxisValue)teleop::TeleopSource::AXIS_DEAD_ZONE_DEFAULT)
+#define PARAM_DEFAULT_LISTEN_TIMEOUT    ((int)teleop::TeleopSource::LISTEN_TIMEOUT_DEFAULT)
+#define PARAM_DEFAULT_JOYSTICK_DEVICE   ((std::string)teleop::TeleopSourceJoystick::DEFAULT_DEVICE)
+#define PARAM_DEFAULT_KEYBOARD_STEPS    ((int)teleop::TeleopSourceKeyboard::STEPS_DEFAULT)
+#define PARAM_DEFAULT_AXIS_DEAD_ZONE    ((teleop::TeleopAxisValue)teleop::TeleopSource::AXIS_DEAD_ZONE_DEFAULT)
 /**@}*/
 
 
@@ -91,6 +87,8 @@ public:
 
   /**
    * Constructor.
+   *
+   *   @param publisher [in] - publisher for teleop messages
    */
   TeleopSourceCallbackRos(const ros::Publisher* const publisher);
 
@@ -124,7 +122,7 @@ private:
 /**
  * Signal handler
  *
- *   @param signalNumber - received signal number
+ *   @param signalNumber [in] - received signal number
  */
 void signalHandler(int signalNumber);
 
@@ -136,12 +134,12 @@ void quit();
 /**
  * Utility function for creating a teleop source
  *
- *   @param teleopSourceCallback - callback object to use
- *   @param type - teleop type
- *   @param listenTimeout - listen timeout value in milliseconds
- *   @param axisDeadZone - default dead zone
- *   @param keyboardSteps - if this is a keyboard, use this many steps
- *   @param joystickDevice - if this is a joystick, use this device
+ *   @param teleopSourceCallback [in] - callback object to use
+ *   @param type [in] - teleop type
+ *   @param listenTimeout [in] - listen timeout value in milliseconds
+ *   @param axisDeadZone [in] - default dead zone
+ *   @param keyboardSteps [in] - if this is a keyboard, use this many steps
+ *   @param joystickDevice [in] - if this is a joystick, use this device
  *
  *   @return teleop source or NULL on error
  */
@@ -155,8 +153,8 @@ teleop::TeleopSource* teleopSourceFactory(teleop::TeleopSource::TeleopSourceCall
 /**
  * Check if we should just print usage information, and if so, print it.
  *
- *   @param argc - number of command line arguments
- *   @param argv - command line arguments
+ *   @param argc [in] - number of command line arguments
+ *   @param argv [in] - command line arguments
  *
  *   @return true if usage was printed
  */
@@ -172,9 +170,7 @@ TeleopSourceCallbackRos::TeleopSourceCallbackRos(const ros::Publisher* const pub
   mPublisher(publisher) {
 }
 //=============================================================================
-void TeleopSourceCallbackRos::updated(const teleop::TeleopState* const teleopState,
-                                      bool stopping,
-                                      bool error) {
+void TeleopSourceCallbackRos::updated(const teleop::TeleopState* const teleopState, bool stopping, bool error) {
   //Sanity check publisher
   if (NULL == mPublisher) {
     ROS_ERROR("updated: NULL publisher");
