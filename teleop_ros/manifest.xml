@@ -12,6 +12,9 @@
   <license>BSD</license>
   <url></url>
 
+  <!-- External dependencies -->
+  <rosdep name="boost" />
+
   <!-- Package dependencies -->
   <depend package="teleop_framework" />
   <depend package="teleop_source_keyboard" />
