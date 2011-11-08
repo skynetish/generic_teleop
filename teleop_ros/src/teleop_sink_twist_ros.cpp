@@ -50,6 +50,8 @@
 #define PARAM_KEY_TOPIC_TELEOP          "topic-teleop"
 #define PARAM_KEY_TOPIC_TWIST           "topic-twist"
 
+#define PARAM_KEY_EXPONENTIAL           "exponential"
+
 #define PARAM_KEY_HAS_LIN_X             "has_lin_x"
 #define PARAM_KEY_HAS_LIN_Y             "has_lin_y"
 #define PARAM_KEY_HAS_LIN_Z             "has_lin_z"
@@ -82,6 +84,8 @@
 /**@{ Parameter default values */
 #define PARAM_DEFAULT_TOPIC_TELEOP      "teleop"
 #define PARAM_DEFAULT_TOPIC_TWIST       "cmd_vel"
+
+#define PARAM_DEFAULT_EXPONENTIAL       1
 
 #define PARAM_DEFAULT_HAS_LIN_X         1
 #define PARAM_DEFAULT_HAS_LIN_Y         1
@@ -124,6 +128,7 @@ public:
    * Constructor.
    *
    *   @param publisher [in] - publisher for twist messages
+   *   @param exponential [in] - true if values should grow exponentially
    *   @param hasLinX [in] - true if sink has lin X axis
    *   @param hasLinY [in] - true if sink has lin Y axis
    *   @param hasLinZ [in] - true if sink has lin Z axis
@@ -143,7 +148,7 @@ public:
    *   @param maxRotY [in] - max value for rot Y axis
    *   @param maxRotZ [in] - max value for rot Z axis
    */
-  TeleopSinkTwistCallbackRos(const ros::Publisher* const publisher,
+  TeleopSinkTwistCallbackRos(const ros::Publisher* const publisher, bool exponential,
                              bool hasLinX, bool hasLinY, bool hasLinZ,
                              bool hasRotX, bool hasRotY, bool hasRotZ,
                              double minLinX, double minLinY, double minLinZ,
@@ -168,6 +173,9 @@ private:
 
   /** Publisher given to constructor and used in updated() */
   const ros::Publisher* const mPublisher;
+
+  /** True if values should grow exponentially */
+  bool mExponential;
 
   /**@{ Parameters for existence and range for each twist axis */
   bool mHasLinX, mHasLinY, mHasLinZ, mHasRotX, mHasRotY, mHasRotZ;
@@ -245,7 +253,7 @@ bool printUsage(int argc, char** argv);
 //=============================================================================
 //Method definitions
 //=============================================================================
-TeleopSinkTwistCallbackRos::TeleopSinkTwistCallbackRos(const ros::Publisher* const publisher,
+TeleopSinkTwistCallbackRos::TeleopSinkTwistCallbackRos(const ros::Publisher* const publisher, bool exponential,
                                                        bool hasLinX, bool hasLinY, bool hasLinZ,
                                                        bool hasRotX, bool hasRotY, bool hasRotZ,
                                                        double minLinX, double minLinY, double minLinZ,
@@ -253,6 +261,7 @@ TeleopSinkTwistCallbackRos::TeleopSinkTwistCallbackRos(const ros::Publisher* con
                                                        double maxLinX, double maxLinY, double maxLinZ,
                                                        double maxRotX, double maxRotY, double maxRotZ) :
   mPublisher(publisher),
+  mExponential(exponential),
   mHasLinX(hasLinX),
   mHasLinY(hasLinY),
   mHasLinZ(hasLinZ),
@@ -296,6 +305,7 @@ void TeleopSinkTwistCallbackRos::updated(const teleop_msgs::State& teleopStateMs
   //Sanity check publisher
   if (NULL == mPublisher) {
     ROS_ERROR("updated: NULL publisher");
+    quit();
     return;
   }
 
@@ -304,11 +314,12 @@ void TeleopSinkTwistCallbackRos::updated(const teleop_msgs::State& teleopStateMs
     mPublisher->publish(mTwistMsg);
   } else {
     ROS_ERROR("updated: error converting teleop state to twist");
+    quit();
   }
 }
 //=============================================================================
 bool TeleopSinkTwistCallbackRos::teleopStateToTwist(const teleop_msgs::State* const teleopStateMsg,
-													geometry_msgs::Twist* const twistMsg) {
+                                                    geometry_msgs::Twist* const twistMsg) {
   //Sanity check parameters
   if (NULL == teleopStateMsg || NULL == twistMsg) {
     ROS_ERROR("teleopStateToTwist: NULL parameter");
@@ -427,26 +438,44 @@ bool TeleopSinkTwistCallbackRos::teleopStateToTwist(const teleop_msgs::State* co
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistLinX(teleop::TeleopAxisValue teleopAxisValue) {
+  if (mExponential) {
+    teleopAxisValue *= teleopAxisValue;
+  }
   return (mMinLinX + (teleopAxisValue*(mMaxLinX - mMinLinX)));
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistLinY(teleop::TeleopAxisValue teleopAxisValue) {
+  if (mExponential) {
+    teleopAxisValue *= teleopAxisValue;
+  }
   return (mMinLinY + (teleopAxisValue*(mMaxLinY - mMinLinY)));
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistLinZ(teleop::TeleopAxisValue teleopAxisValue) {
+  if (mExponential) {
+    teleopAxisValue *= teleopAxisValue;
+  }
   return (mMinLinZ + (teleopAxisValue*(mMaxLinZ - mMinLinZ)));
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistRotX(teleop::TeleopAxisValue teleopAxisValue) {
+  if (mExponential) {
+    teleopAxisValue *= teleopAxisValue;
+  }
   return (mMinRotX + (teleopAxisValue*(mMaxRotX - mMinRotX)));
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistRotY(teleop::TeleopAxisValue teleopAxisValue) {
+  if (mExponential) {
+    teleopAxisValue *= teleopAxisValue;
+  }
   return (mMinRotY + (teleopAxisValue*(mMaxRotY - mMinRotY)));
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistRotZ(teleop::TeleopAxisValue teleopAxisValue) {
+  if (mExponential) {
+    teleopAxisValue *= teleopAxisValue;
+  }
   return (mMinRotZ + (teleopAxisValue*(mMaxRotZ - mMinRotZ)));
 }
 //=============================================================================
@@ -477,6 +506,7 @@ bool printUsage(int argc, char** argv) {
       std::printf("Parameters and their default values\n");
       std::printf("    _%s:=%s\n",    PARAM_KEY_TOPIC_TELEOP, PARAM_DEFAULT_TOPIC_TELEOP);
       std::printf("    _%s:=%s\n",    PARAM_KEY_TOPIC_TWIST,  PARAM_DEFAULT_TOPIC_TWIST);
+      std::printf("    _%s:=%d\n",    PARAM_KEY_EXPONENTIAL,  PARAM_DEFAULT_EXPONENTIAL);
       std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_X,    PARAM_DEFAULT_HAS_LIN_X);
       std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Y,    PARAM_DEFAULT_HAS_LIN_Y);
       std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Z,    PARAM_DEFAULT_HAS_LIN_Z);
@@ -528,6 +558,7 @@ int main(int argc, char** argv)
   //Declare parameters
   std::string topicTeleop;
   std::string topicTwist;
+  int exponential;
   int hasLinX, hasLinY, hasLinZ, hasRotX, hasRotY, hasRotZ;
   double maxLinX, maxLinY, maxLinZ, maxRotX, maxRotY, maxRotZ;
   double minLinX, minLinY, minLinZ, minRotX, minRotY, minRotZ;
@@ -535,6 +566,7 @@ int main(int argc, char** argv)
   //Read parameters and set default values
   nodeHandle.param(PARAM_KEY_TOPIC_TELEOP, topicTeleop, std::string(PARAM_DEFAULT_TOPIC_TELEOP));
   nodeHandle.param(PARAM_KEY_TOPIC_TWIST,  topicTwist,  std::string(PARAM_DEFAULT_TOPIC_TWIST));
+  nodeHandle.param(PARAM_KEY_EXPONENTIAL,  exponential, PARAM_DEFAULT_EXPONENTIAL);
   nodeHandle.param(PARAM_KEY_HAS_LIN_X,    hasLinX,     PARAM_DEFAULT_HAS_LIN_X);
   nodeHandle.param(PARAM_KEY_HAS_LIN_Y,    hasLinY,     PARAM_DEFAULT_HAS_LIN_Y);
   nodeHandle.param(PARAM_KEY_HAS_LIN_Z,    hasLinZ,     PARAM_DEFAULT_HAS_LIN_Z);
@@ -557,6 +589,7 @@ int main(int argc, char** argv)
   //Advertise parameters for introspection
   nodeHandle.setParam(PARAM_KEY_TOPIC_TELEOP, topicTeleop);
   nodeHandle.setParam(PARAM_KEY_TOPIC_TWIST,  topicTwist);
+  nodeHandle.setParam(PARAM_KEY_EXPONENTIAL,  exponential);
   nodeHandle.setParam(PARAM_KEY_HAS_LIN_X,    hasLinX);
   nodeHandle.setParam(PARAM_KEY_HAS_LIN_Y,    hasLinY);
   nodeHandle.setParam(PARAM_KEY_HAS_LIN_Z,    hasLinZ);
@@ -581,7 +614,7 @@ int main(int argc, char** argv)
   ros::Publisher publisher = nodeHandle.advertise<geometry_msgs::Twist>(topicTwist, 1, true);
 
   //Create callback using publisher and parameters
-  TeleopSinkTwistCallbackRos callback(&publisher,
+  TeleopSinkTwistCallbackRos callback(&publisher, 0 != exponential,
                                       0 != hasLinX, 0 != hasLinY, 0 != hasLinZ,
                                       0 != hasRotX, 0 != hasRotY, 0 != hasRotZ,
                                       minLinX, minLinY, minLinZ, minRotX, minRotY, minRotZ,
