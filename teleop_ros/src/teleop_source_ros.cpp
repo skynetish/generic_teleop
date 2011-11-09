@@ -330,9 +330,11 @@ bool printUsage(int argc, char** argv) {
 //=============================================================================
 int main(int argc, char** argv)
 {
+  int result = 0;
+
   //Check if we should just print usage information and quit
   if (printUsage(argc, argv)) {
-    return 0;
+    return result;
   }
 
   //Set signal handler
@@ -385,28 +387,30 @@ int main(int argc, char** argv)
                                                            axisDeadZone,
                                                            keyboardSteps,
                                                            joystickDevice);
+
+  //Use teleop source if it was successfully created
   if (NULL == teleopSource) {
     ROS_ERROR("main: NULL teleop source");
-    return 1;
-  }
+    result = 1;
+  } else {
+    //Start teleop source
+    if (!teleopSource->start()) {
+      ROS_ERROR("main: error starting teleop source");
+      result = 1;
+    } else {
+      //Wait for quit request
+      boost::unique_lock<boost::mutex> quitRequestedLock(gQuitRequestedMutex);
+      while(!gQuitRequested) {
+        gQuitRequestedCondition.wait(quitRequestedLock);
+      }
+      quitRequestedLock.unlock();
+    }
 
-  //Start teleop source
-  if (!teleopSource->start()) {
-    ROS_ERROR("main: error starting teleop source");
-    return 1;
+    //Stop and free teleop source
+    teleopSource->stop();
+    teleopSource->waitForStopped();
+    delete teleopSource;
   }
-
-  //Wait for quit request
-  boost::unique_lock<boost::mutex> quitRequestedLock(gQuitRequestedMutex);
-  while(!gQuitRequested) {
-    gQuitRequestedCondition.wait(quitRequestedLock);
-  }
-  quitRequestedLock.unlock();
-
-  //Stop and free teleop source
-  teleopSource->stop();
-  teleopSource->waitForStopped();
-  delete teleopSource;
 
   //Free callback object
   delete callback;
@@ -415,5 +419,5 @@ int main(int argc, char** argv)
   ros::Duration(0.5).sleep();
 
   //Done
-  return 0;
+  return result;
 }
