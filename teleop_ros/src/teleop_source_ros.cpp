@@ -37,6 +37,7 @@
 #include <teleop_source_joystick.hpp>
 #include <teleop_msgs/State.h>
 #include <ros/ros.h>
+#include <boost/thread.hpp>
 #include <csignal>
 #include <cstdio>
 
@@ -91,6 +92,11 @@ public:
    *   @param publisher [in] - publisher for teleop messages
    */
   TeleopSourceCallbackRos(const ros::Publisher* const publisher);
+
+  /**
+   * Destructor.
+   */
+  ~TeleopSourceCallbackRos();
 
   /**
    * Override virtual method from parent.
@@ -164,10 +170,42 @@ bool printUsage(int argc, char** argv);
 
 
 //=============================================================================
+//Globals
+//=============================================================================
+
+/**@{ Globals used to check for quit request from any thread */
+static boost::condition_variable gQuitRequestedCondition;
+static boost::mutex gQuitRequestedMutex;
+static bool gQuitRequested = false;
+/**@}*/
+
+
+
+
+//=============================================================================
 //Method definitions
 //=============================================================================
 TeleopSourceCallbackRos::TeleopSourceCallbackRos(const ros::Publisher* const publisher) :
   mPublisher(publisher) {
+}
+//=============================================================================
+TeleopSourceCallbackRos::~TeleopSourceCallbackRos() {
+  //Sanity check publisher
+  if (NULL == mPublisher) {
+    ROS_ERROR("~TeleopSourceCallbackRos: NULL publisher");
+    return;
+  }
+
+  //Zero message
+  for (size_t i = 0; i < mTeleopStateMsg.axes.size(); i++) {
+    mTeleopStateMsg.axes[i].value = 0.0;
+  }
+  for (size_t i = 0; i < mTeleopStateMsg.buttons.size(); i++) {
+    mTeleopStateMsg.buttons[i].value = 0.0;
+  }
+
+  //Publish zero message
+  mPublisher->publish(mTeleopStateMsg);
 }
 //=============================================================================
 void TeleopSourceCallbackRos::updated(const teleop::TeleopState* const teleopState, bool stopping, bool error) {
@@ -190,11 +228,11 @@ void TeleopSourceCallbackRos::updated(const teleop::TeleopState* const teleopSta
   if (mTeleopStateMsg.buttons.size() != teleopState->buttons.size()) {
     mTeleopStateMsg.buttons.resize(teleopState->buttons.size());
   }
-  for (size_t i = 0; i < teleopState->axes.size(); i++) {
+  for (size_t i = 0; i < mTeleopStateMsg.axes.size(); i++) {
     mTeleopStateMsg.axes[i].type = teleopState->axes[i].type;
     mTeleopStateMsg.axes[i].value = teleopState->axes[i].value;
   }
-  for (size_t i = 0; i < teleopState->buttons.size(); i++) {
+  for (size_t i = 0; i < mTeleopStateMsg.buttons.size(); i++) {
     mTeleopStateMsg.buttons[i].type = teleopState->buttons[i].type;
     mTeleopStateMsg.buttons[i].value = teleopState->buttons[i].value;
   }
@@ -202,19 +240,15 @@ void TeleopSourceCallbackRos::updated(const teleop::TeleopState* const teleopSta
   //Publish result
   mPublisher->publish(mTeleopStateMsg);
 
-  //On error just print a message.
+  //On error just print a message.  The stopping condition will be handled in
+  //the stopping() callback, so we can safely ignore it here.
   if (error) {
     ROS_ERROR("updated: error detected");
-  }
-
-  //On stopping just print a message
-  if (stopping) {
-    ROS_INFO("updated: stopping");
   }
 }
 //=============================================================================
 void TeleopSourceCallbackRos::stopping(bool error) {
-  ROS_INFO("stopping: stopping");
+  //If the teleop source is stopping for any reason just quit
   quit();
 }
 //=============================================================================
@@ -230,8 +264,12 @@ void signalHandler(int signalNumber) {
 }
 //=============================================================================
 void quit() {
-  //Shutdown ROS to end spinning
-  ros::shutdown();
+  //Notify that quit has been requested if we haven't already done so
+  boost::lock_guard<boost::mutex> quitRequestedLock(gQuitRequestedMutex);
+  if (!gQuitRequested) {
+    gQuitRequested = true;
+    gQuitRequestedCondition.notify_all();
+  }
 }
 //=============================================================================
 teleop::TeleopSource* teleopSourceFactory(teleop::TeleopSource::TeleopSourceCallback* callback,
@@ -297,11 +335,11 @@ int main(int argc, char** argv)
     return 0;
   }
 
-  //Initialise ROS (exceptions ignored intentionally)
-  ros::init(argc, argv, basename(argv[0]), ros::init_options::NoSigintHandler);
-
   //Set signal handler
   signal(SIGINT, signalHandler);
+
+  //Initialise ROS (exceptions ignored intentionally)
+  ros::init(argc, argv, basename(argv[0]), ros::init_options::NoSigintHandler);
 
   //Node handle uses private namespace (exceptions ignored intentionally)
   ros::NodeHandle nodeHandle("~");
@@ -322,7 +360,7 @@ int main(int argc, char** argv)
   nodeHandle.param(PARAM_KEY_KEYBOARD_STEPS,  keyboardSteps,  PARAM_DEFAULT_KEYBOARD_STEPS);
   nodeHandle.param(PARAM_KEY_AXIS_DEAD_ZONE,  axisDeadZone,   PARAM_DEFAULT_AXIS_DEAD_ZONE);
 
-  //Advertise all parameters for introspection
+  //Advertise all parameters to allow introspection
   nodeHandle.setParam(PARAM_KEY_TOPIC,           topic);
   nodeHandle.setParam(PARAM_KEY_TYPE,            type);
   nodeHandle.setParam(PARAM_KEY_LISTEN_TIMEOUT,  listenTimeout);
@@ -334,11 +372,14 @@ int main(int argc, char** argv)
   //should basically just always contain the latest teleop state.
   ros::Publisher publisher = nodeHandle.advertise<teleop_msgs::State>(topic, 1, true);
 
-  //Create callback using publisher
-  TeleopSourceCallbackRos callback(&publisher);
+  //Create callback using publisher.  The callback destructor may want to
+  //publish a final message, so we use dynamic allocation here.  This means we
+  //can free this object and sleep a bit before the publisher and node handle
+  //go out of scope and get destroyed.
+  TeleopSourceCallbackRos* callback = new TeleopSourceCallbackRos(&publisher);
 
-  //Create teleop source using callback
-  teleop::TeleopSource* teleopSource = teleopSourceFactory(&callback,
+  //Create teleop source using callback and parameters
+  teleop::TeleopSource* teleopSource = teleopSourceFactory(callback,
                                                            type,
                                                            listenTimeout,
                                                            axisDeadZone,
@@ -355,13 +396,23 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  //Spin until we're done
-  ros::spin();
+  //Wait for quit request
+  boost::unique_lock<boost::mutex> quitRequestedLock(gQuitRequestedMutex);
+  while(!gQuitRequested) {
+    gQuitRequestedCondition.wait(quitRequestedLock);
+  }
+  quitRequestedLock.unlock();
 
   //Stop and free teleop source
   teleopSource->stop();
   teleopSource->waitForStopped();
   delete teleopSource;
+
+  //Free callback object
+  delete callback;
+
+  //Sleep a bit to allow final messages to be published
+  ros::Duration(0.5).sleep();
 
   //Done
   return 0;

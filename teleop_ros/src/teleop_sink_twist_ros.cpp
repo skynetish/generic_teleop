@@ -35,6 +35,7 @@
 #include <teleop_msgs/State.h>
 #include <geometry_msgs/Twist.h>
 #include <ros/ros.h>
+#include <boost/thread.hpp>
 #include <csignal>
 #include <cmath>
 #include <cstdio>
@@ -47,8 +48,8 @@
 //=============================================================================
 
 /**@{ Parameter keys */
-#define PARAM_KEY_TOPIC_TELEOP          "topic-teleop"
-#define PARAM_KEY_TOPIC_TWIST           "topic-twist"
+#define PARAM_KEY_TOPIC_TELEOP          "topic_teleop"
+#define PARAM_KEY_TOPIC_TWIST           "topic_twist"
 
 #define PARAM_KEY_EXPONENTIAL           "exponential"
 
@@ -199,6 +200,15 @@ private:
    */
   bool teleopStateToTwist(const teleop_msgs::State* const teleopStateMsg, geometry_msgs::Twist* const twistMsg);
 
+  /**
+   * Apply exponential factor to teleop axis value.
+   *
+   *   @param teleopAxisValue [in] - original teleop axis value
+   *
+   *   @return updated teleopAxisValue
+   */
+  teleop::TeleopAxisValue applyExponential(teleop::TeleopAxisValue teleopAxisValue);
+
   /**@{
    * Methods to convert normalised teleop axis values into unnormalised twist
    * values.  These methods use the min and max member values for each axis
@@ -251,6 +261,19 @@ bool printUsage(int argc, char** argv);
 
 
 //=============================================================================
+//Globals
+//=============================================================================
+
+/**@{ Globals used to check for quit request from any thread */
+static boost::condition_variable gQuitRequestedCondition;
+static boost::mutex gQuitRequestedMutex;
+static bool gQuitRequested = false;
+/**@}*/
+
+
+
+
+//=============================================================================
 //Method definitions
 //=============================================================================
 TeleopSinkTwistCallbackRos::TeleopSinkTwistCallbackRos(const ros::Publisher* const publisher, bool exponential,
@@ -280,6 +303,38 @@ TeleopSinkTwistCallbackRos::TeleopSinkTwistCallbackRos(const ros::Publisher* con
   mMaxRotX(maxRotX),
   mMaxRotY(maxRotY),
   mMaxRotZ(maxRotZ) {
+
+  //Sanity checks: min <= max, 0 <= max, 0 >= min
+  if (mMinLinX > mMaxLinX || 0 > mMaxLinX || 0 < mMinLinX) {
+    ROS_WARN("TeleopSinkTwistCallbackRos: invalid lin X min and/or max values, resetting both to defaults");
+    mMaxLinX = PARAM_DEFAULT_MAX_LIN_X;
+    mMinLinX = PARAM_DEFAULT_MIN_LIN_X;
+  }
+  if (mMinLinY > mMaxLinY || 0 > mMaxLinY || 0 < mMinLinY) {
+    ROS_WARN("TeleopSinkTwistCallbackRos: invalid lin Y min and/or max values, resetting both to defaults");
+    mMaxLinY = PARAM_DEFAULT_MAX_LIN_Y;
+    mMinLinY = PARAM_DEFAULT_MIN_LIN_Y;
+  }
+  if (mMinLinZ > mMaxLinZ || 0 > mMaxLinZ || 0 < mMinLinZ) {
+    ROS_WARN("TeleopSinkTwistCallbackRos: invalid lin Z min and/or max values, resetting both to defaults");
+    mMaxLinZ = PARAM_DEFAULT_MAX_LIN_Z;
+    mMinLinZ = PARAM_DEFAULT_MIN_LIN_Z;
+  }
+  if (mMinRotX > mMaxRotX || 0 > mMaxRotX || 0 < mMinRotX) {
+    ROS_WARN("TeleopSinkTwistCallbackRos: invalid rot X min and/or max values, resetting both to defaults");
+    mMaxRotX = PARAM_DEFAULT_MAX_ROT_X;
+    mMinRotX = PARAM_DEFAULT_MIN_ROT_X;
+  }
+  if (mMinRotY > mMaxRotY || 0 > mMaxRotY || 0 < mMinRotY) {
+    ROS_WARN("TeleopSinkTwistCallbackRos: invalid rot Y min and/or max values, resetting both to defaults");
+    mMaxRotY = PARAM_DEFAULT_MAX_ROT_Y;
+    mMinRotY = PARAM_DEFAULT_MIN_ROT_Y;
+  }
+  if (mMinRotZ > mMaxRotZ || 0 > mMaxRotZ || 0 < mMinRotZ) {
+    ROS_WARN("TeleopSinkTwistCallbackRos: invalid rot Z min and/or max values, resetting both to defaults");
+    mMaxRotZ = PARAM_DEFAULT_MAX_ROT_Z;
+    mMinRotZ = PARAM_DEFAULT_MIN_ROT_Z;
+  }
 }
 //=============================================================================
 TeleopSinkTwistCallbackRos::~TeleopSinkTwistCallbackRos() {
@@ -289,7 +344,7 @@ TeleopSinkTwistCallbackRos::~TeleopSinkTwistCallbackRos() {
     return;
   }
 
-  //Zero twist message
+  //Zero message
   mTwistMsg.linear.x = 0.0;
   mTwistMsg.linear.y = 0.0;
   mTwistMsg.linear.z = 0.0;
@@ -297,7 +352,7 @@ TeleopSinkTwistCallbackRos::~TeleopSinkTwistCallbackRos() {
   mTwistMsg.angular.y = 0.0;
   mTwistMsg.angular.z = 0.0;
 
-  //Publish zero twist message
+  //Publish zero message
   mPublisher->publish(mTwistMsg);
 }
 //=============================================================================
@@ -437,46 +492,64 @@ bool TeleopSinkTwistCallbackRos::teleopStateToTwist(const teleop_msgs::State* co
   return true;
 }
 //=============================================================================
-double TeleopSinkTwistCallbackRos::teleopToTwistLinX(teleop::TeleopAxisValue teleopAxisValue) {
+teleop::TeleopAxisValue TeleopSinkTwistCallbackRos::applyExponential(teleop::TeleopAxisValue teleopAxisValue) {
   if (mExponential) {
-    teleopAxisValue *= teleopAxisValue;
+    if (0.0 <= teleopAxisValue) {
+      return (teleopAxisValue * teleopAxisValue);
+    } else {
+      return -(teleopAxisValue * teleopAxisValue);
+    }
+  } else {
+    return teleopAxisValue;
   }
-  return (mMinLinX + (teleopAxisValue*(mMaxLinX - mMinLinX)));
+}
+//=============================================================================
+double TeleopSinkTwistCallbackRos::teleopToTwistLinX(teleop::TeleopAxisValue teleopAxisValue) {
+  if (0.0 <= teleopAxisValue) {
+    return (applyExponential(teleopAxisValue) * mMaxLinX);
+  } else {
+    return -(applyExponential(teleopAxisValue) * mMinLinX);
+  }
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistLinY(teleop::TeleopAxisValue teleopAxisValue) {
-  if (mExponential) {
-    teleopAxisValue *= teleopAxisValue;
+  if (0.0 <= teleopAxisValue) {
+    return (applyExponential(teleopAxisValue) * mMaxLinY);
+  } else {
+    return -(applyExponential(teleopAxisValue) * mMinLinY);
   }
-  return (mMinLinY + (teleopAxisValue*(mMaxLinY - mMinLinY)));
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistLinZ(teleop::TeleopAxisValue teleopAxisValue) {
-  if (mExponential) {
-    teleopAxisValue *= teleopAxisValue;
+  if (0.0 <= teleopAxisValue) {
+    return (applyExponential(teleopAxisValue) * mMaxLinZ);
+  } else {
+    return -(applyExponential(teleopAxisValue) * mMinLinZ);
   }
-  return (mMinLinZ + (teleopAxisValue*(mMaxLinZ - mMinLinZ)));
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistRotX(teleop::TeleopAxisValue teleopAxisValue) {
-  if (mExponential) {
-    teleopAxisValue *= teleopAxisValue;
+  if (0.0 <= teleopAxisValue) {
+    return (applyExponential(teleopAxisValue) * mMaxRotX);
+  } else {
+    return -(applyExponential(teleopAxisValue) * mMinRotX);
   }
-  return (mMinRotX + (teleopAxisValue*(mMaxRotX - mMinRotX)));
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistRotY(teleop::TeleopAxisValue teleopAxisValue) {
-  if (mExponential) {
-    teleopAxisValue *= teleopAxisValue;
+  if (0.0 <= teleopAxisValue) {
+    return (applyExponential(teleopAxisValue) * mMaxRotY);
+  } else {
+    return -(applyExponential(teleopAxisValue) * mMinRotY);
   }
-  return (mMinRotY + (teleopAxisValue*(mMaxRotY - mMinRotY)));
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistRotZ(teleop::TeleopAxisValue teleopAxisValue) {
-  if (mExponential) {
-    teleopAxisValue *= teleopAxisValue;
+  if (0.0 <= teleopAxisValue) {
+    return (applyExponential(teleopAxisValue) * mMaxRotZ);
+  } else {
+    return -(applyExponential(teleopAxisValue) * mMinRotZ);
   }
-  return (mMinRotZ + (teleopAxisValue*(mMaxRotZ - mMinRotZ)));
 }
 //=============================================================================
 
@@ -491,8 +564,12 @@ void signalHandler(int signalNumber) {
 }
 //=============================================================================
 void quit() {
-  //Shutdown ROS to end spinning
-  ros::shutdown();
+  //Notify that quit has been requested if we haven't already done so
+  boost::lock_guard<boost::mutex> quitRequestedLock(gQuitRequestedMutex);
+  if (!gQuitRequested) {
+    gQuitRequested = true;
+    gQuitRequestedCondition.notify_all();
+  }
 }
 //=============================================================================
 bool printUsage(int argc, char** argv) {
@@ -546,11 +623,11 @@ int main(int argc, char** argv)
     return 0;
   }
 
-  //Initialise ROS (exceptions ignored intentionally)
-  ros::init(argc, argv, basename(argv[0]), ros::init_options::NoSigintHandler);
-
   //Set signal handler
   signal(SIGINT, signalHandler);
+
+  //Initialise ROS (exceptions ignored intentionally)
+  ros::init(argc, argv, basename(argv[0]), ros::init_options::NoSigintHandler);
 
   //Node handle uses private namespace (exceptions ignored intentionally)
   ros::NodeHandle nodeHandle("~");
@@ -586,7 +663,7 @@ int main(int argc, char** argv)
   nodeHandle.param(PARAM_KEY_MAX_ROT_Y,    maxRotY,     PARAM_DEFAULT_MAX_ROT_Y);
   nodeHandle.param(PARAM_KEY_MAX_ROT_Z,    maxRotZ,     PARAM_DEFAULT_MAX_ROT_Z);
 
-  //Advertise parameters for introspection
+  //Advertise all parameters to allow introspection
   nodeHandle.setParam(PARAM_KEY_TOPIC_TELEOP, topicTeleop);
   nodeHandle.setParam(PARAM_KEY_TOPIC_TWIST,  topicTwist);
   nodeHandle.setParam(PARAM_KEY_EXPONENTIAL,  exponential);
@@ -613,18 +690,37 @@ int main(int argc, char** argv)
   //should basically just always contain the latest desired velocity.
   ros::Publisher publisher = nodeHandle.advertise<geometry_msgs::Twist>(topicTwist, 1, true);
 
-  //Create callback using publisher and parameters
-  TeleopSinkTwistCallbackRos callback(&publisher, 0 != exponential,
-                                      0 != hasLinX, 0 != hasLinY, 0 != hasLinZ,
-                                      0 != hasRotX, 0 != hasRotY, 0 != hasRotZ,
-                                      minLinX, minLinY, minLinZ, minRotX, minRotY, minRotZ,
-                                      maxLinX, maxLinY, maxLinZ, maxRotX, maxRotY, maxRotZ);
+  //Create callback using publisher and parameters.  The callback destructor
+  //may want to publish a final message, so we use dynamic allocation here.
+  //This means we can free this object and sleep a bit before the publisher and
+  //node handle go out of scope and get destroyed.
+  TeleopSinkTwistCallbackRos* callback = new TeleopSinkTwistCallbackRos(&publisher, 0 != exponential,
+                                                                        0 != hasLinX, 0 != hasLinY, 0 != hasLinZ,
+                                                                        0 != hasRotX, 0 != hasRotY, 0 != hasRotZ,
+                                                                        minLinX, minLinY, minLinZ,
+                                                                        minRotX,minRotY, minRotZ,
+                                                                        maxLinX, maxLinY, maxLinZ,
+                                                                        maxRotX, maxRotY, maxRotZ);
 
   //Subscribe to teleop topic using callback
-  nodeHandle.subscribe(topicTeleop, 1, &TeleopSinkTwistCallbackRos::updated, &callback);
+  ros::Subscriber subscriber = nodeHandle.subscribe(topicTeleop, 1, &TeleopSinkTwistCallbackRos::updated, callback);
 
-  //Spin until we're done
-  ros::spin();
+  //Start asynchronous spinner to handle ROS events
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
+
+  //Wait for quit request
+  boost::unique_lock<boost::mutex> quitRequestedLock(gQuitRequestedMutex);
+  while(!gQuitRequested) {
+    gQuitRequestedCondition.wait(quitRequestedLock);
+  }
+  quitRequestedLock.unlock();
+
+  //Free callback object
+  delete callback;
+
+  //Sleep a bit to allow final messages to be published
+  ros::Duration(0.5).sleep();
 
   //Done
   return 0;
