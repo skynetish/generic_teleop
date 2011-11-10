@@ -95,19 +95,19 @@
 #define PARAM_DEFAULT_HAS_ROT_Y         0
 #define PARAM_DEFAULT_HAS_ROT_Z         0
 
-#define PARAM_DEFAULT_MIN_LIN_X         (-1.0)
-#define PARAM_DEFAULT_MIN_LIN_Y         (-1.0)
-#define PARAM_DEFAULT_MIN_LIN_Z         (-1.0)
-#define PARAM_DEFAULT_MIN_ROT_X         (-M_PI)
-#define PARAM_DEFAULT_MIN_ROT_Y         (-M_PI)
-#define PARAM_DEFAULT_MIN_ROT_Z         (-M_PI)
+#define PARAM_DEFAULT_MIN_LIN_X         (-0.5)
+#define PARAM_DEFAULT_MIN_LIN_Y         (-0.5)
+#define PARAM_DEFAULT_MIN_LIN_Z         (-0.5)
+#define PARAM_DEFAULT_MIN_ROT_X         (-M_PI_2)
+#define PARAM_DEFAULT_MIN_ROT_Y         (-M_PI_2)
+#define PARAM_DEFAULT_MIN_ROT_Z         (-M_PI_2)
 
-#define PARAM_DEFAULT_MAX_LIN_X         (1.0)
-#define PARAM_DEFAULT_MAX_LIN_Y         (1.0)
-#define PARAM_DEFAULT_MAX_LIN_Z         (1.0)
-#define PARAM_DEFAULT_MAX_ROT_X         (M_PI)
-#define PARAM_DEFAULT_MAX_ROT_Y         (M_PI)
-#define PARAM_DEFAULT_MAX_ROT_Z         (M_PI)
+#define PARAM_DEFAULT_MAX_LIN_X         (0.5)
+#define PARAM_DEFAULT_MAX_LIN_Y         (0.5)
+#define PARAM_DEFAULT_MAX_LIN_Z         (0.5)
+#define PARAM_DEFAULT_MAX_ROT_X         (M_PI_2)
+#define PARAM_DEFAULT_MAX_ROT_Y         (M_PI_2)
+#define PARAM_DEFAULT_MAX_ROT_Z         (M_PI_2)
 /**@}*/
 
 
