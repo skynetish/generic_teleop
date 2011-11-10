@@ -88,12 +88,12 @@
 
 #define PARAM_DEFAULT_EXPONENTIAL       1
 
-#define PARAM_DEFAULT_HAS_LIN_X         1
-#define PARAM_DEFAULT_HAS_LIN_Y         1
-#define PARAM_DEFAULT_HAS_LIN_Z         1
-#define PARAM_DEFAULT_HAS_ROT_X         1
-#define PARAM_DEFAULT_HAS_ROT_Y         1
-#define PARAM_DEFAULT_HAS_ROT_Z         1
+#define PARAM_DEFAULT_HAS_LIN_X         0
+#define PARAM_DEFAULT_HAS_LIN_Y         0
+#define PARAM_DEFAULT_HAS_LIN_Z         0
+#define PARAM_DEFAULT_HAS_ROT_X         0
+#define PARAM_DEFAULT_HAS_ROT_Y         0
+#define PARAM_DEFAULT_HAS_ROT_Z         0
 
 #define PARAM_DEFAULT_MIN_LIN_X         (-1.0)
 #define PARAM_DEFAULT_MIN_LIN_Y         (-1.0)
