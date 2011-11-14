@@ -16,12 +16,12 @@ usage() {
   echo "    -t --topic      target topic"
   echo ""
   echo "  Optional"
-  echo "    -x              linear.x, positive forward"
-  echo "    -y              linear.y, positive left"
-  echo "    -z              linear.z, positive up"
-  echo "    --roll          angular.x, positive ccw from origin"
-  echo "    --pitch         angular.y, positive ccw from origin"
-  echo "    --yaw           angular.z, positive ccw from origin"
+  echo "    -x              linear.x"
+  echo "    -y              linear.y"
+  echo "    -z              linear.z"
+  echo "    --roll          angular.x"
+  echo "    --pitch         angular.y"
+  echo "    --yaw           angular.z"
   echo ""
   exit ${1}
 }
