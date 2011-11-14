@@ -54,8 +54,8 @@
 /**@}*/
 
 /**@{ Parameter keys */
-#define PARAM_KEY_TOPIC                 "topic"
-#define PARAM_KEY_TYPE                  "type"
+#define PARAM_KEY_TELEOP_TOPIC          "teleop_topic"
+#define PARAM_KEY_TELEOP_TYPE           "teleop_type"
 #define PARAM_KEY_LISTEN_TIMEOUT        "listen_timeout"
 #define PARAM_KEY_JOYSTICK_DEVICE       "joystick_device"
 #define PARAM_KEY_KEYBOARD_STEPS        "keyboard_steps"
@@ -63,8 +63,8 @@
 /**@}*/
 
 /**@{ Parameter default values */
-#define PARAM_DEFAULT_TOPIC             "teleop"
-#define PARAM_DEFAULT_TYPE              TELEOP_TYPE_KEYBOARD
+#define PARAM_DEFAULT_TELEOP_TOPIC      "teleop"
+#define PARAM_DEFAULT_TELEOP_TYPE       TELEOP_TYPE_KEYBOARD
 #define PARAM_DEFAULT_LISTEN_TIMEOUT    ((int)teleop::TeleopSource::LISTEN_TIMEOUT_DEFAULT)
 #define PARAM_DEFAULT_JOYSTICK_DEVICE   ((std::string)teleop::TeleopSourceJoystick::DEFAULT_DEVICE)
 #define PARAM_DEFAULT_KEYBOARD_STEPS    ((int)teleop::TeleopSourceKeyboard::STEPS_DEFAULT)
@@ -308,8 +308,8 @@ bool printUsage(int argc, char** argv) {
       std::printf("    %s [params]\n", basename(argv[0]));
       std::printf("\n");
       std::printf("Parameters and their default values\n");
-      std::printf("    _%s:=%s\n",    PARAM_KEY_TYPE,            PARAM_DEFAULT_TYPE);
-      std::printf("    _%s:=%s\n",    PARAM_KEY_TOPIC,           PARAM_DEFAULT_TOPIC);
+      std::printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TYPE,     PARAM_DEFAULT_TELEOP_TYPE);
+      std::printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TOPIC,    PARAM_DEFAULT_TELEOP_TOPIC);
       std::printf("    _%s:=%d\n",    PARAM_KEY_LISTEN_TIMEOUT,  PARAM_DEFAULT_LISTEN_TIMEOUT);
       std::printf("    _%s:=%.02f\n", PARAM_KEY_AXIS_DEAD_ZONE,  PARAM_DEFAULT_AXIS_DEAD_ZONE);
       std::printf("    _%s:=%d\n",    PARAM_KEY_KEYBOARD_STEPS,  PARAM_DEFAULT_KEYBOARD_STEPS);
@@ -347,24 +347,24 @@ int main(int argc, char** argv)
   ros::NodeHandle nodeHandle("~");
 
   //Declare parameters
-  std::string topic;
-  std::string type;
+  std::string teleopTopic;
+  std::string teleopType;
   int listenTimeout;
   std::string joystickDevice;
   int keyboardSteps;
   double axisDeadZone;
 
   //Read parameters and/or set default values
-  nodeHandle.param(PARAM_KEY_TOPIC,           topic,          std::string(PARAM_DEFAULT_TOPIC));
-  nodeHandle.param(PARAM_KEY_TYPE,            type,           std::string(PARAM_DEFAULT_TYPE));
+  nodeHandle.param(PARAM_KEY_TELEOP_TOPIC,    teleopTopic,    std::string(PARAM_DEFAULT_TELEOP_TOPIC));
+  nodeHandle.param(PARAM_KEY_TELEOP_TYPE,     teleopType,     std::string(PARAM_DEFAULT_TELEOP_TYPE));
   nodeHandle.param(PARAM_KEY_LISTEN_TIMEOUT,  listenTimeout,  PARAM_DEFAULT_LISTEN_TIMEOUT);
   nodeHandle.param(PARAM_KEY_JOYSTICK_DEVICE, joystickDevice, PARAM_DEFAULT_JOYSTICK_DEVICE);
   nodeHandle.param(PARAM_KEY_KEYBOARD_STEPS,  keyboardSteps,  PARAM_DEFAULT_KEYBOARD_STEPS);
   nodeHandle.param(PARAM_KEY_AXIS_DEAD_ZONE,  axisDeadZone,   PARAM_DEFAULT_AXIS_DEAD_ZONE);
 
   //Advertise all parameters to allow introspection
-  nodeHandle.setParam(PARAM_KEY_TOPIC,           topic);
-  nodeHandle.setParam(PARAM_KEY_TYPE,            type);
+  nodeHandle.setParam(PARAM_KEY_TELEOP_TOPIC,    teleopTopic);
+  nodeHandle.setParam(PARAM_KEY_TELEOP_TYPE,     teleopType);
   nodeHandle.setParam(PARAM_KEY_LISTEN_TIMEOUT,  listenTimeout);
   nodeHandle.setParam(PARAM_KEY_JOYSTICK_DEVICE, joystickDevice);
   nodeHandle.setParam(PARAM_KEY_KEYBOARD_STEPS,  keyboardSteps);
@@ -372,7 +372,7 @@ int main(int argc, char** argv)
 
   //Create publisher with buffer size set to 1 and latching on.  The publisher
   //should basically just always contain the latest teleop state.
-  ros::Publisher publisher = nodeHandle.advertise<teleop_msgs::State>(topic, 1, true);
+  ros::Publisher publisher = nodeHandle.advertise<teleop_msgs::State>(teleopTopic, 1, true);
 
   //Create callback using publisher.  The callback destructor may want to
   //publish a final message, so we use dynamic allocation here.  This means we
@@ -382,7 +382,7 @@ int main(int argc, char** argv)
 
   //Create teleop source using callback and parameters
   teleop::TeleopSource* teleopSource = teleopSourceFactory(callback,
-                                                           type,
+                                                           teleopType,
                                                            listenTimeout,
                                                            axisDeadZone,
                                                            keyboardSteps,
@@ -415,8 +415,10 @@ int main(int argc, char** argv)
   //Free callback object
   delete callback;
 
-  //Sleep a bit to allow final messages to be published
-  ros::Duration(0.5).sleep();
+  //Sleep a bit to allow final messages to be published, if possible.  Use
+  //boost thread sleep rather than ROS sleep since ROS sleep may try to use
+  //a simulated clock which has been stopped at the same time as this node.
+  boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 
   //Done
   return result;

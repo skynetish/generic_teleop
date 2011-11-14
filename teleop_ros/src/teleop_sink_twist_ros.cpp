@@ -48,8 +48,8 @@
 //=============================================================================
 
 /**@{ Parameter keys */
-#define PARAM_KEY_TOPIC_TELEOP          "topic_teleop"
-#define PARAM_KEY_TOPIC_TWIST           "topic_twist"
+#define PARAM_KEY_TELEOP_TOPIC          "teleop_topic"
+#define PARAM_KEY_TWIST_TOPIC           "twist_topic"
 
 #define PARAM_KEY_EXPONENTIAL           "exponential"
 
@@ -83,8 +83,8 @@
 /**@}*/
 
 /**@{ Parameter default values */
-#define PARAM_DEFAULT_TOPIC_TELEOP      "teleop"
-#define PARAM_DEFAULT_TOPIC_TWIST       "cmd_vel"
+#define PARAM_DEFAULT_TELEOP_TOPIC      "teleop"
+#define PARAM_DEFAULT_TWIST_TOPIC       "cmd_vel"
 
 #define PARAM_DEFAULT_EXPONENTIAL       1
 
@@ -581,8 +581,8 @@ bool printUsage(int argc, char** argv) {
       std::printf("    %s [params]\n", basename(argv[0]));
       std::printf("\n");
       std::printf("Parameters and their default values\n");
-      std::printf("    _%s:=%s\n",    PARAM_KEY_TOPIC_TELEOP, PARAM_DEFAULT_TOPIC_TELEOP);
-      std::printf("    _%s:=%s\n",    PARAM_KEY_TOPIC_TWIST,  PARAM_DEFAULT_TOPIC_TWIST);
+      std::printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TOPIC, PARAM_DEFAULT_TELEOP_TOPIC);
+      std::printf("    _%s:=%s\n",    PARAM_KEY_TWIST_TOPIC,  PARAM_DEFAULT_TWIST_TOPIC);
       std::printf("    _%s:=%d\n",    PARAM_KEY_EXPONENTIAL,  PARAM_DEFAULT_EXPONENTIAL);
       std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_X,    PARAM_DEFAULT_HAS_LIN_X);
       std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Y,    PARAM_DEFAULT_HAS_LIN_Y);
@@ -633,16 +633,16 @@ int main(int argc, char** argv)
   ros::NodeHandle nodeHandle("~");
 
   //Declare parameters
-  std::string topicTeleop;
-  std::string topicTwist;
+  std::string teleopTopic;
+  std::string twistTopic;
   int exponential;
   int hasLinX, hasLinY, hasLinZ, hasRotX, hasRotY, hasRotZ;
   double maxLinX, maxLinY, maxLinZ, maxRotX, maxRotY, maxRotZ;
   double minLinX, minLinY, minLinZ, minRotX, minRotY, minRotZ;
 
   //Read parameters and set default values
-  nodeHandle.param(PARAM_KEY_TOPIC_TELEOP, topicTeleop, std::string(PARAM_DEFAULT_TOPIC_TELEOP));
-  nodeHandle.param(PARAM_KEY_TOPIC_TWIST,  topicTwist,  std::string(PARAM_DEFAULT_TOPIC_TWIST));
+  nodeHandle.param(PARAM_KEY_TELEOP_TOPIC, teleopTopic, std::string(PARAM_DEFAULT_TELEOP_TOPIC));
+  nodeHandle.param(PARAM_KEY_TWIST_TOPIC,  twistTopic,  std::string(PARAM_DEFAULT_TWIST_TOPIC));
   nodeHandle.param(PARAM_KEY_EXPONENTIAL,  exponential, PARAM_DEFAULT_EXPONENTIAL);
   nodeHandle.param(PARAM_KEY_HAS_LIN_X,    hasLinX,     PARAM_DEFAULT_HAS_LIN_X);
   nodeHandle.param(PARAM_KEY_HAS_LIN_Y,    hasLinY,     PARAM_DEFAULT_HAS_LIN_Y);
@@ -664,8 +664,8 @@ int main(int argc, char** argv)
   nodeHandle.param(PARAM_KEY_MAX_ROT_Z,    maxRotZ,     PARAM_DEFAULT_MAX_ROT_Z);
 
   //Advertise all parameters to allow introspection
-  nodeHandle.setParam(PARAM_KEY_TOPIC_TELEOP, topicTeleop);
-  nodeHandle.setParam(PARAM_KEY_TOPIC_TWIST,  topicTwist);
+  nodeHandle.setParam(PARAM_KEY_TELEOP_TOPIC, teleopTopic);
+  nodeHandle.setParam(PARAM_KEY_TWIST_TOPIC,  twistTopic);
   nodeHandle.setParam(PARAM_KEY_EXPONENTIAL,  exponential);
   nodeHandle.setParam(PARAM_KEY_HAS_LIN_X,    hasLinX);
   nodeHandle.setParam(PARAM_KEY_HAS_LIN_Y,    hasLinY);
@@ -688,7 +688,7 @@ int main(int argc, char** argv)
 
   //Create publisher with buffer size set to 1 and latching on.  The publisher
   //should basically just always contain the latest desired velocity.
-  ros::Publisher publisher = nodeHandle.advertise<geometry_msgs::Twist>(topicTwist, 1, true);
+  ros::Publisher publisher = nodeHandle.advertise<geometry_msgs::Twist>(twistTopic, 1, true);
 
   //Create callback using publisher and parameters.  The callback destructor
   //may want to publish a final message, so we use dynamic allocation here.
@@ -703,7 +703,7 @@ int main(int argc, char** argv)
                                                                         maxRotX, maxRotY, maxRotZ);
 
   //Subscribe to teleop topic using callback
-  ros::Subscriber subscriber = nodeHandle.subscribe(topicTeleop, 1, &TeleopSinkTwistCallbackRos::updated, callback);
+  ros::Subscriber subscriber = nodeHandle.subscribe(teleopTopic, 1, &TeleopSinkTwistCallbackRos::updated, callback);
 
   //Start asynchronous spinner to handle ROS events
   ros::AsyncSpinner spinner(1);
@@ -719,8 +719,10 @@ int main(int argc, char** argv)
   //Free callback object
   delete callback;
 
-  //Sleep a bit to allow final messages to be published
-  ros::Duration(0.5).sleep();
+  //Sleep a bit to allow final messages to be published, if possible.  Use
+  //boost thread sleep rather than ROS sleep since ROS sleep may try to use
+  //a simulated clock which has been stopped at the same time as this node.
+  boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 
   //Done
   return 0;
