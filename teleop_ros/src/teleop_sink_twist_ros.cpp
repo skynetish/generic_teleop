@@ -716,6 +716,9 @@ int main(int argc, char** argv)
   }
   quitRequestedLock.unlock();
 
+  //Stop subscriber to ensure the callback is no longer used
+  subscriber.shutdown();
+
   //Free callback object
   delete callback;
 
