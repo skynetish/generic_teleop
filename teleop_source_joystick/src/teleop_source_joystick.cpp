@@ -350,6 +350,10 @@ TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* con
       switch (teleopState->axes[event->number].type) {
         case TELEOP_AXIS_TYPE_LIN_X:
         case TELEOP_AXIS_TYPE_LIN_Y:
+        case TELEOP_AXIS_TYPE_LIN_Z:
+        case TELEOP_AXIS_TYPE_ROT_X:
+        case TELEOP_AXIS_TYPE_ROT_Y:
+        case TELEOP_AXIS_TYPE_ROT_Z:
         case TELEOP_AXIS_TYPE_HAT0_X:
         case TELEOP_AXIS_TYPE_HAT0_Y:
         case TELEOP_AXIS_TYPE_HAT1_X:
