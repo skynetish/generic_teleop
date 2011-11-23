@@ -128,7 +128,19 @@ bool TeleopSourceJoystick::listenPrepare() {
     return false;
   }
 
-  //Open device in non-blocking mode
+  //Open device in non-blocking mode.  We then close and open the device again
+  //to address driver issues which sometimes cause initialisation events to be
+  //incorrect.
+  mFileDescriptor = open(mDevice.c_str(), O_RDONLY | O_NONBLOCK);
+  if (-1 == mFileDescriptor) {
+    std::fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error opening device\n");
+    return false;
+  }
+  if (0 != close(mFileDescriptor)) {
+    std::fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error closing device\n");
+    mFileDescriptor = -1;
+    return false;
+  }
   mFileDescriptor = open(mDevice.c_str(), O_RDONLY | O_NONBLOCK);
   if (-1 == mFileDescriptor) {
     std::fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error opening device\n");
@@ -325,8 +337,6 @@ TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* con
   switch(event->type)
   {
     case JS_EVENT_AXIS | JS_EVENT_INIT:
-      //Ignore init events, they're often wrong
-      break;
     case JS_EVENT_AXIS:
       //Event number shouldn't be bigger than the vector
       if(event->number >= teleopState->axes.size()) {
@@ -373,8 +383,6 @@ TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* con
       return LISTEN_RESULT_CHANGED;
 
     case JS_EVENT_BUTTON | JS_EVENT_INIT:
-      //Ignore init events, they're often wrong
-      break;
     case JS_EVENT_BUTTON:
       //Event number shouldn't be bigger than the vector
       if(event->number >= teleopState->buttons.size()) {
