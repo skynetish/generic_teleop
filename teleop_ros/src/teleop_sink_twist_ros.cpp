@@ -209,7 +209,7 @@ private:
   /** Throttle value */
   double mThrottle;
 
-  /**@{ Parameters for existence and range for each twist axis */
+  /**@{ Parameters for each twist axis */
   bool mHasLinX, mHasLinY, mHasLinZ, mHasRotX, mHasRotY, mHasRotZ;
   double mMinLinX, mMinLinY, mMinLinZ, mMinRotX, mMinRotY, mMinRotZ;
   double mMaxLinX, mMaxLinY, mMaxLinZ, mMaxRotX, mMaxRotY, mMaxRotZ;
