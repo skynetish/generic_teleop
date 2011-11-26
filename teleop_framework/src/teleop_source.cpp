@@ -89,12 +89,6 @@ TeleopSource::~TeleopSource() {
 }
 //=============================================================================
 void TeleopSource::preDestroy() {
-  //Lock access to destruction initiated
-  boost::lock_guard<boost::mutex> destructionInitiatedLock(mDestructionInitiatedMutex);
-
-  //Initiate destruction
-  mDestructionInitiated = true;
-
   //Check if destruction has been initiated from the listening thread.
   //Destruction from this thread is not permitted and can result in undefined
   //behaviour.
@@ -103,6 +97,12 @@ void TeleopSource::preDestroy() {
     std::fprintf(stderr, "TeleopSource::preDestroy: aborting to avoid undefined behaviour\n");
     abort();
   }
+
+  //Lock access to destruction initiated
+  boost::lock_guard<boost::mutex> destructionInitiatedLock(mDestructionInitiatedMutex);
+
+  //Initiate destruction
+  mDestructionInitiated = true;
 
   //Stop listening thread and wait for it to stop.  On error, we can't do
   //anything, and this may lead to undefined behaviour, so we abort.  In
