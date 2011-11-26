@@ -817,7 +817,7 @@ int main(int argc, char** argv)
   //Subscribe to teleop topic using callback
   ros::Subscriber subscriber = nodeHandle.subscribe(teleopTopic, 1, &TeleopSinkTwistCallbackRos::updated, callback);
 
-  //Start asynchronous spinner to handle ROS events
+  //Start single-threaded asynchronous spinner to handle ROS events.  The callback can't handle multiple threads.
   ros::AsyncSpinner spinner(1);
   spinner.start();
 
