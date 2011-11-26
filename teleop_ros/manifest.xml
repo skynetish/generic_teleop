@@ -4,8 +4,13 @@
   <description brief="Tele-operation nodes and utilities for ROS.">
 
     This package provides ROS nodes and utilities related to tele-operation.
-    The teleop_source_ros node reads and publishes the state of a given
-    tele-operation device (e.g. a keyboard, a joystick, etc.).
+
+    The teleop_source_ros node determines and publishes the state of a given
+    teleop source device (e.g. a keyboard, a joystick, etc.).
+
+    The teleop_sink_twist_ros node subscribes to the state of a given teleop
+    source device (e.g. keyboard, joystick, etc.), and converts this state
+    into a generic twist message, which is then published.
 
   </description>
   <author>Kevin LeBlanc</author>
