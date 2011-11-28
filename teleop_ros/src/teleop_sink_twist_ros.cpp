@@ -658,8 +658,10 @@ bool printUsage(int argc, char** argv) {
       printf("    %s [params]\n", basename(argv[0]));
       printf("\n");
       printf("Parameters and their default values\n");
-      printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TOPIC,   PARAM_DEFAULT_TELEOP_TOPIC);
-      printf("    _%s:=%s\n",    PARAM_KEY_TWIST_TOPIC,    PARAM_DEFAULT_TWIST_TOPIC);
+      printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TOPIC,
+                                 (std::string("<node>/") + std::string(PARAM_DEFAULT_TELEOP_TOPIC)).c_str());
+      printf("    _%s:=%s\n",    PARAM_KEY_TWIST_TOPIC,
+                                 (std::string("<node>/") + std::string(PARAM_DEFAULT_TWIST_TOPIC)).c_str());
       printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_X,      PARAM_DEFAULT_HAS_LIN_X);
       printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Y,      PARAM_DEFAULT_HAS_LIN_Y);
       printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Z,      PARAM_DEFAULT_HAS_LIN_Z);
@@ -704,8 +706,7 @@ bool printUsage(int argc, char** argv) {
 //=============================================================================
 //Main
 //=============================================================================
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   //Check if we should just print usage information and quit
   if (printUsage(argc, argv)) {
     return 0;
@@ -715,10 +716,12 @@ int main(int argc, char** argv)
   signal(SIGINT, signalHandler);
 
   //Initialise ROS (exceptions ignored intentionally)
-  ros::init(argc, argv, basename(argv[0]), ros::init_options::NoSigintHandler);
+  std::string nodeName(basename(argv[0]));
+  ros::init(argc, argv, nodeName, ros::init_options::NoSigintHandler);
 
-  //Node handle uses private namespace (exceptions ignored intentionally)
-  ros::NodeHandle nodeHandle("~");
+  //Node handles using private and default namespaces (exceptions ignored intentionally)
+  ros::NodeHandle nodeHandlePrivate("~");
+  ros::NodeHandle nodeHandle("");
 
   //Declare parameters
   std::string teleopTopic;
@@ -730,72 +733,74 @@ int main(int argc, char** argv)
   int throttleLinX, throttleLinY, throttleLinZ, throttleRotX, throttleRotY, throttleRotZ;
 
   //Read parameters and set default values
-  nodeHandle.param(PARAM_KEY_TELEOP_TOPIC,   teleopTopic,  std::string(PARAM_DEFAULT_TELEOP_TOPIC));
-  nodeHandle.param(PARAM_KEY_TWIST_TOPIC,    twistTopic,   std::string(PARAM_DEFAULT_TWIST_TOPIC));
-  nodeHandle.param(PARAM_KEY_HAS_LIN_X,      hasLinX,      PARAM_DEFAULT_HAS_LIN_X);
-  nodeHandle.param(PARAM_KEY_HAS_LIN_Y,      hasLinY,      PARAM_DEFAULT_HAS_LIN_Y);
-  nodeHandle.param(PARAM_KEY_HAS_LIN_Z,      hasLinZ,      PARAM_DEFAULT_HAS_LIN_Z);
-  nodeHandle.param(PARAM_KEY_HAS_ROT_X,      hasRotX,      PARAM_DEFAULT_HAS_ROT_X);
-  nodeHandle.param(PARAM_KEY_HAS_ROT_Y,      hasRotY,      PARAM_DEFAULT_HAS_ROT_Y);
-  nodeHandle.param(PARAM_KEY_HAS_ROT_Z,      hasRotZ,      PARAM_DEFAULT_HAS_ROT_Z);
-  nodeHandle.param(PARAM_KEY_MIN_LIN_X,      minLinX,      PARAM_DEFAULT_MIN_LIN_X);
-  nodeHandle.param(PARAM_KEY_MIN_LIN_Y,      minLinY,      PARAM_DEFAULT_MIN_LIN_Y);
-  nodeHandle.param(PARAM_KEY_MIN_LIN_Z,      minLinZ,      PARAM_DEFAULT_MIN_LIN_Z);
-  nodeHandle.param(PARAM_KEY_MIN_ROT_X,      minRotX,      PARAM_DEFAULT_MIN_ROT_X);
-  nodeHandle.param(PARAM_KEY_MIN_ROT_Y,      minRotY,      PARAM_DEFAULT_MIN_ROT_Y);
-  nodeHandle.param(PARAM_KEY_MIN_ROT_Z,      minRotZ,      PARAM_DEFAULT_MIN_ROT_Z);
-  nodeHandle.param(PARAM_KEY_MAX_LIN_X,      maxLinX,      PARAM_DEFAULT_MAX_LIN_X);
-  nodeHandle.param(PARAM_KEY_MAX_LIN_Y,      maxLinY,      PARAM_DEFAULT_MAX_LIN_Y);
-  nodeHandle.param(PARAM_KEY_MAX_LIN_Z,      maxLinZ,      PARAM_DEFAULT_MAX_LIN_Z);
-  nodeHandle.param(PARAM_KEY_MAX_ROT_X,      maxRotX,      PARAM_DEFAULT_MAX_ROT_X);
-  nodeHandle.param(PARAM_KEY_MAX_ROT_Y,      maxRotY,      PARAM_DEFAULT_MAX_ROT_Y);
-  nodeHandle.param(PARAM_KEY_MAX_ROT_Z,      maxRotZ,      PARAM_DEFAULT_MAX_ROT_Z);
-  nodeHandle.param(PARAM_KEY_EXP_LIN_X,      expLinX,      PARAM_DEFAULT_EXP_LIN_X);
-  nodeHandle.param(PARAM_KEY_EXP_LIN_Y,      expLinY,      PARAM_DEFAULT_EXP_LIN_Y);
-  nodeHandle.param(PARAM_KEY_EXP_LIN_Z,      expLinZ,      PARAM_DEFAULT_EXP_LIN_Z);
-  nodeHandle.param(PARAM_KEY_EXP_ROT_X,      expRotX,      PARAM_DEFAULT_EXP_ROT_X);
-  nodeHandle.param(PARAM_KEY_EXP_ROT_Y,      expRotY,      PARAM_DEFAULT_EXP_ROT_Y);
-  nodeHandle.param(PARAM_KEY_EXP_ROT_Z,      expRotZ,      PARAM_DEFAULT_EXP_ROT_Z);
-  nodeHandle.param(PARAM_KEY_THROTTLE_LIN_X, throttleLinX, PARAM_DEFAULT_THROTTLE_LIN_X);
-  nodeHandle.param(PARAM_KEY_THROTTLE_LIN_Y, throttleLinY, PARAM_DEFAULT_THROTTLE_LIN_Y);
-  nodeHandle.param(PARAM_KEY_THROTTLE_LIN_Z, throttleLinZ, PARAM_DEFAULT_THROTTLE_LIN_Z);
-  nodeHandle.param(PARAM_KEY_THROTTLE_ROT_X, throttleRotX, PARAM_DEFAULT_THROTTLE_ROT_X);
-  nodeHandle.param(PARAM_KEY_THROTTLE_ROT_Y, throttleRotY, PARAM_DEFAULT_THROTTLE_ROT_Y);
-  nodeHandle.param(PARAM_KEY_THROTTLE_ROT_Z, throttleRotZ, PARAM_DEFAULT_THROTTLE_ROT_Z);
+  nodeHandlePrivate.param(PARAM_KEY_TELEOP_TOPIC,   teleopTopic,
+                          nodeName + std::string("/") + std::string(PARAM_DEFAULT_TELEOP_TOPIC));
+  nodeHandlePrivate.param(PARAM_KEY_TWIST_TOPIC,    twistTopic,
+                          nodeName + std::string("/") + std::string(PARAM_DEFAULT_TWIST_TOPIC));
+  nodeHandlePrivate.param(PARAM_KEY_HAS_LIN_X,      hasLinX,      PARAM_DEFAULT_HAS_LIN_X);
+  nodeHandlePrivate.param(PARAM_KEY_HAS_LIN_Y,      hasLinY,      PARAM_DEFAULT_HAS_LIN_Y);
+  nodeHandlePrivate.param(PARAM_KEY_HAS_LIN_Z,      hasLinZ,      PARAM_DEFAULT_HAS_LIN_Z);
+  nodeHandlePrivate.param(PARAM_KEY_HAS_ROT_X,      hasRotX,      PARAM_DEFAULT_HAS_ROT_X);
+  nodeHandlePrivate.param(PARAM_KEY_HAS_ROT_Y,      hasRotY,      PARAM_DEFAULT_HAS_ROT_Y);
+  nodeHandlePrivate.param(PARAM_KEY_HAS_ROT_Z,      hasRotZ,      PARAM_DEFAULT_HAS_ROT_Z);
+  nodeHandlePrivate.param(PARAM_KEY_MIN_LIN_X,      minLinX,      PARAM_DEFAULT_MIN_LIN_X);
+  nodeHandlePrivate.param(PARAM_KEY_MIN_LIN_Y,      minLinY,      PARAM_DEFAULT_MIN_LIN_Y);
+  nodeHandlePrivate.param(PARAM_KEY_MIN_LIN_Z,      minLinZ,      PARAM_DEFAULT_MIN_LIN_Z);
+  nodeHandlePrivate.param(PARAM_KEY_MIN_ROT_X,      minRotX,      PARAM_DEFAULT_MIN_ROT_X);
+  nodeHandlePrivate.param(PARAM_KEY_MIN_ROT_Y,      minRotY,      PARAM_DEFAULT_MIN_ROT_Y);
+  nodeHandlePrivate.param(PARAM_KEY_MIN_ROT_Z,      minRotZ,      PARAM_DEFAULT_MIN_ROT_Z);
+  nodeHandlePrivate.param(PARAM_KEY_MAX_LIN_X,      maxLinX,      PARAM_DEFAULT_MAX_LIN_X);
+  nodeHandlePrivate.param(PARAM_KEY_MAX_LIN_Y,      maxLinY,      PARAM_DEFAULT_MAX_LIN_Y);
+  nodeHandlePrivate.param(PARAM_KEY_MAX_LIN_Z,      maxLinZ,      PARAM_DEFAULT_MAX_LIN_Z);
+  nodeHandlePrivate.param(PARAM_KEY_MAX_ROT_X,      maxRotX,      PARAM_DEFAULT_MAX_ROT_X);
+  nodeHandlePrivate.param(PARAM_KEY_MAX_ROT_Y,      maxRotY,      PARAM_DEFAULT_MAX_ROT_Y);
+  nodeHandlePrivate.param(PARAM_KEY_MAX_ROT_Z,      maxRotZ,      PARAM_DEFAULT_MAX_ROT_Z);
+  nodeHandlePrivate.param(PARAM_KEY_EXP_LIN_X,      expLinX,      PARAM_DEFAULT_EXP_LIN_X);
+  nodeHandlePrivate.param(PARAM_KEY_EXP_LIN_Y,      expLinY,      PARAM_DEFAULT_EXP_LIN_Y);
+  nodeHandlePrivate.param(PARAM_KEY_EXP_LIN_Z,      expLinZ,      PARAM_DEFAULT_EXP_LIN_Z);
+  nodeHandlePrivate.param(PARAM_KEY_EXP_ROT_X,      expRotX,      PARAM_DEFAULT_EXP_ROT_X);
+  nodeHandlePrivate.param(PARAM_KEY_EXP_ROT_Y,      expRotY,      PARAM_DEFAULT_EXP_ROT_Y);
+  nodeHandlePrivate.param(PARAM_KEY_EXP_ROT_Z,      expRotZ,      PARAM_DEFAULT_EXP_ROT_Z);
+  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_LIN_X, throttleLinX, PARAM_DEFAULT_THROTTLE_LIN_X);
+  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_LIN_Y, throttleLinY, PARAM_DEFAULT_THROTTLE_LIN_Y);
+  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_LIN_Z, throttleLinZ, PARAM_DEFAULT_THROTTLE_LIN_Z);
+  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_ROT_X, throttleRotX, PARAM_DEFAULT_THROTTLE_ROT_X);
+  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_ROT_Y, throttleRotY, PARAM_DEFAULT_THROTTLE_ROT_Y);
+  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_ROT_Z, throttleRotZ, PARAM_DEFAULT_THROTTLE_ROT_Z);
 
   //Advertise all parameters to allow introspection
-  nodeHandle.setParam(PARAM_KEY_TELEOP_TOPIC,   teleopTopic);
-  nodeHandle.setParam(PARAM_KEY_TWIST_TOPIC,    twistTopic);
-  nodeHandle.setParam(PARAM_KEY_HAS_LIN_X,      hasLinX);
-  nodeHandle.setParam(PARAM_KEY_HAS_LIN_Y,      hasLinY);
-  nodeHandle.setParam(PARAM_KEY_HAS_LIN_Z,      hasLinZ);
-  nodeHandle.setParam(PARAM_KEY_HAS_ROT_X,      hasRotX);
-  nodeHandle.setParam(PARAM_KEY_HAS_ROT_Y,      hasRotY);
-  nodeHandle.setParam(PARAM_KEY_HAS_ROT_Z,      hasRotZ);
-  nodeHandle.setParam(PARAM_KEY_MIN_LIN_X,      minLinX);
-  nodeHandle.setParam(PARAM_KEY_MIN_LIN_Y,      minLinY);
-  nodeHandle.setParam(PARAM_KEY_MIN_LIN_Z,      minLinZ);
-  nodeHandle.setParam(PARAM_KEY_MIN_ROT_X,      minRotX);
-  nodeHandle.setParam(PARAM_KEY_MIN_ROT_Y,      minRotY);
-  nodeHandle.setParam(PARAM_KEY_MIN_ROT_Z,      minRotZ);
-  nodeHandle.setParam(PARAM_KEY_MAX_LIN_X,      maxLinX);
-  nodeHandle.setParam(PARAM_KEY_MAX_LIN_Y,      maxLinY);
-  nodeHandle.setParam(PARAM_KEY_MAX_LIN_Z,      maxLinZ);
-  nodeHandle.setParam(PARAM_KEY_MAX_ROT_X,      maxRotX);
-  nodeHandle.setParam(PARAM_KEY_MAX_ROT_Y,      maxRotY);
-  nodeHandle.setParam(PARAM_KEY_MAX_ROT_Z,      maxRotZ);
-  nodeHandle.setParam(PARAM_KEY_EXP_LIN_X,      expLinX);
-  nodeHandle.setParam(PARAM_KEY_EXP_LIN_Y,      expLinY);
-  nodeHandle.setParam(PARAM_KEY_EXP_LIN_Z,      expLinZ);
-  nodeHandle.setParam(PARAM_KEY_EXP_ROT_X,      expRotX);
-  nodeHandle.setParam(PARAM_KEY_EXP_ROT_Y,      expRotY);
-  nodeHandle.setParam(PARAM_KEY_EXP_ROT_Z,      expRotZ);
-  nodeHandle.setParam(PARAM_KEY_THROTTLE_LIN_X, throttleLinX);
-  nodeHandle.setParam(PARAM_KEY_THROTTLE_LIN_Y, throttleLinY);
-  nodeHandle.setParam(PARAM_KEY_THROTTLE_LIN_Z, throttleLinZ);
-  nodeHandle.setParam(PARAM_KEY_THROTTLE_ROT_X, throttleRotX);
-  nodeHandle.setParam(PARAM_KEY_THROTTLE_ROT_Y, throttleRotY);
-  nodeHandle.setParam(PARAM_KEY_THROTTLE_ROT_Z, throttleRotZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_TELEOP_TOPIC,   teleopTopic);
+  nodeHandlePrivate.setParam(PARAM_KEY_TWIST_TOPIC,    twistTopic);
+  nodeHandlePrivate.setParam(PARAM_KEY_HAS_LIN_X,      hasLinX);
+  nodeHandlePrivate.setParam(PARAM_KEY_HAS_LIN_Y,      hasLinY);
+  nodeHandlePrivate.setParam(PARAM_KEY_HAS_LIN_Z,      hasLinZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_HAS_ROT_X,      hasRotX);
+  nodeHandlePrivate.setParam(PARAM_KEY_HAS_ROT_Y,      hasRotY);
+  nodeHandlePrivate.setParam(PARAM_KEY_HAS_ROT_Z,      hasRotZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_MIN_LIN_X,      minLinX);
+  nodeHandlePrivate.setParam(PARAM_KEY_MIN_LIN_Y,      minLinY);
+  nodeHandlePrivate.setParam(PARAM_KEY_MIN_LIN_Z,      minLinZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_MIN_ROT_X,      minRotX);
+  nodeHandlePrivate.setParam(PARAM_KEY_MIN_ROT_Y,      minRotY);
+  nodeHandlePrivate.setParam(PARAM_KEY_MIN_ROT_Z,      minRotZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_MAX_LIN_X,      maxLinX);
+  nodeHandlePrivate.setParam(PARAM_KEY_MAX_LIN_Y,      maxLinY);
+  nodeHandlePrivate.setParam(PARAM_KEY_MAX_LIN_Z,      maxLinZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_MAX_ROT_X,      maxRotX);
+  nodeHandlePrivate.setParam(PARAM_KEY_MAX_ROT_Y,      maxRotY);
+  nodeHandlePrivate.setParam(PARAM_KEY_MAX_ROT_Z,      maxRotZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_EXP_LIN_X,      expLinX);
+  nodeHandlePrivate.setParam(PARAM_KEY_EXP_LIN_Y,      expLinY);
+  nodeHandlePrivate.setParam(PARAM_KEY_EXP_LIN_Z,      expLinZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_EXP_ROT_X,      expRotX);
+  nodeHandlePrivate.setParam(PARAM_KEY_EXP_ROT_Y,      expRotY);
+  nodeHandlePrivate.setParam(PARAM_KEY_EXP_ROT_Z,      expRotZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_LIN_X, throttleLinX);
+  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_LIN_Y, throttleLinY);
+  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_LIN_Z, throttleLinZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_ROT_X, throttleRotX);
+  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_ROT_Y, throttleRotY);
+  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_ROT_Z, throttleRotZ);
 
   //Create publisher with buffer size set to 1 and latching on.  The publisher
   //should basically just always contain the latest desired velocity.

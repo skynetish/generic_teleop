@@ -310,8 +310,9 @@ bool printUsage(int argc, char** argv) {
       printf("    %s [params]\n", basename(argv[0]));
       printf("\n");
       printf("Parameters and their default values\n");
+      printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TOPIC,
+                                 (std::string("<node>/") + std::string(PARAM_DEFAULT_TELEOP_TOPIC)).c_str());
       printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TYPE,     PARAM_DEFAULT_TELEOP_TYPE);
-      printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TOPIC,    PARAM_DEFAULT_TELEOP_TOPIC);
       printf("    _%s:=%d\n",    PARAM_KEY_LISTEN_TIMEOUT,  PARAM_DEFAULT_LISTEN_TIMEOUT);
       printf("    _%s:=%.02f\n", PARAM_KEY_AXIS_DEAD_ZONE,  PARAM_DEFAULT_AXIS_DEAD_ZONE);
       printf("    _%s:=%d\n",    PARAM_KEY_KEYBOARD_STEPS,  PARAM_DEFAULT_KEYBOARD_STEPS);
@@ -330,8 +331,7 @@ bool printUsage(int argc, char** argv) {
 //=============================================================================
 //Main
 //=============================================================================
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   int result = 0;
 
   //Check if we should just print usage information and quit
@@ -343,10 +343,12 @@ int main(int argc, char** argv)
   signal(SIGINT, signalHandler);
 
   //Initialise ROS (exceptions ignored intentionally)
-  ros::init(argc, argv, basename(argv[0]), ros::init_options::NoSigintHandler);
+  std::string nodeName(basename(argv[0]));
+  ros::init(argc, argv, nodeName, ros::init_options::NoSigintHandler);
 
-  //Node handle uses private namespace (exceptions ignored intentionally)
-  ros::NodeHandle nodeHandle("~");
+  //Node handles using private and default namespaces (exceptions ignored intentionally)
+  ros::NodeHandle nodeHandlePrivate("~");
+  ros::NodeHandle nodeHandle("");
 
   //Declare parameters
   std::string teleopTopic;
@@ -357,20 +359,21 @@ int main(int argc, char** argv)
   double axisDeadZone;
 
   //Read parameters and/or set default values
-  nodeHandle.param(PARAM_KEY_TELEOP_TOPIC,    teleopTopic,    std::string(PARAM_DEFAULT_TELEOP_TOPIC));
-  nodeHandle.param(PARAM_KEY_TELEOP_TYPE,     teleopType,     std::string(PARAM_DEFAULT_TELEOP_TYPE));
-  nodeHandle.param(PARAM_KEY_LISTEN_TIMEOUT,  listenTimeout,  PARAM_DEFAULT_LISTEN_TIMEOUT);
-  nodeHandle.param(PARAM_KEY_JOYSTICK_DEVICE, joystickDevice, PARAM_DEFAULT_JOYSTICK_DEVICE);
-  nodeHandle.param(PARAM_KEY_KEYBOARD_STEPS,  keyboardSteps,  PARAM_DEFAULT_KEYBOARD_STEPS);
-  nodeHandle.param(PARAM_KEY_AXIS_DEAD_ZONE,  axisDeadZone,   PARAM_DEFAULT_AXIS_DEAD_ZONE);
+  nodeHandlePrivate.param(PARAM_KEY_TELEOP_TOPIC,    teleopTopic,
+                          nodeName + std::string("/") + std::string(PARAM_DEFAULT_TELEOP_TOPIC));
+  nodeHandlePrivate.param(PARAM_KEY_TELEOP_TYPE,     teleopType,     std::string(PARAM_DEFAULT_TELEOP_TYPE));
+  nodeHandlePrivate.param(PARAM_KEY_LISTEN_TIMEOUT,  listenTimeout,  PARAM_DEFAULT_LISTEN_TIMEOUT);
+  nodeHandlePrivate.param(PARAM_KEY_JOYSTICK_DEVICE, joystickDevice, PARAM_DEFAULT_JOYSTICK_DEVICE);
+  nodeHandlePrivate.param(PARAM_KEY_KEYBOARD_STEPS,  keyboardSteps,  PARAM_DEFAULT_KEYBOARD_STEPS);
+  nodeHandlePrivate.param(PARAM_KEY_AXIS_DEAD_ZONE,  axisDeadZone,   PARAM_DEFAULT_AXIS_DEAD_ZONE);
 
   //Advertise all parameters to allow introspection
-  nodeHandle.setParam(PARAM_KEY_TELEOP_TOPIC,    teleopTopic);
-  nodeHandle.setParam(PARAM_KEY_TELEOP_TYPE,     teleopType);
-  nodeHandle.setParam(PARAM_KEY_LISTEN_TIMEOUT,  listenTimeout);
-  nodeHandle.setParam(PARAM_KEY_JOYSTICK_DEVICE, joystickDevice);
-  nodeHandle.setParam(PARAM_KEY_KEYBOARD_STEPS,  keyboardSteps);
-  nodeHandle.setParam(PARAM_KEY_AXIS_DEAD_ZONE,  axisDeadZone);
+  nodeHandlePrivate.setParam(PARAM_KEY_TELEOP_TOPIC,    teleopTopic);
+  nodeHandlePrivate.setParam(PARAM_KEY_TELEOP_TYPE,     teleopType);
+  nodeHandlePrivate.setParam(PARAM_KEY_LISTEN_TIMEOUT,  listenTimeout);
+  nodeHandlePrivate.setParam(PARAM_KEY_JOYSTICK_DEVICE, joystickDevice);
+  nodeHandlePrivate.setParam(PARAM_KEY_KEYBOARD_STEPS,  keyboardSteps);
+  nodeHandlePrivate.setParam(PARAM_KEY_AXIS_DEAD_ZONE,  axisDeadZone);
 
   //Create publisher with buffer size set to 1 and latching on.  The publisher
   //should basically just always contain the latest teleop state.
