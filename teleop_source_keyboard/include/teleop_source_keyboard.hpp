@@ -83,7 +83,7 @@ class TeleopSourceKeyboard : public TeleopSource {
 public:
 
   /**@{ Number of steps to reach the maximum level for each axis */
-  static const int STEPS_DEFAULT = 5;
+  static const int STEPS_DEFAULT = 3;
   static const int STEPS_MIN = 1;
   static const int STEPS_MAX = 10;
   /**@}*/
