@@ -47,6 +47,7 @@
 //Namespace
 //=============================================================================
 namespace teleop {
+  using std::fprintf;
 
 
 
@@ -89,7 +90,7 @@ bool TeleopSourceKeyboard::listenPrepare() {
   tcsetattr(STDIN_FILENO, TCSANOW, &rawTermios);
 
   //Print welcome message
-  std::fprintf(stdout, "\n\nUse arrow keys to move and space to stop.  Press CTRL-C to quit.\n");
+  fprintf(stdout, "\n\nUse arrow keys to move and space to stop.  Press CTRL-C to quit.\n");
 
   //Note that we're prepared
   mPrepared = true;
@@ -101,7 +102,7 @@ bool TeleopSourceKeyboard::listenPrepare() {
 TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutMilliseconds, TeleopState* const teleopState) {
   //Sanity check
   if (NULL == teleopState) {
-    std::fprintf(stderr, "TeleopSourceKeyboard::listen: NULL teleop state\n");
+    fprintf(stderr, "TeleopSourceKeyboard::listen: NULL teleop state\n");
     return LISTEN_RESULT_ERROR;
   }
 
@@ -110,7 +111,7 @@ TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutMilliseconds,
 
   //Ensure we're prepared
   if (!mPrepared) {
-    std::fprintf(stderr, "TeleopSourceKeyboard::listen: not prepared\n");
+    fprintf(stderr, "TeleopSourceKeyboard::listen: not prepared\n");
     return LISTEN_RESULT_ERROR;
   }
 
@@ -143,14 +144,14 @@ TeleopSource::ListenResult TeleopSourceKeyboard::listen(int timeoutMilliseconds,
     return LISTEN_RESULT_UNCHANGED;
   } else if (-1 == result) {
     //Error
-    std::fprintf(stderr, "TeleopSourceKeyboard::listen: error in select() (%d)\n", errno);
+    fprintf(stderr, "TeleopSourceKeyboard::listen: error in select() (%d)\n", errno);
     return LISTEN_RESULT_ERROR;
   }
 
   //Data available, read one event
   char c;
   if(0 >= read(STDIN_FILENO, &c, 1)) {
-    std::fprintf(stderr, "TeleopSourceKeyboard::listen: error in read()\n");
+    fprintf(stderr, "TeleopSourceKeyboard::listen: error in read()\n");
     return LISTEN_RESULT_ERROR;
   }
 
@@ -230,7 +231,7 @@ TeleopSource::ListenResult TeleopSourceKeyboard::handleEvent(char c, TeleopState
 bool TeleopSourceKeyboard::setSteps(int steps) {
   //Sanity check
   if (STEPS_MIN > steps || STEPS_MAX < steps) {
-    std::fprintf(stderr, "TeleopSourceKeyboard::setSteps: invalid steps (%d)\n", steps);
+    fprintf(stderr, "TeleopSourceKeyboard::setSteps: invalid steps (%d)\n", steps);
     return false;
   }
 

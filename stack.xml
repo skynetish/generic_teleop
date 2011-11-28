@@ -3,8 +3,8 @@
   <!-- Stack summary -->
   <description brief="Tele-operation framework.">
 
-    This stack contains packages which define and use various tele-operation
-    source and sink devices.
+    This stack contains packages which define and use a framework for managing
+    generic tele-operation source and sink devices.
 
   </description>
   <author>Kevin LeBlanc</author>

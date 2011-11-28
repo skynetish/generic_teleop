@@ -648,47 +648,49 @@ void quit() {
 }
 //=============================================================================
 bool printUsage(int argc, char** argv) {
+  using std::printf;
+
   //Check for "-h" or "--help", if found, print usage
   for (int i = 1; i < argc; i++) {
     if ((0 == strcmp(argv[i], "-h")) || (0 == strcmp(argv[i], "--help"))) {
-      std::printf("\n");
-      std::printf("Usage:\n");
-      std::printf("    %s [params]\n", basename(argv[0]));
-      std::printf("\n");
-      std::printf("Parameters and their default values\n");
-      std::printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TOPIC,   PARAM_DEFAULT_TELEOP_TOPIC);
-      std::printf("    _%s:=%s\n",    PARAM_KEY_TWIST_TOPIC,    PARAM_DEFAULT_TWIST_TOPIC);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_X,      PARAM_DEFAULT_HAS_LIN_X);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Y,      PARAM_DEFAULT_HAS_LIN_Y);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Z,      PARAM_DEFAULT_HAS_LIN_Z);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_X,      PARAM_DEFAULT_HAS_ROT_X);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_Y,      PARAM_DEFAULT_HAS_ROT_Y);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_Z,      PARAM_DEFAULT_HAS_ROT_Z);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_X,      PARAM_DEFAULT_MIN_LIN_X);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_Y,      PARAM_DEFAULT_MIN_LIN_Y);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_Z,      PARAM_DEFAULT_MIN_LIN_Z);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_X,      PARAM_DEFAULT_MIN_ROT_X);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_Y,      PARAM_DEFAULT_MIN_ROT_Y);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_Z,      PARAM_DEFAULT_MIN_ROT_Z);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_X,      PARAM_DEFAULT_MAX_LIN_X);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_Y,      PARAM_DEFAULT_MAX_LIN_Y);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_Z,      PARAM_DEFAULT_MAX_LIN_Z);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_X,      PARAM_DEFAULT_MAX_ROT_X);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_Y,      PARAM_DEFAULT_MAX_ROT_Y);
-      std::printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_Z,      PARAM_DEFAULT_MAX_ROT_Z);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_EXP_LIN_X,      PARAM_DEFAULT_EXP_LIN_X);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_EXP_LIN_Y,      PARAM_DEFAULT_EXP_LIN_Y);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_EXP_LIN_Z,      PARAM_DEFAULT_EXP_LIN_Z);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_EXP_ROT_X,      PARAM_DEFAULT_EXP_ROT_X);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_EXP_ROT_Y,      PARAM_DEFAULT_EXP_ROT_Y);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_EXP_ROT_Z,      PARAM_DEFAULT_EXP_ROT_Z);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_LIN_X, PARAM_DEFAULT_THROTTLE_LIN_X);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_LIN_Y, PARAM_DEFAULT_THROTTLE_LIN_Y);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_LIN_Z, PARAM_DEFAULT_THROTTLE_LIN_Z);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_ROT_X, PARAM_DEFAULT_THROTTLE_ROT_X);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_ROT_Y, PARAM_DEFAULT_THROTTLE_ROT_Y);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_ROT_Z, PARAM_DEFAULT_THROTTLE_ROT_Z);
-      std::printf("\n");
+      printf("\n");
+      printf("Usage:\n");
+      printf("    %s [params]\n", basename(argv[0]));
+      printf("\n");
+      printf("Parameters and their default values\n");
+      printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TOPIC,   PARAM_DEFAULT_TELEOP_TOPIC);
+      printf("    _%s:=%s\n",    PARAM_KEY_TWIST_TOPIC,    PARAM_DEFAULT_TWIST_TOPIC);
+      printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_X,      PARAM_DEFAULT_HAS_LIN_X);
+      printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Y,      PARAM_DEFAULT_HAS_LIN_Y);
+      printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Z,      PARAM_DEFAULT_HAS_LIN_Z);
+      printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_X,      PARAM_DEFAULT_HAS_ROT_X);
+      printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_Y,      PARAM_DEFAULT_HAS_ROT_Y);
+      printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_Z,      PARAM_DEFAULT_HAS_ROT_Z);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_X,      PARAM_DEFAULT_MIN_LIN_X);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_Y,      PARAM_DEFAULT_MIN_LIN_Y);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_Z,      PARAM_DEFAULT_MIN_LIN_Z);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_X,      PARAM_DEFAULT_MIN_ROT_X);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_Y,      PARAM_DEFAULT_MIN_ROT_Y);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_Z,      PARAM_DEFAULT_MIN_ROT_Z);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_X,      PARAM_DEFAULT_MAX_LIN_X);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_Y,      PARAM_DEFAULT_MAX_LIN_Y);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_Z,      PARAM_DEFAULT_MAX_LIN_Z);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_X,      PARAM_DEFAULT_MAX_ROT_X);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_Y,      PARAM_DEFAULT_MAX_ROT_Y);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_Z,      PARAM_DEFAULT_MAX_ROT_Z);
+      printf("    _%s:=%d\n",    PARAM_KEY_EXP_LIN_X,      PARAM_DEFAULT_EXP_LIN_X);
+      printf("    _%s:=%d\n",    PARAM_KEY_EXP_LIN_Y,      PARAM_DEFAULT_EXP_LIN_Y);
+      printf("    _%s:=%d\n",    PARAM_KEY_EXP_LIN_Z,      PARAM_DEFAULT_EXP_LIN_Z);
+      printf("    _%s:=%d\n",    PARAM_KEY_EXP_ROT_X,      PARAM_DEFAULT_EXP_ROT_X);
+      printf("    _%s:=%d\n",    PARAM_KEY_EXP_ROT_Y,      PARAM_DEFAULT_EXP_ROT_Y);
+      printf("    _%s:=%d\n",    PARAM_KEY_EXP_ROT_Z,      PARAM_DEFAULT_EXP_ROT_Z);
+      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_LIN_X, PARAM_DEFAULT_THROTTLE_LIN_X);
+      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_LIN_Y, PARAM_DEFAULT_THROTTLE_LIN_Y);
+      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_LIN_Z, PARAM_DEFAULT_THROTTLE_LIN_Z);
+      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_ROT_X, PARAM_DEFAULT_THROTTLE_ROT_X);
+      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_ROT_Y, PARAM_DEFAULT_THROTTLE_ROT_Y);
+      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_ROT_Z, PARAM_DEFAULT_THROTTLE_ROT_Z);
+      printf("\n");
       return true;
     }
   }

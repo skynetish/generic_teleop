@@ -66,7 +66,7 @@
 #define PARAM_DEFAULT_TELEOP_TOPIC      "teleop"
 #define PARAM_DEFAULT_TELEOP_TYPE       TELEOP_TYPE_KEYBOARD
 #define PARAM_DEFAULT_LISTEN_TIMEOUT    ((int)teleop::TeleopSource::LISTEN_TIMEOUT_DEFAULT)
-#define PARAM_DEFAULT_JOYSTICK_DEVICE   ((std::string)teleop::TeleopSourceJoystick::DEFAULT_DEVICE)
+#define PARAM_DEFAULT_JOYSTICK_DEVICE   (teleop::TeleopSourceJoystick::getDefaultDevice())
 #define PARAM_DEFAULT_KEYBOARD_STEPS    ((int)teleop::TeleopSourceKeyboard::STEPS_DEFAULT)
 #define PARAM_DEFAULT_AXIS_DEAD_ZONE    ((teleop::TeleopAxisValue)teleop::TeleopSource::AXIS_DEAD_ZONE_DEFAULT)
 /**@}*/
@@ -91,7 +91,7 @@ public:
    *
    *   @param publisher [in] - publisher for teleop messages
    */
-  TeleopSourceCallbackRos(const ros::Publisher* const publisher);
+  explicit TeleopSourceCallbackRos(const ros::Publisher* const publisher);
 
   /**
    * Destructor.
@@ -101,12 +101,12 @@ public:
   /**
    * Override virtual method from parent.
    */
-  void updated(const teleop::TeleopState* const teleopState, bool stopping, bool error);
+  virtual void updated(const teleop::TeleopState* const teleopState, bool stopping, bool error);
 
   /**
    * Override virtual method from parent.
    */
-  void stopping(bool error);
+  virtual void stopping(bool error);
 
 private:
 
@@ -300,21 +300,23 @@ teleop::TeleopSource* teleopSourceFactory(teleop::TeleopSource::TeleopSourceCall
 }
 //=============================================================================
 bool printUsage(int argc, char** argv) {
+  using std::printf;
+
   //Check for "-h" or "--help", if found, print usage
   for (int i = 1; i < argc; i++) {
     if ((0 == strcmp(argv[i], "-h")) || (0 == strcmp(argv[i], "--help"))) {
-      std::printf("\n");
-      std::printf("Usage:\n");
-      std::printf("    %s [params]\n", basename(argv[0]));
-      std::printf("\n");
-      std::printf("Parameters and their default values\n");
-      std::printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TYPE,     PARAM_DEFAULT_TELEOP_TYPE);
-      std::printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TOPIC,    PARAM_DEFAULT_TELEOP_TOPIC);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_LISTEN_TIMEOUT,  PARAM_DEFAULT_LISTEN_TIMEOUT);
-      std::printf("    _%s:=%.02f\n", PARAM_KEY_AXIS_DEAD_ZONE,  PARAM_DEFAULT_AXIS_DEAD_ZONE);
-      std::printf("    _%s:=%d\n",    PARAM_KEY_KEYBOARD_STEPS,  PARAM_DEFAULT_KEYBOARD_STEPS);
-      std::printf("    _%s:=%s\n",    PARAM_KEY_JOYSTICK_DEVICE, (PARAM_DEFAULT_JOYSTICK_DEVICE).c_str());
-      std::printf("\n");
+      printf("\n");
+      printf("Usage:\n");
+      printf("    %s [params]\n", basename(argv[0]));
+      printf("\n");
+      printf("Parameters and their default values\n");
+      printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TYPE,     PARAM_DEFAULT_TELEOP_TYPE);
+      printf("    _%s:=%s\n",    PARAM_KEY_TELEOP_TOPIC,    PARAM_DEFAULT_TELEOP_TOPIC);
+      printf("    _%s:=%d\n",    PARAM_KEY_LISTEN_TIMEOUT,  PARAM_DEFAULT_LISTEN_TIMEOUT);
+      printf("    _%s:=%.02f\n", PARAM_KEY_AXIS_DEAD_ZONE,  PARAM_DEFAULT_AXIS_DEAD_ZONE);
+      printf("    _%s:=%d\n",    PARAM_KEY_KEYBOARD_STEPS,  PARAM_DEFAULT_KEYBOARD_STEPS);
+      printf("    _%s:=%s\n",    PARAM_KEY_JOYSTICK_DEVICE, (PARAM_DEFAULT_JOYSTICK_DEVICE).c_str());
+      printf("\n");
       return true;
     }
   }

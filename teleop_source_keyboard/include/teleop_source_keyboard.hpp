@@ -93,7 +93,7 @@ public:
    *
    *   @param callback [in] - callback to use to report status
    */
-  TeleopSourceKeyboard(TeleopSourceCallback* callback);
+  explicit TeleopSourceKeyboard(TeleopSourceCallback* callback);
 
   /**
    * Destructor.
@@ -155,17 +155,17 @@ private:
   /**
    * Override virtual method from parent.
    */
-  bool listenPrepare();
+  virtual bool listenPrepare();
 
   /**
    * Override virtual method from parent.
    */
-  ListenResult listen(int timeoutMilliseconds, TeleopState* const teleop);
+  virtual ListenResult listen(int timeoutMilliseconds, TeleopState* const teleop);
 
   /**
    * Override virtual method from parent.
    */
-  bool listenCleanup();
+  virtual bool listenCleanup();
 
 }; //class
 

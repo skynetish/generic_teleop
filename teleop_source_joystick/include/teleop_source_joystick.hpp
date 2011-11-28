@@ -67,16 +67,13 @@ class TeleopSourceJoystick : public TeleopSource {
 
 public:
 
-  /** Default device */
-  static const std::string DEFAULT_DEVICE;
-
   /**
    * Constructor.
    *
    *   @param callback [in] - callback to use to report status
    *   @param device [in] - device file
    */
-  TeleopSourceJoystick(TeleopSourceCallback* callback, std::string device = DEFAULT_DEVICE);
+  explicit TeleopSourceJoystick(TeleopSourceCallback* callback, std::string device = getDefaultDevice());
 
   /**
    * Destructor.
@@ -89,6 +86,13 @@ public:
    *   @return joystick name
    */
   std::string getJoystickName();
+
+  /**
+   * Get default device
+   *
+   *   @return default device
+   */
+  static std::string getDefaultDevice();
 
 private:
 
@@ -133,17 +137,17 @@ private:
   /**
    * Override virtual method from parent.
    */
-  bool listenPrepare();
+  virtual bool listenPrepare();
 
   /**
    * Override virtual method from parent.
    */
-  ListenResult listen(int timeoutMilliseconds, TeleopState* const teleop);
+  virtual ListenResult listen(int timeoutMilliseconds, TeleopState* const teleop);
 
   /**
    * Override virtual method from parent.
    */
-  bool listenCleanup();
+  virtual bool listenCleanup();
 
   /**
    * Convert driver axis value to teleop axis value.

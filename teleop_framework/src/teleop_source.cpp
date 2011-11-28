@@ -45,6 +45,7 @@
 //Namespace
 //=============================================================================
 namespace teleop {
+  using std::fprintf;
 
 
 
@@ -70,8 +71,8 @@ TeleopSource::~TeleopSource() {
   //Destruction from this thread is not permitted and can result in undefined
   //behaviour.
   if (isListeningThread()) {
-    std::fprintf(stderr, "TeleopSource::~TeleopSource: not allowed from listening thread\n");
-    std::fprintf(stderr, "TeleopSource::~TeleopSource: aborting to avoid undefined behaviour\n");
+    fprintf(stderr, "TeleopSource::~TeleopSource: not allowed from listening thread\n");
+    fprintf(stderr, "TeleopSource::~TeleopSource: aborting to avoid undefined behaviour\n");
     abort();
   }
 
@@ -82,8 +83,8 @@ TeleopSource::~TeleopSource() {
   //destructor can lead to undefined behaviour.
   boost::lock_guard<boost::mutex> destructionInitiatedLock(mDestructionInitiatedMutex);
   if (!mDestructionInitiated) {
-    std::fprintf(stderr, "TeleopSource::~TeleopSource: sub-class has not called preDestroy\n");
-    std::fprintf(stderr, "TeleopSource::~TeleopSource: aborting to avoid undefined behaviour\n");
+    fprintf(stderr, "TeleopSource::~TeleopSource: sub-class has not called preDestroy\n");
+    fprintf(stderr, "TeleopSource::~TeleopSource: aborting to avoid undefined behaviour\n");
     abort();
   }
 }
@@ -93,8 +94,8 @@ void TeleopSource::preDestroy() {
   //Destruction from this thread is not permitted and can result in undefined
   //behaviour.
   if (isListeningThread()) {
-    std::fprintf(stderr, "TeleopSource::preDestroy: not allowed from listening thread\n");
-    std::fprintf(stderr, "TeleopSource::preDestroy: aborting to avoid undefined behaviour\n");
+    fprintf(stderr, "TeleopSource::preDestroy: not allowed from listening thread\n");
+    fprintf(stderr, "TeleopSource::preDestroy: aborting to avoid undefined behaviour\n");
     abort();
   }
 
@@ -110,12 +111,12 @@ void TeleopSource::preDestroy() {
   //and waitForStop() should only fail if called from the listening thread,
   //which is something for which we've already checked.
   if (!stop()) {
-    std::fprintf(stderr, "TeleopSource::preDestroy: error in stop\n");
-    std::fprintf(stderr, "TeleopSource::preDestroy: aborting to avoid undefined behaviour\n");
+    fprintf(stderr, "TeleopSource::preDestroy: error in stop\n");
+    fprintf(stderr, "TeleopSource::preDestroy: aborting to avoid undefined behaviour\n");
     abort();
   } else if (!waitForStopped()) {
-    std::fprintf(stderr, "TeleopSource::preDestroy: error in waitForStopped\n");
-    std::fprintf(stderr, "TeleopSource::preDestroy: aborting to avoid undefined behaviour\n");
+    fprintf(stderr, "TeleopSource::preDestroy: error in waitForStopped\n");
+    fprintf(stderr, "TeleopSource::preDestroy: aborting to avoid undefined behaviour\n");
     abort();
   }
 }
@@ -123,7 +124,7 @@ void TeleopSource::preDestroy() {
 bool TeleopSource::start() {
   //Sanity check callback here (rather than throwing a constructor exception)
   if (NULL == mCallback) {
-    std::fprintf(stderr, "TeleopSource::start: NULL callback\n");
+    fprintf(stderr, "TeleopSource::start: NULL callback\n");
     return false;
   }
 
@@ -132,7 +133,7 @@ bool TeleopSource::start() {
 
   //Make sure we never start once destruction is initiated
   if (mDestructionInitiated) {
-    std::fprintf(stderr, "TeleopSource::start: cannot start after destruction initiated\n");
+    fprintf(stderr, "TeleopSource::start: cannot start after destruction initiated\n");
     return false;
   }
 
@@ -176,7 +177,7 @@ bool TeleopSource::stop() {
 bool TeleopSource::waitForStopped() {
   //Check if waiting from listening thread, which is not allowed.
   if (isListeningThread()) {
-    std::fprintf(stderr, "TeleopSource::waitForStopped: not allowed from listening thread\n");
+    fprintf(stderr, "TeleopSource::waitForStopped: not allowed from listening thread\n");
     return false;
   }
 
@@ -214,7 +215,7 @@ void TeleopSource::listeningThread() {
 
   //Listen prepare
   if (!listenPrepare()) {
-    std::fprintf(stderr, "TeleopSource::listeningThread: error in listenPrepare()\n");
+    fprintf(stderr, "TeleopSource::listeningThread: error in listenPrepare()\n");
     error = true;
   }
 
@@ -229,7 +230,7 @@ void TeleopSource::listeningThread() {
     switch (listenResult) {
       case LISTEN_RESULT_ERROR:
         //Error
-        std::fprintf(stderr, "TeleopSource::listeningThread: error in listen()\n");
+        fprintf(stderr, "TeleopSource::listeningThread: error in listen()\n");
         error = true;
         break;
       case LISTEN_RESULT_UNCHANGED:
@@ -260,7 +261,7 @@ void TeleopSource::listeningThread() {
       }
       default:
         //Invalid result
-        std::fprintf(stderr, "TeleopSource::listeningThread: invalid result from listen() (%d)\n", listenResult);
+        fprintf(stderr, "TeleopSource::listeningThread: invalid result from listen() (%d)\n", listenResult);
         error = true;
         break;
     }
@@ -280,7 +281,7 @@ void TeleopSource::listeningThread() {
 
   //Listen cleanup
   if (!listenCleanup()) {
-    std::fprintf(stderr, "TeleopSource::listeningThread: error in listenCleanup()\n");
+    fprintf(stderr, "TeleopSource::listeningThread: error in listenCleanup()\n");
   }
 
   //Call stopping callback
@@ -295,7 +296,7 @@ void TeleopSource::listeningThread() {
   //=============================================================================
 bool TeleopSource::setListenTimeout(int listenTimeout) {
   if (LISTEN_TIMEOUT_MIN > listenTimeout || LISTEN_TIMEOUT_MAX < listenTimeout) {
-    std::fprintf(stderr, "TeleopSource::setListenTimeout: invalid listen timeout (%d)\n", listenTimeout);
+    fprintf(stderr, "TeleopSource::setListenTimeout: invalid listen timeout (%d)\n", listenTimeout);
     return false;
   }
 
@@ -313,7 +314,7 @@ int TeleopSource::getListenTimeout() {
 //=============================================================================
 bool TeleopSource::setAxisDeadZoneForAllAxes(TeleopAxisValue axisDeadZone) {
   if (AXIS_DEAD_ZONE_MIN > axisDeadZone || AXIS_DEAD_ZONE_MAX < axisDeadZone) {
-    std::fprintf(stderr, "TeleopSource::setAxisDeadZoneForAllAxes: invalid axis dead zone (%f)\n", axisDeadZone);
+    fprintf(stderr, "TeleopSource::setAxisDeadZoneForAllAxes: invalid axis dead zone (%f)\n", axisDeadZone);
     return false;
   }
 
@@ -327,7 +328,7 @@ bool TeleopSource::setAxisDeadZoneForAllAxes(TeleopAxisValue axisDeadZone) {
 //=============================================================================
 bool TeleopSource::setAxisDeadZone(TeleopAxisValue axisDeadZone, TeleopAxisType axisType) {
   if (AXIS_DEAD_ZONE_MIN > axisDeadZone || AXIS_DEAD_ZONE_MAX < axisDeadZone) {
-    std::fprintf(stderr, "TeleopSource::setAxisDeadZone: invalid axis dead zone (%f)\n", axisDeadZone);
+    fprintf(stderr, "TeleopSource::setAxisDeadZone: invalid axis dead zone (%f)\n", axisDeadZone);
     return false;
   }
 

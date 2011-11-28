@@ -107,7 +107,7 @@ namespace teleop {
  *
  * Messages and errors are simply printed on stdout and stderr, respectively.
  */
-class TeleopSource : boost::noncopyable {
+class TeleopSource : public boost::noncopyable {
 
 public:
 
@@ -175,7 +175,7 @@ public:
    *
    *   @param callback [in] - callback to use to report status
    */
-  TeleopSource(TeleopSourceCallback* callback);
+  explicit TeleopSource(TeleopSourceCallback* callback);
 
   /**
    * Destructor.  Virtual since sub-classes may be destroyed using pointers to
