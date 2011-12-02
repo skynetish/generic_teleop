@@ -206,7 +206,7 @@ bool TeleopSourceJoystick::listenPrepare() {
   return true;
 }
 //=============================================================================
-TeleopSource::ListenResult TeleopSourceJoystick::listen(int timeoutMilliseconds, TeleopState* const teleopState) {
+TeleopSource::ListenResult TeleopSourceJoystick::listen(int listenTimeout, TeleopState* const teleopState) {
   //Sanity check
   if (NULL == teleopState) {
     fprintf(stderr, "TeleopSourceJoystick::listen: NULL teleop state\n");
@@ -245,8 +245,8 @@ TeleopSource::ListenResult TeleopSourceJoystick::listen(int timeoutMilliseconds,
 
   //Initialise timeout value for select
   struct timeval timeout;
-  timeout.tv_sec = timeoutMilliseconds / 1000;
-  timeout.tv_usec = (timeoutMilliseconds % 1000) * 1000;
+  timeout.tv_sec = listenTimeout / 1000;
+  timeout.tv_usec = (listenTimeout % 1000) * 1000;
 
   //Use select to see if anything shows up before timeout
   int result = select(FD_SETSIZE, &fileDescriptorSet, NULL, NULL, &timeout);

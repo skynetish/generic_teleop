@@ -217,7 +217,7 @@ public:
   bool isRunning();
 
   /**
-   * Set listen timeout which specifies how often to check for interruption.
+   * Set listen timeout, which specifies how often to check for interruption.
    *
    *   @param listenTimeout [in] - listen timeout in milliseconds
    *
@@ -226,7 +226,7 @@ public:
   bool setListenTimeout(int listenTimeout);
 
   /**
-   * Get listen timeout.
+   * Get listen timeout, which specifies how often to check for interruption.
    *
    *   @return listen timeout in milliseconds
    */
@@ -364,13 +364,13 @@ private:
    * thread, between a successful call to listenPrepare() and any call to
    * listenCleanup().
    *
-   *   @param timeoutMilliseconds [in] - timeout value in milliseconds
+   *   @param listenTimeout [in] - timeout value in milliseconds
    *   @param teleop [in/out] - the current teleop output, to be updated
    *
    *   @return LISTEN_ERROR on error, LISTEN_STATE_UNCHANGED on timeout or no
    *           change to state, LISTEN_STATE_CHANGED if state updated
    */
-  virtual ListenResult listen(int timeoutMilliseconds, TeleopState* const teleop) = 0;
+  virtual ListenResult listen(int listenTimeout, TeleopState* const teleop) = 0;
 
   /**
    * Done listening (close files, etc.).  Called once from listening thread
