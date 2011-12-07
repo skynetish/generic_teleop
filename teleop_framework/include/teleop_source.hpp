@@ -66,17 +66,17 @@ namespace teleop {
  * stopping() callback is called.  The listening thread may stop due to a call
  * to stop(), an error, or destruction of the teleop source object.
  *
- * Both the start() and stop() methods are non-blocking.  The start() method
- * starts the listening thread if it is not already running, and does nothing
- * otherwise.  The stop() method interrupts the listening thread if it is
- * running, and does nothing otherwise.  To wait for the listening thread to
- * stop, the waitForStopped() method can be used.  The stopping() callback is
- * called before the waitForStopped() method returns.
+ * The start() method starts the listening thread if it is not already running.
+ * The stop() method interrupts the listening thread if it is running.  To wait
+ * for the listening thread to stop, the start() and stop() methods can be
+ * called in blocking mode; alternatively, the waitForStopped() method can be
+ * used.  The stopping() callback is called before any of the blocking methods
+ * return; the blocking methods may return in any order.
  *
  * Destruction of the teleop source object from within the updated() and
  * stopping() callbacks is not permitted, and the result of such destruction
- * is undefined.  The waitForStopped() method will always fail if called from
- * either callback method.
+ * is undefined.  Blocking stop() calls and calls to waitForStopped() will
+ * always fail if called from either callback method.
  *
  * Sub-classes for each teleop source type must implement three
  * listening-related virtual methods: one to perform the actual listening
@@ -101,9 +101,7 @@ namespace teleop {
  *
  * The class is non-copyable as a precaution, since many teleop sources will
  * use members or resources which are difficult to share.  This could be
- * delegated to the individual sub-classes, but it's safer to do it here,
- * especially since copying a teleop source is probably not very useful in most
- * situations.
+ * delegated to the individual sub-classes, but it's safer to do it here.
  *
  * Messages and errors are simply printed on stdout and stderr, respectively.
  */
@@ -185,19 +183,23 @@ public:
 
   /**
    * Start listening thread.  If listening thread is already running this has
-   * no effect.  This method is non-blocking.
+   * no effect.
+   *
+   *   @param blocking - if true block until stopped
    *
    *   @return true on success (or already running)
    */
-  bool start();
+  bool start(bool blocking);
 
   /**
    * Request that the listening thread be stopped.  If the listening thread is
-   * not running this has no effect.  This method is non-blocking.
+   * not running this has no effect.
+   *
+   *   @param blocking - if true block until stopped
    *
    *   @return true on success (or already stopped)
    */
-  bool stop();
+  bool stop(bool blocking);
 
   /**
    * Block until teleop source is stopped.  This method will always fail if

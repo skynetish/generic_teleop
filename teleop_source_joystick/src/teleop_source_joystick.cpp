@@ -41,7 +41,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <fcntl.h>
-#include <cstdio>
+#include <stdio.h>
 
 
 
@@ -66,8 +66,6 @@
 //Namespace
 //=============================================================================
 namespace teleop {
-
-using std::fprintf;
 
 
 
@@ -315,7 +313,7 @@ bool TeleopSourceJoystick::listenCleanup() {
     fprintf(stderr, "TeleopSourceJoystick::listenCleanup: error closing device\n");
   }
 
-  //Restore file descriptor value
+  //Restore default file descriptor value
   mFileDescriptor = -1;
 
   //Note that we're not prepared

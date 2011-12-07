@@ -38,7 +38,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <time.h>
-#include <cstdio>
+#include <stdio.h>
 
 
 
@@ -47,8 +47,6 @@
 //Namespace
 //=============================================================================
 namespace teleop {
-
-using std::fprintf;
 
 
 

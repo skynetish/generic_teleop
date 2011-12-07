@@ -36,8 +36,8 @@
 #include <geometry_msgs/Twist.h>
 #include <ros/ros.h>
 #include <boost/thread.hpp>
-#include <csignal>
-#include <cstdio>
+#include <signal.h>
+#include <stdio.h>
 
 
 
@@ -648,8 +648,6 @@ void quit() {
 }
 //=============================================================================
 bool printUsage(int argc, char** argv) {
-  using std::printf;
-
   //Check for "-h" or "--help", if found, print usage
   for (int i = 1; i < argc; i++) {
     if ((0 == strcmp(argv[i], "-h")) || (0 == strcmp(argv[i], "--help"))) {

@@ -35,8 +35,8 @@
 #include <teleop_source.hpp>
 #include <boost/thread.hpp>
 #include <pthread.h>
-#include <csignal>
-#include <cstdio>
+#include <signal.h>
+#include <stdio.h>
 
 
 
@@ -45,8 +45,6 @@
 //Namespace
 //=============================================================================
 namespace teleop {
-
-using std::fprintf;
 
 
 
@@ -122,21 +120,17 @@ void TeleopSource::preDestroy() {
 
   //Stop listening thread and wait for it to stop.  On error, we can't do
   //anything, and this may lead to undefined behaviour, so we abort.  In
-  //practice this should never happen.  The stop() method should never fail,
-  //and waitForStop() should only fail if called from the listening thread,
-  //which is something for which we've already checked.
-  if (!stop()) {
+  //practice this should never happen.  The stop() method should only fail if
+  //called from the listening thread, which is something for which we've
+  //already checked.
+  if (!stop(true)) {
     fprintf(stderr, "TeleopSource::preDestroy: error in stop\n");
-    fprintf(stderr, "TeleopSource::preDestroy: aborting to avoid undefined behaviour\n");
-    abort();
-  } else if (!waitForStopped()) {
-    fprintf(stderr, "TeleopSource::preDestroy: error in waitForStopped\n");
     fprintf(stderr, "TeleopSource::preDestroy: aborting to avoid undefined behaviour\n");
     abort();
   }
 }
 //=============================================================================
-bool TeleopSource::start() {
+bool TeleopSource::start(bool blocking) {
   //Sanity check callback here (rather than throwing a constructor exception)
   if (NULL == mCallback) {
     fprintf(stderr, "TeleopSource::start: NULL callback\n");
@@ -144,7 +138,7 @@ bool TeleopSource::start() {
   }
 
   //Lock access to destruction initiated
-  boost::lock_guard<boost::mutex> destructionInitiatedLock(mDestructionInitiatedMutex);
+  boost::unique_lock<boost::mutex> destructionInitiatedLock(mDestructionInitiatedMutex);
 
   //Make sure we never start once destruction is initiated
   if (mDestructionInitiated) {
@@ -153,7 +147,7 @@ bool TeleopSource::start() {
   }
 
   //Lock access to running status
-  boost::lock_guard<boost::mutex> isRunningLock(mIsRunningMutex);
+  boost::unique_lock<boost::mutex> isRunningLock(mIsRunningMutex);
 
   //Check if already running
   if (mIsRunning) {
@@ -169,13 +163,26 @@ bool TeleopSource::start() {
   //Create thread which executes listen loop
   mListeningThread = boost::thread(&TeleopSource::listeningThread, this);
 
+  //If blocking, unlock everything and wait for listening thread to end
+  if (blocking) {
+    destructionInitiatedLock.unlock();
+    isRunningLock.unlock();
+    mListeningThread.join();
+  }
+
   //Return result
   return true;
 }
 //=============================================================================
-bool TeleopSource::stop() {
+bool TeleopSource::stop(bool blocking) {
+  //Check if stopping from listening thread while blocking, which is not allowed.
+  if (blocking && isListeningThread()) {
+    fprintf(stderr, "TeleopSource::stop: blocking not allowed from listening thread\n");
+    return false;
+  }
+
   //Lock access to running status
-  boost::lock_guard<boost::mutex> isRunningLock(mIsRunningMutex);
+  boost::unique_lock<boost::mutex> isRunningLock(mIsRunningMutex);
 
   //Check if running
   if (!mIsRunning) {
@@ -184,6 +191,12 @@ bool TeleopSource::stop() {
 
   //Interrupt the listening thread, can be done multiple times
   mListeningThread.interrupt();
+
+  //If blocking, unlock everything and wait for listening thread to end
+  if (blocking) {
+    isRunningLock.unlock();
+    mListeningThread.join();
+  }
 
   //Return result
   return true;
