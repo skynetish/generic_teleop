@@ -45,7 +45,22 @@
 //Namespace
 //=============================================================================
 namespace teleop {
-  using std::fprintf;
+
+using std::fprintf;
+
+
+
+
+//=============================================================================
+//Static member definitions
+//=============================================================================
+const int TeleopSource::LISTEN_TIMEOUT_DEFAULT             = 200;
+const int TeleopSource::LISTEN_TIMEOUT_MIN                 = 0;
+const int TeleopSource::LISTEN_TIMEOUT_MAX                 = 60000;
+
+const TeleopAxisValue TeleopSource::AXIS_DEAD_ZONE_DEFAULT = 0.01;
+const TeleopAxisValue TeleopSource::AXIS_DEAD_ZONE_MIN     = 0.01;
+const TeleopAxisValue TeleopSource::AXIS_DEAD_ZONE_MAX     = 0.99;
 
 
 

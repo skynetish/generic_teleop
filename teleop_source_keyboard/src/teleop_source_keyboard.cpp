@@ -47,7 +47,24 @@
 //Namespace
 //=============================================================================
 namespace teleop {
-  using std::fprintf;
+
+using std::fprintf;
+
+
+
+
+//=============================================================================
+//Static member definitions
+//=============================================================================
+const int TeleopSourceKeyboard::STEPS_DEFAULT = 3;
+const int TeleopSourceKeyboard::STEPS_MIN = 1;
+const int TeleopSourceKeyboard::STEPS_MAX = 10;
+
+const int TeleopSourceKeyboard::KEYCODE_SPACE = 0x20;
+const int TeleopSourceKeyboard::KEYCODE_UP    = 0x41;
+const int TeleopSourceKeyboard::KEYCODE_DOWN  = 0x42;
+const int TeleopSourceKeyboard::KEYCODE_RIGHT = 0x43;
+const int TeleopSourceKeyboard::KEYCODE_LEFT  = 0x44;
 
 
 

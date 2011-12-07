@@ -164,7 +164,7 @@ static const int TELEOP_BUTTON_TYPE_COUNT = (TELEOP_BUTTON_TYPE_LAST - TELEOP_BU
  *
  *   @return axis type name
  */
-extern std::string teleopAxisName(TeleopAxisType axisType);
+std::string teleopAxisName(TeleopAxisType axisType);
 
 /**
  * Function to determine button type name.
@@ -173,7 +173,7 @@ extern std::string teleopAxisName(TeleopAxisType axisType);
  *
  *   @return button type name
  */
-extern std::string teleopButtonName(TeleopButtonType buttonType);
+std::string teleopButtonName(TeleopButtonType buttonType);
 
 
 

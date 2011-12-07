@@ -66,7 +66,8 @@
 //Namespace
 //=============================================================================
 namespace teleop {
-  using std::fprintf;
+
+using std::fprintf;
 
 
 
@@ -223,16 +224,16 @@ TeleopSource::ListenResult TeleopSourceJoystick::listen(int listenTimeout, Teleo
   }
 
   //Ensure state has correct number and types of axes and buttons
-  if (mNumAxes != teleopState->axes.size()) {
+  if (teleopState->axes.size() != mNumAxes) {
     teleopState->axes.resize(mNumAxes);
-    for (size_t i = 0; i < mNumAxes; i++) {
+    for (size_t i = 0; i < teleopState->axes.size(); i++) {
       teleopState->axes[i].type = axisDriverTypeToTeleopType(mAxisMap[i]);
       teleopState->axes[i].value = 0.0;
     }
   }
-  if (mNumButtons != teleopState->buttons.size()) {
+  if (teleopState->buttons.size() != mNumButtons) {
     teleopState->buttons.resize(mNumButtons);
-    for (size_t i = 0; i < mNumButtons; i++) {
+    for (size_t i = 0; i < teleopState->buttons.size(); i++) {
       teleopState->buttons[i].type = buttonDriverTypeToTeleopType(mButtonMap[i]);
       teleopState->buttons[i].value = 0;
     }

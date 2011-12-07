@@ -83,9 +83,9 @@ class TeleopSourceKeyboard : public TeleopSource {
 public:
 
   /**@{ Number of steps to reach the maximum level for each axis */
-  static const int STEPS_DEFAULT = 3;
-  static const int STEPS_MIN = 1;
-  static const int STEPS_MAX = 10;
+  static const int STEPS_DEFAULT;
+  static const int STEPS_MIN;
+  static const int STEPS_MAX;
   /**@}*/
 
   /**
@@ -119,11 +119,11 @@ public:
 private:
 
   /**@{ Keycodes */
-  static const int KEYCODE_SPACE = 0x20;
-  static const int KEYCODE_UP    = 0x41;
-  static const int KEYCODE_DOWN  = 0x42;
-  static const int KEYCODE_RIGHT = 0x43;
-  static const int KEYCODE_LEFT  = 0x44;
+  static const int KEYCODE_SPACE;
+  static const int KEYCODE_UP;
+  static const int KEYCODE_DOWN;
+  static const int KEYCODE_RIGHT;
+  static const int KEYCODE_LEFT;
   /**@}*/
 
   /** Mutex for protecting all members from multi-threaded access */

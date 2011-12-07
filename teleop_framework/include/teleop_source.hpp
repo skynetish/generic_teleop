@@ -79,8 +79,8 @@ namespace teleop {
  * either callback method.
  *
  * Sub-classes for each teleop source type must implement three
- * listening-related virtual methods in order to perform the actual listening
- * (listen()), as well as preparation (listenPrepare()) and cleanup
+ * listening-related virtual methods: one to perform the actual listening
+ * (listen()), one for preparation (listenPrepare()) and one for cleanup
  * (listenCleanup()).  They must also call the preDestroy() method from their
  * destructors.  This method ensures that the listening thread is properly and
  * permanently stopped, before returning.  This call needs to be in the
@@ -159,15 +159,15 @@ public:
   } ListenResult;
 
   /**@{ Listen timeout in milliseconds - check for interruption this often */
-  static const int LISTEN_TIMEOUT_DEFAULT = 200;
-  static const int LISTEN_TIMEOUT_MIN = 0;
-  static const int LISTEN_TIMEOUT_MAX = 60000;
+  static const int LISTEN_TIMEOUT_DEFAULT;
+  static const int LISTEN_TIMEOUT_MIN;
+  static const int LISTEN_TIMEOUT_MAX;
   /**@}*/
 
   /**@{ Axis dead zone - values smaller than this are set to 0.0 */
-  static const TeleopAxisValue AXIS_DEAD_ZONE_DEFAULT = 0.01;
-  static const TeleopAxisValue AXIS_DEAD_ZONE_MIN = 0.01;
-  static const TeleopAxisValue AXIS_DEAD_ZONE_MAX = 0.99;
+  static const TeleopAxisValue AXIS_DEAD_ZONE_DEFAULT;
+  static const TeleopAxisValue AXIS_DEAD_ZONE_MIN;
+  static const TeleopAxisValue AXIS_DEAD_ZONE_MAX;
   /**@}*/
 
   /**
@@ -383,7 +383,6 @@ private:
   virtual bool listenCleanup() = 0;
 
 }; //class
-
 
 
 
