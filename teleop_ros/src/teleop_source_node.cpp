@@ -239,8 +239,8 @@ bool printUsage(int argc, char** argv);
 //=============================================================================
 //Globals
 //=============================================================================
-/** Global pointer to teleop source to allow access from signal handler */
-TeleopSourceNode* gTeleopSourceNode = NULL;
+/** Global flag used to indicate if and interrupt has been requested */
+sig_atomic_t gInterruptRequested = 0;
 
 
 
@@ -514,9 +514,7 @@ void TeleopSourceNode::stopping(bool error) {
 //Function definitions
 //=============================================================================
 void signalHandler(int signalNumber) {
-  if (NULL != gTeleopSourceNode) {
-    gTeleopSourceNode->shutdown();
-  }
+  gInterruptRequested = 1;
 }
 //=============================================================================
 bool printUsage(std::string nodeName, int argc, char** argv) {
@@ -576,6 +574,9 @@ int main(int argc, char** argv) {
     return 0;
   }
 
+  //Set SIGINT signal handler
+  signal(SIGINT, signalHandler);
+
   //Create the node object
   TeleopSourceNode TeleopSourceNode;
 
@@ -585,20 +586,18 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  //Assign global pointer to node object to allow access from signal handler.
-  //This must be done before the signal handler is set, to avoid a race
-  //condition involving the global pointer.
-  gTeleopSourceNode = &TeleopSourceNode;
-
-  //Set SIGINT signal handler
-  signal(SIGINT, signalHandler);
-
-  //Run the node in blocking mode
-  if (!TeleopSourceNode.start(true)) {
+  //Start the node in non-blocking mode
+  if (!TeleopSourceNode.start(false)) {
     ROS_ERROR("main: error starting node");
     return 1;
-  } else {
-    return 0;
   }
+
+  //Periodically check for interruption
+  while (!gInterruptRequested) {
+    boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+  }
+
+  //Done
+  return 0;
 }
 //=============================================================================
