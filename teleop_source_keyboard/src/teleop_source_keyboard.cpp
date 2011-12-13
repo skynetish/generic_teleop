@@ -54,15 +54,15 @@ namespace teleop {
 //=============================================================================
 //Static member definitions
 //=============================================================================
-const int TeleopSourceKeyboard::STEPS_DEFAULT = 3;
-const int TeleopSourceKeyboard::STEPS_MIN = 1;
-const int TeleopSourceKeyboard::STEPS_MAX = 10;
+const unsigned int TeleopSourceKeyboard::STEPS_DEFAULT = 3;
+const unsigned int TeleopSourceKeyboard::STEPS_MIN     = 1;
+const unsigned int TeleopSourceKeyboard::STEPS_MAX     = 5;
 
-const int TeleopSourceKeyboard::KEYCODE_SPACE = 0x20;
-const int TeleopSourceKeyboard::KEYCODE_UP    = 0x41;
-const int TeleopSourceKeyboard::KEYCODE_DOWN  = 0x42;
-const int TeleopSourceKeyboard::KEYCODE_RIGHT = 0x43;
-const int TeleopSourceKeyboard::KEYCODE_LEFT  = 0x44;
+const unsigned int TeleopSourceKeyboard::KEYCODE_SPACE = 0x20;
+const unsigned int TeleopSourceKeyboard::KEYCODE_UP    = 0x41;
+const unsigned int TeleopSourceKeyboard::KEYCODE_DOWN  = 0x42;
+const unsigned int TeleopSourceKeyboard::KEYCODE_RIGHT = 0x43;
+const unsigned int TeleopSourceKeyboard::KEYCODE_LEFT  = 0x44;
 
 
 
@@ -114,7 +114,7 @@ bool TeleopSourceKeyboard::listenPrepare() {
   return true;
 }
 //=============================================================================
-TeleopSource::ListenResult TeleopSourceKeyboard::listen(int listenTimeout, TeleopState* const teleopState) {
+TeleopSource::ListenResult TeleopSourceKeyboard::listen(unsigned int listenTimeout, TeleopState* const teleopState) {
   //Sanity check
   if (NULL == teleopState) {
     fprintf(stderr, "TeleopSourceKeyboard::listen: NULL teleop state\n");
@@ -237,16 +237,16 @@ TeleopSource::ListenResult TeleopSourceKeyboard::handleEvent(char c, TeleopState
       teleopState->axes[0].value = 0.0;
       teleopState->axes[1].value = 0.0;
       return LISTEN_RESULT_CHANGED;
+    default:
+      //Unknown key, return no change
+      return LISTEN_RESULT_UNCHANGED;
   }
-
-  //If we get here return no change
-  return LISTEN_RESULT_UNCHANGED;
 }
 //=============================================================================
-bool TeleopSourceKeyboard::setSteps(int steps) {
+bool TeleopSourceKeyboard::setSteps(unsigned int steps) {
   //Sanity check
   if (STEPS_MIN > steps || STEPS_MAX < steps) {
-    fprintf(stderr, "TeleopSourceKeyboard::setSteps: invalid steps (%d)\n", steps);
+    fprintf(stderr, "TeleopSourceKeyboard::setSteps: invalid steps (%u)\n", steps);
     return false;
   }
 
@@ -261,7 +261,7 @@ bool TeleopSourceKeyboard::setSteps(int steps) {
   return true;
 }
 //=============================================================================
-int TeleopSourceKeyboard::getSteps() {
+unsigned int TeleopSourceKeyboard::getSteps() {
   //Lock access to members
   boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
 

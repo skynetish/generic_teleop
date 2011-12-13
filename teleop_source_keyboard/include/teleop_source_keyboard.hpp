@@ -59,33 +59,25 @@ namespace teleop {
 //=============================================================================
 
 /**
- * This class implements a keyboard teleop source.  The arrow keys are used as
- * linear X and linear Y axes, and the space bar acts as a stop button.  The
- * key presses are detected by reading raw standard input using termios.  If
+ * This class implements a keyboard teleop source.  The arrow keys are used to
+ * increment and decrement the linear X and Y axes relative to the previous
+ * teleop source state, which is passed into the listen method.  The space bar
+ * acts as a stop button.
+ *
+ * Key presses are detected by reading raw standard input using termios.  If
  * this class is used, other uses of standard input from within the same
- * process should be handled carefully.
- *
- * The default axis dead zone should normally work fine.  Note that the
- * keyboard source increments and decrements the previous teleop source output.
- * For this reason, care should be taken to ensure that the axis dead zone
- * (which is set via the TeleopSource class) is not greater than the step size.
- * Otherwise this source will always output zero axis values.
- *
- * Currently raw standard input is read and processed to identify key presses.
- * An alternative approach could be to detect low-level key press and release
- * events, but this would probably require either access to the X server (which
- * we shouldn't need for a keyboard teleop device), or access to linux inputs
- * in the /dev/input/event* files (which normally requires elevated
- * privileges).
+ * process should be handled carefully.  This approach should be fairly
+ * portable, and it doesn't require a graphical environment or low-level
+ * operating system inputs.
  */
 class TeleopSourceKeyboard : public TeleopSource {
 
 public:
 
   /**@{ Number of steps to reach the maximum level for each axis */
-  static const int STEPS_DEFAULT;
-  static const int STEPS_MIN;
-  static const int STEPS_MAX;
+  static const unsigned int STEPS_DEFAULT;
+  static const unsigned int STEPS_MIN;
+  static const unsigned int STEPS_MAX;
   /**@}*/
 
   /**
@@ -107,23 +99,23 @@ public:
    *
    *   @return true on success
    */
-  bool setSteps(int steps);
+  bool setSteps(unsigned int steps);
 
   /**
    * Get the number of steps required to reach the maximum value for all axes.
    *
    *   @return steps
    */
-  int getSteps();
+  unsigned int getSteps();
 
 private:
 
   /**@{ Keycodes */
-  static const int KEYCODE_SPACE;
-  static const int KEYCODE_UP;
-  static const int KEYCODE_DOWN;
-  static const int KEYCODE_RIGHT;
-  static const int KEYCODE_LEFT;
+  static const unsigned int KEYCODE_SPACE;
+  static const unsigned int KEYCODE_UP;
+  static const unsigned int KEYCODE_DOWN;
+  static const unsigned int KEYCODE_RIGHT;
+  static const unsigned int KEYCODE_LEFT;
   /**@}*/
 
   /** Mutex for protecting all members from multi-threaded access */
@@ -133,7 +125,7 @@ private:
   bool mPrepared;
 
   /** Number of steps needed to reach max value for each axis */
-  int mSteps;
+  unsigned int mSteps;
 
   /** Size of each step for each axis */
   TeleopAxisValue mStepSize;
@@ -160,7 +152,7 @@ private:
   /**
    * Override virtual method from parent.
    */
-  virtual ListenResult listen(int listenTimeout, TeleopState* const teleop);
+  virtual ListenResult listen(unsigned int listenTimeout, TeleopState* const teleop);
 
   /**
    * Override virtual method from parent.

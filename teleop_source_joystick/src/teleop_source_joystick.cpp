@@ -205,7 +205,7 @@ bool TeleopSourceJoystick::listenPrepare() {
   return true;
 }
 //=============================================================================
-TeleopSource::ListenResult TeleopSourceJoystick::listen(int listenTimeout, TeleopState* const teleopState) {
+TeleopSource::ListenResult TeleopSourceJoystick::listen(unsigned int listenTimeout, TeleopState* const teleopState) {
   //Sanity check
   if (NULL == teleopState) {
     fprintf(stderr, "TeleopSourceJoystick::listen: NULL teleop state\n");
@@ -324,7 +324,7 @@ bool TeleopSourceJoystick::listenCleanup() {
 }
 //=============================================================================
 TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* const event,
-		                                                     TeleopState* const teleopState) {
+                                                             TeleopState* const teleopState) {
   //Handle known events
   switch(event->type)
   {
@@ -344,11 +344,6 @@ TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* con
       //the axisDriverTypeToTeleopType() method, and the directions are
       //inverted internally here.  Other axes which have counter-intuitive
       //directions are inverted here as well.
-      //
-      //Note that these inversions are separate from the axis inversion which
-      //is handled by the TeleopSource class.  This is just an internal thing
-      //done by this sub-class to make most joysticks act correctly by default.
-      //This should save most users a bit of work.
       switch (teleopState->axes[event->number].type) {
         case TELEOP_AXIS_TYPE_LIN_X:
         case TELEOP_AXIS_TYPE_LIN_Y:
@@ -371,7 +366,6 @@ TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* con
           //Ignore other axes
           break;
       }
-
       return LISTEN_RESULT_CHANGED;
 
     case JS_EVENT_BUTTON | JS_EVENT_INIT:
@@ -381,15 +375,14 @@ TeleopSource::ListenResult TeleopSourceJoystick::handleEvent(const js_event* con
         fprintf(stderr, "TeleopSourceJoystick::handleEvent: invalid button event number\n");
         return LISTEN_RESULT_ERROR;
       }
-
       //Set value for this event and signal update
       teleopState->buttons[event->number].value = buttonDriverValueToTeleopValue(event->value);
-
       return LISTEN_RESULT_CHANGED;
-  }
 
-  //If we get here return no change
-  return LISTEN_RESULT_UNCHANGED;
+    default:
+      //Unknown event type, no change
+      return LISTEN_RESULT_UNCHANGED;
+  }
 }
 //=============================================================================
 TeleopAxisValue TeleopSourceJoystick::axisDriverValueToTeleopValue(__s16 axisValue) {

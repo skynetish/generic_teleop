@@ -157,9 +157,9 @@ public:
   } ListenResult;
 
   /**@{ Listen timeout in milliseconds - check for interruption this often */
-  static const int LISTEN_TIMEOUT_DEFAULT;
-  static const int LISTEN_TIMEOUT_MIN;
-  static const int LISTEN_TIMEOUT_MAX;
+  static const unsigned int LISTEN_TIMEOUT_DEFAULT;
+  static const unsigned int LISTEN_TIMEOUT_MIN;
+  static const unsigned int LISTEN_TIMEOUT_MAX;
   /**@}*/
 
   /**@{ Axis dead zone - values smaller than this are set to 0.0 */
@@ -225,14 +225,14 @@ public:
    *
    *   @return true on success
    */
-  bool setListenTimeout(int listenTimeout);
+  bool setListenTimeout(unsigned int listenTimeout);
 
   /**
    * Get listen timeout, which specifies how often to check for interruption.
    *
    *   @return listen timeout in milliseconds
    */
-  int getListenTimeout();
+  unsigned int getListenTimeout();
 
   /**
    * Set axis dead zone for all axes.
@@ -312,7 +312,7 @@ private:
   bool mDestructionInitiated;
 
   /** Listen timeout in milliseconds - check for interruption this often */
-  int mListenTimeout;
+  unsigned int mListenTimeout;
 
   /** Axis dead zones - values smaller than this are set to 0.0 */
   TeleopAxisValue mAxisDeadZone[TELEOP_AXIS_TYPE_COUNT];
@@ -372,7 +372,7 @@ private:
    *   @return LISTEN_ERROR on error, LISTEN_STATE_UNCHANGED on timeout or no
    *           change to state, LISTEN_STATE_CHANGED if state updated
    */
-  virtual ListenResult listen(int listenTimeout, TeleopState* const teleop) = 0;
+  virtual ListenResult listen(unsigned int listenTimeout, TeleopState* const teleop) = 0;
 
   /**
    * Done listening (close files, etc.).  Called once from listening thread

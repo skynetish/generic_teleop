@@ -414,9 +414,9 @@ bool TeleopSourceNode::shutdown() {
   //Publish zero message
   mPublisher.publish(mTeleopStateMsg);
 
-  //Sleep a bit to allow zero message to be published before node handle goes
-  //out of scope.  Use boost thread sleep rather than ROS sleep since ROS
-  //sleep may try to use a simulated clock, which may be stopped.
+  //Sleep a bit to allow zero message to be published before node is shutdown.
+  //Use boost thread sleep rather than ROS sleep since ROS sleep may try to use
+  //a simulated clock, which may be stopped.
   boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 
   //Shutdown node

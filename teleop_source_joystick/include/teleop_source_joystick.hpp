@@ -142,7 +142,7 @@ private:
   /**
    * Override virtual method from parent.
    */
-  virtual ListenResult listen(int listenTimeout, TeleopState* const teleop);
+  virtual ListenResult listen(unsigned int listenTimeout, TeleopState* const teleop);
 
   /**
    * Override virtual method from parent.

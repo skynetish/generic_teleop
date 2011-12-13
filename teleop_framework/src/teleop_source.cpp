@@ -52,9 +52,9 @@ namespace teleop {
 //=============================================================================
 //Static member definitions
 //=============================================================================
-const int TeleopSource::LISTEN_TIMEOUT_DEFAULT             = 200;
-const int TeleopSource::LISTEN_TIMEOUT_MIN                 = 0;
-const int TeleopSource::LISTEN_TIMEOUT_MAX                 = 60000;
+const unsigned int    TeleopSource::LISTEN_TIMEOUT_DEFAULT = 200;
+const unsigned int    TeleopSource::LISTEN_TIMEOUT_MIN     = 0;
+const unsigned int    TeleopSource::LISTEN_TIMEOUT_MAX     = 60000;
 
 const TeleopAxisValue TeleopSource::AXIS_DEAD_ZONE_DEFAULT = 0.01;
 const TeleopAxisValue TeleopSource::AXIS_DEAD_ZONE_MIN     = 0.01;
@@ -322,9 +322,9 @@ void TeleopSource::listeningThread() {
   mIsRunning = false;
 }
   //=============================================================================
-bool TeleopSource::setListenTimeout(int listenTimeout) {
+bool TeleopSource::setListenTimeout(unsigned int listenTimeout) {
   if (LISTEN_TIMEOUT_MIN > listenTimeout || LISTEN_TIMEOUT_MAX < listenTimeout) {
-    fprintf(stderr, "TeleopSource::setListenTimeout: invalid listen timeout (%d)\n", listenTimeout);
+    fprintf(stderr, "TeleopSource::setListenTimeout: invalid listen timeout (%u)\n", listenTimeout);
     return false;
   }
 
@@ -334,7 +334,7 @@ bool TeleopSource::setListenTimeout(int listenTimeout) {
   return true;
 }
 //=============================================================================
-int TeleopSource::getListenTimeout() {
+unsigned int TeleopSource::getListenTimeout() {
   //Lock access to listen timeout
   boost::lock_guard<boost::mutex> listenTimeoutLock(mListenTimeoutMutex);
   return mListenTimeout;
