@@ -34,6 +34,7 @@
 #include <teleop_common.hpp>
 #include <teleop_source.hpp>
 #include <teleop_source_keyboard.hpp>
+#include <boost/thread.hpp>
 #include <sys/select.h>
 #include <termios.h>
 #include <unistd.h>
@@ -70,27 +71,52 @@ const unsigned int TeleopSourceKeyboard::KEYCODE_LEFT  = 0x44;
 //=============================================================================
 //Method definitions
 //=============================================================================
-TeleopSourceKeyboard::TeleopSourceKeyboard(TeleopSourceCallback* callback) :
-  TeleopSource(callback),
-  mPrepared(false) {
-
+TeleopSourceKeyboard::TeleopSourceKeyboard() :
+  mIsInitialised(false) {
   //Set step size using setter in order to update both steps and step size
   setSteps(STEPS_DEFAULT);
 }
 //=============================================================================
 TeleopSourceKeyboard::~TeleopSourceKeyboard() {
-  //Sub-classes of TeleopSource must do this
-  preDestroy();
+  //Shutdown (should always succeed)
+  if (!shutdown()) {
+    fprintf(stderr, "TeleopSourceKeyboard::~TeleopSourceKeyboard: warning: ignoring error in shutdown\n");
+  }
 }
 //=============================================================================
-bool TeleopSourceKeyboard::listenPrepare() {
-  //Lock access to members
-  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
+bool TeleopSourceKeyboard::setSteps(unsigned int steps) {
+  //Sanity check
+  if (STEPS_MIN > steps || STEPS_MAX < steps) {
+    fprintf(stderr, "TeleopSourceKeyboard::setSteps: error: invalid steps (%u)\n", steps);
+    return false;
+  }
 
-  //If already prepared we're done.  This means this method can be called
-  //multiple times without problems.
-  if (mPrepared) {
-    return true;
+  //Lock access to members
+  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+
+  //Set steps and step size
+  mSteps = steps;
+  mStepSize = (TeleopAxisValue)(TELEOP_AXIS_MAX - TELEOP_AXIS_MIN)/(2*mSteps);
+
+  //Return result
+  return true;
+}
+//=============================================================================
+unsigned int TeleopSourceKeyboard::getSteps() {
+  //Lock access to members
+  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+
+  //Return steps
+  return mSteps;
+}
+//=============================================================================
+bool TeleopSourceKeyboard::init() {
+  //Lock access to members
+  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
+
+  //If already initialised shutdown first (shutdown should always succeed)
+  if (mIsInitialised && !shutdown()) {
+    fprintf(stderr, "TeleopSourceKeyboard::init: warning: ignoring error in shutdown\n");
   }
 
   //Raw termios settings
@@ -108,26 +134,29 @@ bool TeleopSourceKeyboard::listenPrepare() {
   fprintf(stdout, "\n\nUse arrow keys to move and space to stop.  Press CTRL-C to quit.\n");
 
   //Note that we're prepared
-  mPrepared = true;
+  mIsInitialised = true;
 
   //Return result
   return true;
 }
 //=============================================================================
-TeleopSource::ListenResult TeleopSourceKeyboard::listen(unsigned int listenTimeout, TeleopState* const teleopState) {
+bool TeleopSourceKeyboard::listen(unsigned int listenTimeout, TeleopState* const teleopState, bool* updated) {
+  //Set default value
+  *updated = false;
+
   //Sanity check
   if (NULL == teleopState) {
-    fprintf(stderr, "TeleopSourceKeyboard::listen: NULL teleop state\n");
-    return LISTEN_RESULT_ERROR;
+    fprintf(stderr, "TeleopSourceKeyboard::listen: error: NULL teleop state\n");
+    return false;
   }
 
   //Lock access to members
-  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
+  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
 
-  //Ensure we're prepared
-  if (!mPrepared) {
-    fprintf(stderr, "TeleopSourceKeyboard::listen: not prepared\n");
-    return LISTEN_RESULT_ERROR;
+  //Ensure we're initialised
+  if (!mIsInitialised) {
+    fprintf(stderr, "TeleopSourceKeyboard::listen: error: not initialised\n");
+    return false;
   }
 
   //Ensure state has correct number and types of axes and buttons
@@ -156,31 +185,31 @@ TeleopSource::ListenResult TeleopSourceKeyboard::listen(unsigned int listenTimeo
   int result = select(FD_SETSIZE, &fileDescriptorSet, NULL, NULL, &timeout);
   if (0 == result) {
     //Timeout
-    return LISTEN_RESULT_UNCHANGED;
+    return true;
   } else if (-1 == result) {
     //Error
-    fprintf(stderr, "TeleopSourceKeyboard::listen: error in select() (%d)\n", errno);
-    return LISTEN_RESULT_ERROR;
+    fprintf(stderr, "TeleopSourceKeyboard::listen: error: select() failed (%d)\n", errno);
+    return false;
   }
 
   //Data available, read one event
   char c;
   if(0 >= read(STDIN_FILENO, &c, 1)) {
-    fprintf(stderr, "TeleopSourceKeyboard::listen: error in read()\n");
-    return LISTEN_RESULT_ERROR;
+    fprintf(stderr, "TeleopSourceKeyboard::listen: error: read() failed\n");
+    return false;
   }
 
   //Process event and return result
-  return handleEvent(c, teleopState);
+  return handleEvent(c, teleopState, updated);
 }
 //=============================================================================
-bool TeleopSourceKeyboard::listenCleanup() {
+bool TeleopSourceKeyboard::shutdown() {
   //Lock access to members
-  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
+  boost::lock_guard<boost::recursive_mutex> memberLock(mMemberMutex);
 
   //If we're not prepared we're done.  This means this method can be called
   //multiple times without problems.
-  if (!mPrepared) {
+  if (!mIsInitialised) {
     return true;
   }
 
@@ -188,85 +217,66 @@ bool TeleopSourceKeyboard::listenCleanup() {
   tcsetattr(STDIN_FILENO, TCSANOW, &mOldTermios);
 
   //Note that we're not prepared
-  mPrepared = false;
+  mIsInitialised = false;
 
   //Return result
   return true;
 }
 //=============================================================================
-TeleopSource::ListenResult TeleopSourceKeyboard::handleEvent(char c, TeleopState* const teleopState) {
+bool TeleopSourceKeyboard::handleEvent(char c, TeleopState* const teleopState, bool* updated) {
   //Handle known events
   switch(c) {
     case KEYCODE_UP:
       if (teleopState->axes[0].value >= TELEOP_AXIS_MAX) {
-        return LISTEN_RESULT_UNCHANGED;
+        return true;
       }
       teleopState->axes[0].value += mStepSize;
       if (teleopState->axes[0].value > TELEOP_AXIS_MAX) {
         teleopState->axes[0].value = TELEOP_AXIS_MAX;
       }
-      return LISTEN_RESULT_CHANGED;
+      *updated = true;
+      return true;
     case KEYCODE_DOWN:
       if (teleopState->axes[0].value <= TELEOP_AXIS_MIN) {
-        return LISTEN_RESULT_UNCHANGED;
+        return true;
       }
       teleopState->axes[0].value -= mStepSize;
       if (teleopState->axes[0].value < TELEOP_AXIS_MIN) {
         teleopState->axes[0].value = TELEOP_AXIS_MIN;
       }
-      return LISTEN_RESULT_CHANGED;
+      *updated = true;
+      return true;
     case KEYCODE_RIGHT:
       if (teleopState->axes[1].value <= TELEOP_AXIS_MIN) {
-        return LISTEN_RESULT_UNCHANGED;
+        return true;
       }
       teleopState->axes[1].value -= mStepSize;
       if (teleopState->axes[1].value < TELEOP_AXIS_MIN) {
         teleopState->axes[1].value = TELEOP_AXIS_MIN;
       }
-      return LISTEN_RESULT_CHANGED;
+      *updated = true;
+      return true;
     case KEYCODE_LEFT:
       if (teleopState->axes[1].value >= TELEOP_AXIS_MAX) {
-        return LISTEN_RESULT_UNCHANGED;
+        return true;
       }
       teleopState->axes[1].value += mStepSize;
       if (teleopState->axes[1].value > TELEOP_AXIS_MAX) {
         teleopState->axes[1].value = TELEOP_AXIS_MAX;
       }
-      return LISTEN_RESULT_CHANGED;
+      *updated = true;
+      return true;
     case KEYCODE_SPACE:
-      teleopState->axes[0].value = 0.0;
-      teleopState->axes[1].value = 0.0;
-      return LISTEN_RESULT_CHANGED;
+      if (0.0 != teleopState->axes[0].value || 0.0 != teleopState->axes[1].value) {
+        teleopState->axes[0].value = 0.0;
+        teleopState->axes[1].value = 0.0;
+        *updated = true;
+      }
+      return true;
     default:
       //Unknown key, return no change
-      return LISTEN_RESULT_UNCHANGED;
+      return true;
   }
-}
-//=============================================================================
-bool TeleopSourceKeyboard::setSteps(unsigned int steps) {
-  //Sanity check
-  if (STEPS_MIN > steps || STEPS_MAX < steps) {
-    fprintf(stderr, "TeleopSourceKeyboard::setSteps: invalid steps (%u)\n", steps);
-    return false;
-  }
-
-  //Lock access to members
-  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
-
-  //Set steps and step size
-  mSteps = steps;
-  mStepSize = (TeleopAxisValue)(TELEOP_AXIS_MAX - TELEOP_AXIS_MIN)/(2*mSteps);
-
-  //Return result
-  return true;
-}
-//=============================================================================
-unsigned int TeleopSourceKeyboard::getSteps() {
-  //Lock access to members
-  boost::lock_guard<boost::mutex> memberLock(mMemberMutex);
-
-  //Return steps
-  return mSteps;
 }
 //=============================================================================
 

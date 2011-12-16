@@ -41,6 +41,7 @@
 //=============================================================================
 #include <teleop_common.hpp>
 #include <teleop_source.hpp>
+#include <boost/thread.hpp>
 #include <termios.h>
 
 
@@ -82,10 +83,8 @@ public:
 
   /**
    * Constructor.
-   *
-   *   @param callback [in] - callback to use to report status
    */
-  explicit TeleopSourceKeyboard(TeleopSourceCallback* callback);
+  TeleopSourceKeyboard();
 
   /**
    * Destructor.
@@ -108,6 +107,21 @@ public:
    */
   unsigned int getSteps();
 
+  /**
+   * Override virtual method from parent.
+   */
+  virtual bool init();
+
+  /**
+   * Override virtual method from parent.
+   */
+  virtual bool listen(unsigned int listenTimeout, TeleopState* const teleopState, bool* updated);
+
+  /**
+   * Override virtual method from parent.
+   */
+  virtual bool shutdown();
+
 private:
 
   /**@{ Keycodes */
@@ -119,10 +133,10 @@ private:
   /**@}*/
 
   /** Mutex for protecting all members from multi-threaded access */
-  boost::mutex mMemberMutex;
+  boost::recursive_mutex mMemberMutex;
 
   /** Flag indicating if we are prepared to listen */
-  bool mPrepared;
+  bool mIsInitialised;
 
   /** Number of steps needed to reach max value for each axis */
   unsigned int mSteps;
@@ -137,27 +151,12 @@ private:
    * Handle a given event.
    *
    *   @param c [in] - character to handle
-   *   @param teleop [in/out] - the current teleop output, to be updated
+   *   @param teleopState [in/out] - the current teleop state, to be updated
+   *   @param updated [in/out] - true if teleop state was updated
    *
-   *   @return LISTEN_ERROR on error, LISTEN_STATE_UNCHANGED on timeout or no
-   *           change to state, LISTEN_STATE_CHANGED if state updated
+   *   @return true on success
    */
-  ListenResult handleEvent(char c, TeleopState* const teleopState);
-
-  /**
-   * Override virtual method from parent.
-   */
-  virtual bool listenPrepare();
-
-  /**
-   * Override virtual method from parent.
-   */
-  virtual ListenResult listen(unsigned int listenTimeout, TeleopState* const teleop);
-
-  /**
-   * Override virtual method from parent.
-   */
-  virtual bool listenCleanup();
+  bool handleEvent(char c, TeleopState* const teleopState, bool* updated);
 
 }; //class
 

@@ -41,8 +41,9 @@
 //=============================================================================
 #include <teleop_common.hpp>
 #include <teleop_source.hpp>
-#include <linux/joystick.h>
+#include <boost/thread.hpp>
 #include <linux/types.h>
+#include <linux/joystick.h>
 
 
 
@@ -60,8 +61,8 @@ namespace teleop {
 //=============================================================================
 
 /**
- * This class implements a joystick teleop source using the standard Linux
- * kernel joystick driver.
+ * This class implements a joystick teleop source using the Linux kernel
+ * joystick driver.
  */
 class TeleopSourceJoystick : public TeleopSource {
 
@@ -69,16 +70,29 @@ public:
 
   /**
    * Constructor.
-   *
-   *   @param callback [in] - callback to use to report status
-   *   @param device [in] - device file
    */
-  explicit TeleopSourceJoystick(TeleopSourceCallback* callback, std::string device = getDefaultDevice());
+  TeleopSourceJoystick();
 
   /**
    * Destructor.
    */
   ~TeleopSourceJoystick();
+
+  /**
+   * Set device.  Should only be called before init() or after shutdown().
+   *
+   *   @param device - device to set
+   *
+   *   @return true on success
+   */
+  bool setDevice(std::string device);
+
+  /**
+   * Get device.
+   *
+   *   @return device
+   */
+  std::string getDevice();
 
   /**
    * Get joystick name.
@@ -88,19 +102,34 @@ public:
   std::string getJoystickName();
 
   /**
-   * Get default device
+   * Get default device.
    *
    *   @return default device
    */
   static std::string getDefaultDevice();
 
+  /**
+   * Override virtual method from parent.
+   */
+  virtual bool init();
+
+  /**
+   * Override virtual method from parent.
+   */
+  virtual bool listen(unsigned int listenTimeout, TeleopState* const teleopState, bool* updated);
+
+  /**
+   * Override virtual method from parent.
+   */
+  virtual bool shutdown();
+
 private:
 
   /** Mutex for protecting all members from multi-threaded access */
-  boost::mutex mMemberMutex;
+  boost::recursive_mutex mMemberMutex;
 
   /** Flag indicating if we are prepared to listen */
-  bool mPrepared;
+  bool mIsInitialised;
 
   /** Device */
   std::string mDevice;
@@ -127,27 +156,12 @@ private:
    * Handle a given event.
    *
    *   @param event [in] - event to handle
-   *   @param teleop [in/out] - the current teleop output, to be updated
+   *   @param teleopState [in/out] - the current teleop state, to be updated
+   *   @param updated [in/out] - true if teleop state was updated
    *
-   *   @return LISTEN_ERROR on error, LISTEN_STATE_UNCHANGED on timeout or no
-   *           change to state, LISTEN_STATE_CHANGED if state updated
+   *   @return true on success
    */
-  ListenResult handleEvent(const js_event* const event, TeleopState* const teleopState);
-
-  /**
-   * Override virtual method from parent.
-   */
-  virtual bool listenPrepare();
-
-  /**
-   * Override virtual method from parent.
-   */
-  virtual ListenResult listen(unsigned int listenTimeout, TeleopState* const teleop);
-
-  /**
-   * Override virtual method from parent.
-   */
-  virtual bool listenCleanup();
+  bool handleEvent(const js_event* const event, TeleopState* const teleopState, bool* updated);
 
   /**
    * Convert driver axis value to teleop axis value.

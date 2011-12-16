@@ -32,7 +32,7 @@
 //Includes
 //=============================================================================
 #include <teleop_common.hpp>
-#include <teleop_source.hpp>
+#include <teleop_source_adapter.hpp>
 #include <teleop_source_keyboard.hpp>
 #include <teleop_source_joystick.hpp>
 #include <teleop_msgs/State.h>
@@ -56,14 +56,18 @@ namespace {
 //Types
 //=============================================================================
 /**
- * This class creates a teleop source ROS node.  The class implements the
- * teleop source callback interface, and publishes teleop messages containing
- * the teleop source device state.
+ * This class creates a teleop source ROS node which reads and publishes the
+ * state of a teleop source device.
  *
- * Users of the class should first call init(), then some combination of
- * start() and stop() to control the teleop source (and corresponding message
- * publication), and finally shutdown().  Note that shutdown() will
- * automatically be called during destruction.
+ * A teleop source adapter object is used to control a teleop source object.
+ * This class inherits the teleop source adapter callback interface in order to
+ * receive updates about the teleop source state.
+ *
+ * The init() and shutdown() methods control the life cycle of the object.
+ * Note that shutdown() is always called on destruction.
+ *
+ * The start() and stop() methods control the teleop source (and corresponding
+ * message publication).
  *
  * Optional parameters for the node are the following:
  *
@@ -74,7 +78,7 @@ namespace {
  *   keyboard_steps:  resolution in steps (for keyboard teleop source)
  *   joystick_device: device (for joystick teleop source)
  */
-class TeleopSourceNode : public teleop::TeleopSource::TeleopSourceCallback {
+class TeleopSourceNode : public teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback {
 
 public:
 
@@ -93,12 +97,12 @@ public:
   /**@}*/
 
   /**@{ Parameter default values */
-  static const char PARAM_DEFAULT_TELEOP_TOPIC[];
-  static const char* PARAM_DEFAULT_TELEOP_TYPE;
-  static const int  PARAM_DEFAULT_LISTEN_TIMEOUT;
+  static const char   PARAM_DEFAULT_TELEOP_TOPIC[];
+  static const char*  PARAM_DEFAULT_TELEOP_TYPE;
+  static const int    PARAM_DEFAULT_LISTEN_TIMEOUT;
   static const double PARAM_DEFAULT_AXIS_DEAD_ZONE;
-  static const int  PARAM_DEFAULT_KEYBOARD_STEPS;
-  static const char* PARAM_DEFAULT_JOYSTICK_DEVICE;
+  static const int    PARAM_DEFAULT_KEYBOARD_STEPS;
+  static const char*  PARAM_DEFAULT_JOYSTICK_DEVICE;
   /**@}*/
 
   /**
@@ -112,19 +116,29 @@ public:
   ~TeleopSourceNode();
 
   /**
-   * Initialise node.  Will only succeed once until node is shutdown.
+   * Initialise object.  If object is already initialised it is shutdown and
+   * reinitialised.
    *
    *   @param argc - number of command line arguments to process
    *   @param argv - command line arguments
    *   @param nodeName - node name
-   *   @param rosInitOptions - ros init options
+   *   @param initOptions - init options
    *
    *   @return true on success
    */
-  bool init(int argc, char** argv, std::string nodeName, uint32_t rosInitOptions);
+  bool init(int argc, char** argv, std::string nodeName, uint32_t initOptions);
 
   /**
-   * Start node.  Will only succeed after init() and before shutdown().
+   * Shutdown object.  If object is already shutdown this has no effect.  This
+   * method always cleans up as much as possible, even if there are errors.
+   * This method is always called on destruction.
+   *
+   *   @return true on success
+   */
+  bool shutdown();
+
+  /**
+   * Start node.
    *
    *   @param blocking - if true block until stopped
    *
@@ -133,20 +147,13 @@ public:
   bool start(bool blocking);
 
   /**
-   * Stop node.  Will only succeed after init() and before shutdown().
+   * Stop node.
    *
    *   @param blocking - if true block until stopped
    *
    *   @return true on success
    */
   bool stop(bool blocking);
-
-  /**
-   * Shutdown node.  If the node is already shutdown this has no effect.
-   *
-   *   @return true on success
-   */
-  bool shutdown();
 
   /**
    * Check if node is initialised.
@@ -176,22 +183,24 @@ private:
   /** Teleop source (dynamically allocated) */
   teleop::TeleopSource* mTeleopSource;
 
+  /** Teleop source adapter */
+  teleop::TeleopSourceAdapter mTeleopSourceAdapter;
+
   /** Publisher for teleop messages */
   ros::Publisher mPublisher;
 
   /** Teleop message member to avoid re-creation at every call to updated() */
   teleop_msgs::State mTeleopStateMsg;
 
-  /** Flag to indicate init done */
-  bool mInitDone;
+  /** Init done flag */
+  bool mIsInitialised;
 
-  /** Mutex to protect init done flag */
-  boost::mutex mInitDoneMutex;
+  /** Mutex to protect is initialised flag */
+  boost::recursive_mutex mIsInitialisedMutex;
 
   /**
-   * Utility method for creating a teleop source.  The produced teleop source
-   * is dynamically allocated.  This method assumes that the parameters have
-   * valid values.
+   * Utility method for creating a teleop source, given the currently set
+   * parameters.  The produced teleop source is dynamically allocated.
    *
    *   @return teleop source on success and NULL on error
    */
@@ -239,7 +248,7 @@ bool printUsage(int argc, char** argv);
 //=============================================================================
 //Globals
 //=============================================================================
-/** Global flag used to indicate if and interrupt has been requested */
+//Global atomic flag used to indicate if an interrupt has been requested.
 sig_atomic_t gInterruptRequested = 0;
 
 
@@ -260,8 +269,8 @@ const char TeleopSourceNode::PARAM_KEY_JOYSTICK_DEVICE[] =     "joystick_device"
 
 const char TeleopSourceNode::PARAM_DEFAULT_TELEOP_TOPIC[] =    "teleop";
 const char* TeleopSourceNode::PARAM_DEFAULT_TELEOP_TYPE =      TeleopSourceNode::TELEOP_TYPE_KEYBOARD;
-const int  TeleopSourceNode::PARAM_DEFAULT_LISTEN_TIMEOUT =    teleop::TeleopSource::LISTEN_TIMEOUT_DEFAULT;
-const double TeleopSourceNode::PARAM_DEFAULT_AXIS_DEAD_ZONE =  teleop::TeleopSource::AXIS_DEAD_ZONE_DEFAULT;
+const int  TeleopSourceNode::PARAM_DEFAULT_LISTEN_TIMEOUT =    teleop::TeleopSourceAdapter::LISTEN_TIMEOUT_DEFAULT;
+const double TeleopSourceNode::PARAM_DEFAULT_AXIS_DEAD_ZONE =  teleop::TeleopSourceAdapter::AXIS_DEAD_ZONE_DEFAULT;
 const int  TeleopSourceNode::PARAM_DEFAULT_KEYBOARD_STEPS =    teleop::TeleopSourceKeyboard::STEPS_DEFAULT;
 const char* TeleopSourceNode::PARAM_DEFAULT_JOYSTICK_DEVICE =  teleop::TeleopSourceJoystick::getDefaultDevice().c_str();
 
@@ -272,23 +281,30 @@ const char* TeleopSourceNode::PARAM_DEFAULT_JOYSTICK_DEVICE =  teleop::TeleopSou
 //Method definitions
 //=============================================================================
 TeleopSourceNode::TeleopSourceNode() :
+  mTeleopTopic(PARAM_DEFAULT_TELEOP_TOPIC),
+  mTeleopType(PARAM_DEFAULT_TELEOP_TYPE),
+  mListenTimeout(PARAM_DEFAULT_LISTEN_TIMEOUT),
+  mAxisDeadZone(PARAM_DEFAULT_AXIS_DEAD_ZONE),
+  mKeyboardSteps(PARAM_DEFAULT_KEYBOARD_STEPS),
+  mJoystickDevice(PARAM_DEFAULT_JOYSTICK_DEVICE),
   mTeleopSource(NULL),
-  mInitDone(false) {
-  //Parameter members will be initialised during init
+  mIsInitialised(false) {
 }
 //=============================================================================
 TeleopSourceNode::~TeleopSourceNode() {
+  //Shutdown (should always succeed)
   if (!shutdown()) {
-    ROS_ERROR("TeleopSourceNode::~TeleopSourceNode: error shutting down node");
+    ROS_WARN("TeleopSourceNode::~TeleopSourceNode: ignoring error in shutdown");
   }
 }
 //=============================================================================
 bool TeleopSourceNode::init(int argc, char** argv, std::string nodeName, uint32_t rosInitOptions) {
-  //Lock and check init done flag
-  boost::lock_guard<boost::mutex> initDoneLock(mInitDoneMutex);
-  if (mInitDone) {
-    ROS_ERROR("TeleopSourceNode::init: node already initialised");
-    return false;
+  //Lock access to init status
+  boost::lock_guard<boost::recursive_mutex> isInitialisedLock(mIsInitialisedMutex);
+
+  //If already initialised shutdown first (shutdown should always succeed)
+  if (mIsInitialised && !shutdown()) {
+    ROS_WARN("TeleopSourceNode::init: ignoring error in shutdown()");
   }
 
   //Init node
@@ -351,57 +367,47 @@ bool TeleopSourceNode::init(int argc, char** argv, std::string nodeName, uint32_
     return false;
   }
 
+  //Initialise and configure teleop source adapter
+  if (!mTeleopSourceAdapter.init(mTeleopSource, this)) {
+    ROS_ERROR("TeleopSourceNode::init: error initialising teleop source adapter");
+    delete mTeleopSource;
+    ros::shutdown();
+    return false;
+  }
+  if (!mTeleopSourceAdapter.setListenTimeout(mListenTimeout)
+      || !mTeleopSourceAdapter.setAxisDeadZoneForAllAxes(mAxisDeadZone)) {
+    ROS_ERROR("TeleopSourceNode::init: error configuring teleop source adapter");
+    delete mTeleopSource;
+    ros::shutdown();
+    return false;
+  }
+
   //Update init done flag
-  mInitDone = true;
+  mIsInitialised = true;
 
   //Return result
   return true;
 }
 //=============================================================================
-bool TeleopSourceNode::start(bool blocking) {
-  //Check init done flag
-  boost::unique_lock<boost::mutex> initDoneLock(mInitDoneMutex);
-  if (!mInitDone) {
-    ROS_ERROR("TeleopSourceNode::start: node not initialised");
-    return false;
-  }
-  initDoneLock.unlock();
-
-  if (!mTeleopSource->start(blocking)) {
-    ROS_ERROR("TeleopSourceNode::stop: error starting teleop source");
-    return false;
-  } else {
-    return true;
-  }
-}
-//=============================================================================
-bool TeleopSourceNode::stop(bool blocking) {
-  //Check init done flag
-  boost::unique_lock<boost::mutex> initDoneLock(mInitDoneMutex);
-  if (!mInitDone) {
-    ROS_ERROR("TeleopSourceNode::stop: node not initialised");
-    return false;
-  }
-  initDoneLock.unlock();
-
-  if (!mTeleopSource->stop(blocking)) {
-    ROS_ERROR("TeleopSourceNode::stop: error stopping teleop source");
-    return false;
-  } else {
-    return true;
-  }
-}
-//=============================================================================
 bool TeleopSourceNode::shutdown() {
   //Check init done flag
-  boost::lock_guard<boost::mutex> initDoneLock(mInitDoneMutex);
-  if (!mInitDone) {
+  boost::lock_guard<boost::recursive_mutex> isInitialisedLock(mIsInitialisedMutex);
+  if (!mIsInitialised) {
     return true;
   }
 
-  //Free teleop source (it is stopped automatically if necessary)
-  delete mTeleopSource;
-  mTeleopSource = NULL;
+  //Shutdown teleop source adapter
+  if (!mTeleopSourceAdapter.shutdown()) {
+    ROS_WARN("TeleopSourceNode::shutdown: ignoring error in teleop source adapter shutdown");
+  }
+
+  //Free teleop source
+  if (NULL != mTeleopSource) {
+    delete mTeleopSource;
+    mTeleopSource = NULL;
+  } else {
+    ROS_WARN("TeleopSourceNode::shutdown: teleop source already deleted");
+  }
 
   //Zero message
   for (size_t i = 0; i < mTeleopStateMsg.axes.size(); i++) {
@@ -423,23 +429,57 @@ bool TeleopSourceNode::shutdown() {
   ros::shutdown();
 
   //Set init done flag
-  mInitDone = false;
+  mIsInitialised = false;
 
   return true;
 }
 //=============================================================================
+bool TeleopSourceNode::start(bool blocking) {
+  //Check init done flag
+  boost::unique_lock<boost::recursive_mutex> isInitialisedLock(mIsInitialisedMutex);
+  if (!mIsInitialised) {
+    ROS_ERROR("TeleopSourceNode::start: node not initialised");
+    return false;
+  }
+  isInitialisedLock.unlock();
+
+  if (!mTeleopSourceAdapter.start(blocking)) {
+    ROS_ERROR("TeleopSourceNode::start: error starting teleop source");
+    return false;
+  } else {
+    return true;
+  }
+}
+//=============================================================================
+bool TeleopSourceNode::stop(bool blocking) {
+  //Check init done flag
+  boost::unique_lock<boost::recursive_mutex> isInitialisedLock(mIsInitialisedMutex);
+  if (!mIsInitialised) {
+    ROS_ERROR("TeleopSourceNode::stop: node not initialised");
+    return false;
+  }
+  isInitialisedLock.unlock();
+
+  if (!mTeleopSourceAdapter.stop(blocking)) {
+    ROS_ERROR("TeleopSourceNode::stop: error stopping teleop source");
+    return false;
+  } else {
+    return true;
+  }
+}
+//=============================================================================
 bool TeleopSourceNode::isInitialised() {
-  boost::lock_guard<boost::mutex> initDoneLock(mInitDoneMutex);
-  return mInitDone;
+  boost::lock_guard<boost::recursive_mutex> isInitialisedLock(mIsInitialisedMutex);
+  return mIsInitialised;
 }
 //=============================================================================
 bool TeleopSourceNode::isRunning() {
   //Check init done flag
-  boost::lock_guard<boost::mutex> initDoneLock(mInitDoneMutex);
-  if (!mInitDone) {
+  boost::lock_guard<boost::recursive_mutex> isInitialisedLock(mIsInitialisedMutex);
+  if (!mIsInitialised) {
     return false;
   } else {
-    return mTeleopSource->isRunning();
+    return mTeleopSourceAdapter.isRunning();
   }
 }
 //=============================================================================
@@ -450,19 +490,18 @@ teleop::TeleopSource* TeleopSourceNode::teleopSourceFactory() {
     return NULL;
   } else if (0 == mTeleopType.compare(std::string(TELEOP_TYPE_KEYBOARD))) {
     teleop::TeleopSourceKeyboard* teleopSourceKeyboard;
-    teleopSourceKeyboard = new teleop::TeleopSourceKeyboard(this);
+    teleopSourceKeyboard = new teleop::TeleopSourceKeyboard();
     teleopSourceKeyboard->setSteps(mKeyboardSteps);
     teleopSource = teleopSourceKeyboard;
   } else if (0 == mTeleopType.compare(std::string(TELEOP_TYPE_JOYSTICK))) {
     teleop::TeleopSourceJoystick* teleopSourceJoystick;
-    teleopSourceJoystick = new teleop::TeleopSourceJoystick(this, mJoystickDevice);
+    teleopSourceJoystick = new teleop::TeleopSourceJoystick();
+    teleopSourceJoystick->setDevice(mJoystickDevice);
     teleopSource = teleopSourceJoystick;
   } else {
     ROS_ERROR("TeleopSourceNode::teleopSourceFactory: unknown teleop source type");
     return NULL;
   }
-  teleopSource->setListenTimeout(mListenTimeout);
-  teleopSource->setAxisDeadZoneForAllAxes(mAxisDeadZone);
   return teleopSource;
 }
 //=============================================================================
@@ -593,8 +632,8 @@ int main(int argc, char** argv) {
   }
 
   //Periodically check for interruption
-  while (!gInterruptRequested) {
-    boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+  while (0 == gInterruptRequested) {
+    boost::this_thread::sleep(boost::posix_time::milliseconds(500));
   }
 
   //Done
