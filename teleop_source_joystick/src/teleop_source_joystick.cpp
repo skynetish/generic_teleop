@@ -43,6 +43,7 @@
 #include <time.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <errno.h>
 
 
 
@@ -135,7 +136,7 @@ bool TeleopSourceJoystick::init() {
 
   //If device is already open something is wrong
   if (-1 != mFileDescriptor) {
-    fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error: device already open\n");
+    fprintf(stderr, "TeleopSourceJoystick::init: error: device already open\n");
     return false;
   }
 
@@ -144,41 +145,41 @@ bool TeleopSourceJoystick::init() {
   //incorrect.
   mFileDescriptor = open(mDevice.c_str(), O_RDONLY | O_NONBLOCK);
   if (-1 == mFileDescriptor) {
-    fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error: could not open device\n");
+    fprintf(stderr, "TeleopSourceJoystick::init: error: could not open device (%s, %d)\n", mDevice.c_str(), errno);
     return false;
   }
   if (0 != close(mFileDescriptor)) {
-    fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error: could not close device\n");
+    fprintf(stderr, "TeleopSourceJoystick::init: error: could not close device (%d)\n", errno);
     mFileDescriptor = -1;
     return false;
   }
   mFileDescriptor = open(mDevice.c_str(), O_RDONLY | O_NONBLOCK);
   if (-1 == mFileDescriptor) {
-    fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error: could not open device\n");
+    fprintf(stderr, "TeleopSourceJoystick::init: error: could not re-open device (%s, %d)\n", mDevice.c_str(), errno);
     return false;
   }
 
   //Get number of axes and buttons and corresponding maps
   if (0 > ioctl(mFileDescriptor, JSIOCGAXES, &mNumAxes)) {
-    fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error: could not read number of axes\n");
+    fprintf(stderr, "TeleopSourceJoystick::init: error: could not read number of axes (%d)\n", errno);
     close(mFileDescriptor);
     mFileDescriptor = -1;
     return false;
   }
   if (0 > ioctl(mFileDescriptor, JSIOCGAXMAP, mAxisMap)) {
-    fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error: could not read axis map\n");
+    fprintf(stderr, "TeleopSourceJoystick::init: error: could not read axis map (%d)\n", errno);
     close(mFileDescriptor);
     mFileDescriptor = -1;
     return false;
   }
   if (0 > ioctl(mFileDescriptor, JSIOCGBUTTONS, &mNumButtons)) {
-    fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error: could not read number of buttons\n");
+    fprintf(stderr, "TeleopSourceJoystick::init: error: could not read number of buttons (%d)\n", errno);
     close(mFileDescriptor);
     mFileDescriptor = -1;
     return false;
   }
   if (0 > ioctl(mFileDescriptor, JSIOCGBTNMAP, mButtonMap)) {
-    fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error: could not read button map\n");
+    fprintf(stderr, "TeleopSourceJoystick::init: error: could not read button map (%d)\n", errno);
     close(mFileDescriptor);
     mFileDescriptor = -1;
     return false;
@@ -187,7 +188,7 @@ bool TeleopSourceJoystick::init() {
   //Get joystick name
   char name[128];
   if (0 > ioctl(mFileDescriptor, JSIOCGNAME(sizeof(name)), name)) {
-    fprintf(stderr, "TeleopSourceJoystick::listenPrepare: error: could not read name\n");
+    fprintf(stderr, "TeleopSourceJoystick::init: error: could not read name (%d)\n", errno);
     close(mFileDescriptor);
     mFileDescriptor = -1;
     return false;
@@ -294,9 +295,13 @@ bool TeleopSourceJoystick::listen(unsigned int listenTimeout, TeleopState* const
         fprintf(stderr, "TeleopSourceJoystick::listen: error: handleEvent() failed\n");
         return false;
       }
+    } else if (-1 == numBytes) {
+      //Error other than EAGAIN
+      fprintf(stderr, "TeleopSourceJoystick::listen: error: read() failed (%d)\n", errno);
+      return false;
     } else {
-      //Error
-      fprintf(stderr, "TeleopSourceJoystick::listen: error: read() failed\n");
+      //Error in number of bytes read
+      fprintf(stderr, "TeleopSourceJoystick::listen: error: read() did not read enough bytes (read %d)\n", numBytes);
       return false;
     }
   }
@@ -317,7 +322,7 @@ bool TeleopSourceJoystick::shutdown() {
   if (-1 == mFileDescriptor) {
     fprintf(stderr, "TeleopSourceJoystick::shutdown: warning: device not open\n");
   } else if (0 != close(mFileDescriptor)) {
-    fprintf(stderr, "TeleopSourceJoystick::shutdown: warning: problem closing device\n");
+    fprintf(stderr, "TeleopSourceJoystick::shutdown: warning: problem closing device (%d)\n", errno);
   }
 
   //Restore default values
