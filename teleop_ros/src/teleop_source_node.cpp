@@ -72,7 +72,7 @@ namespace {
  * Optional parameters for the node are the following:
  *
  *   topic:           topic to which to publish the teleop state
- *   teleop_type:     teleop source type (e.g. "keyboard" or "joystick")
+ *   teleop_type:     teleop source type ("auto", "keyboard", or "joystick")
  *   listen_timeout:  teleop source listen timeout in milliseconds
  *   axis_dead_zone:  teleop source initial axis dead zone for all axes
  *   keyboard_steps:  resolution in steps (for keyboard teleop source)
@@ -83,8 +83,9 @@ class TeleopSourceNode : public teleop::TeleopSourceAdapter::TeleopSourceAdapter
 public:
 
   /**@{ Teleop types */
-  static const char TELEOP_TYPE_JOYSTICK[];
+  static const char TELEOP_TYPE_AUTO[];
   static const char TELEOP_TYPE_KEYBOARD[];
+  static const char TELEOP_TYPE_JOYSTICK[];
   /**@}*/
 
   /**@{ Parameter keys */
@@ -102,7 +103,7 @@ public:
   static const int    PARAM_DEFAULT_LISTEN_TIMEOUT;
   static const double PARAM_DEFAULT_AXIS_DEAD_ZONE;
   static const int    PARAM_DEFAULT_KEYBOARD_STEPS;
-  static const char*  PARAM_DEFAULT_JOYSTICK_DEVICE;
+  static const char   PARAM_DEFAULT_JOYSTICK_DEVICE[];
   /**@}*/
 
   /**
@@ -257,22 +258,27 @@ sig_atomic_t gInterruptRequested = 0;
 //=============================================================================
 //Static member definitions
 //=============================================================================
-const char TeleopSourceNode::TELEOP_TYPE_JOYSTICK[] =          "joystick";
-const char TeleopSourceNode::TELEOP_TYPE_KEYBOARD[] =          "keyboard";
+const char TeleopSourceNode::TELEOP_TYPE_AUTO[] =               "auto";
+const char TeleopSourceNode::TELEOP_TYPE_KEYBOARD[] =           "keyboard";
+const char TeleopSourceNode::TELEOP_TYPE_JOYSTICK[] =           "joystick";
 
-const char TeleopSourceNode::PARAM_KEY_TELEOP_TOPIC[] =        "teleop_topic";
-const char TeleopSourceNode::PARAM_KEY_TELEOP_TYPE[] =         "teleop_type";
-const char TeleopSourceNode::PARAM_KEY_LISTEN_TIMEOUT[] =      "listen_timeout";
-const char TeleopSourceNode::PARAM_KEY_AXIS_DEAD_ZONE[] =      "axis_dead_zone";
-const char TeleopSourceNode::PARAM_KEY_KEYBOARD_STEPS[] =      "keyboard_steps";
-const char TeleopSourceNode::PARAM_KEY_JOYSTICK_DEVICE[] =     "joystick_device";
+const char TeleopSourceNode::PARAM_KEY_TELEOP_TOPIC[] =         "teleop_topic";
+const char TeleopSourceNode::PARAM_KEY_TELEOP_TYPE[] =          "teleop_type";
+const char TeleopSourceNode::PARAM_KEY_LISTEN_TIMEOUT[] =       "listen_timeout";
+const char TeleopSourceNode::PARAM_KEY_AXIS_DEAD_ZONE[] =       "axis_dead_zone";
+const char TeleopSourceNode::PARAM_KEY_KEYBOARD_STEPS[] =       "keyboard_steps";
+const char TeleopSourceNode::PARAM_KEY_JOYSTICK_DEVICE[] =      "joystick_device";
 
-const char TeleopSourceNode::PARAM_DEFAULT_TELEOP_TOPIC[] =    "teleop";
-const char* TeleopSourceNode::PARAM_DEFAULT_TELEOP_TYPE =      TeleopSourceNode::TELEOP_TYPE_KEYBOARD;
-const int  TeleopSourceNode::PARAM_DEFAULT_LISTEN_TIMEOUT =    teleop::TeleopSourceAdapter::LISTEN_TIMEOUT_DEFAULT;
-const double TeleopSourceNode::PARAM_DEFAULT_AXIS_DEAD_ZONE =  teleop::TeleopSourceAdapter::AXIS_DEAD_ZONE_DEFAULT;
-const int  TeleopSourceNode::PARAM_DEFAULT_KEYBOARD_STEPS =    teleop::TeleopSourceKeyboard::STEPS_DEFAULT;
-const char* TeleopSourceNode::PARAM_DEFAULT_JOYSTICK_DEVICE =  teleop::TeleopSourceJoystick::getDefaultDevice().c_str();
+const char TeleopSourceNode::PARAM_DEFAULT_TELEOP_TOPIC[] =     "teleop";
+const char* TeleopSourceNode::PARAM_DEFAULT_TELEOP_TYPE =       TeleopSourceNode::TELEOP_TYPE_KEYBOARD;
+const int  TeleopSourceNode::PARAM_DEFAULT_LISTEN_TIMEOUT =     teleop::TeleopSourceAdapter::LISTEN_TIMEOUT_DEFAULT;
+const double TeleopSourceNode::PARAM_DEFAULT_AXIS_DEAD_ZONE =   teleop::TeleopSourceAdapter::AXIS_DEAD_ZONE_DEFAULT;
+const int  TeleopSourceNode::PARAM_DEFAULT_KEYBOARD_STEPS =     teleop::TeleopSourceKeyboard::STEPS_DEFAULT;
+
+//Ideally this should be TeleopSourceJoystick::getDefaultDevice().c_str(),
+//but C++ makes this difficult.  Since we assume the user should set this
+//parameter explicitly if needed anyway, we use a hard-coded default.
+const char TeleopSourceNode::PARAM_DEFAULT_JOYSTICK_DEVICE[] =  "/dev/input/js0";
 
 
 
@@ -484,24 +490,42 @@ bool TeleopSourceNode::isRunning() {
 }
 //=============================================================================
 teleop::TeleopSource* TeleopSourceNode::teleopSourceFactory() {
-  teleop::TeleopSource* teleopSource;
-  if (0 == mTeleopType.compare("")) {
-    ROS_ERROR("TeleopSourceNode::teleopSourceFactory: empty teleop source type");
-    return NULL;
-  } else if (0 == mTeleopType.compare(std::string(TELEOP_TYPE_KEYBOARD))) {
+  teleop::TeleopSource* teleopSource = NULL;
+  std::string teleopType = mTeleopType;
+
+  //If type is auto, check for best alternative
+  if (0 == teleopType.compare(std::string(TELEOP_TYPE_AUTO))) {
+    teleop::TeleopSourceJoystick* teleopSourceJoystick;
+    teleopSourceJoystick = new teleop::TeleopSourceJoystick();
+    teleopSourceJoystick->setDevice(mJoystickDevice);
+    if (teleopSourceJoystick->init()) {
+      if (!teleopSourceJoystick->shutdown()) {
+        ROS_WARN("TeleopSourceNode::teleopSourceFactory: ignoring error during TeleopSourceJoystick shutdown");
+      }
+      teleopType = std::string(TELEOP_TYPE_JOYSTICK);
+    } else {
+      teleopType = std::string(TELEOP_TYPE_KEYBOARD);
+    }
+    delete teleopSourceJoystick;
+  }
+
+  //Handle known types
+  if (0 == teleopType.compare(std::string(TELEOP_TYPE_KEYBOARD))) {
     teleop::TeleopSourceKeyboard* teleopSourceKeyboard;
     teleopSourceKeyboard = new teleop::TeleopSourceKeyboard();
     teleopSourceKeyboard->setSteps(mKeyboardSteps);
     teleopSource = teleopSourceKeyboard;
-  } else if (0 == mTeleopType.compare(std::string(TELEOP_TYPE_JOYSTICK))) {
+  } else if (0 == teleopType.compare(std::string(TELEOP_TYPE_JOYSTICK))) {
     teleop::TeleopSourceJoystick* teleopSourceJoystick;
     teleopSourceJoystick = new teleop::TeleopSourceJoystick();
     teleopSourceJoystick->setDevice(mJoystickDevice);
     teleopSource = teleopSourceJoystick;
   } else {
-    ROS_ERROR("TeleopSourceNode::teleopSourceFactory: unknown teleop source type");
+    ROS_ERROR("TeleopSourceNode::teleopSourceFactory: unknown teleop source type (%s)", teleopType.c_str());
     return NULL;
   }
+
+  //Return result
   return teleopSource;
 }
 //=============================================================================
