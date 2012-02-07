@@ -301,7 +301,7 @@ bool TeleopSourceJoystick::listen(unsigned int listenTimeout, TeleopState* const
       return false;
     } else {
       //Error in number of bytes read
-      fprintf(stderr, "TeleopSourceJoystick::listen: error: read() did not read enough bytes (read %d)\n", numBytes);
+      fprintf(stderr, "TeleopSourceJoystick::listen: error: read() did not read enough bytes (read %ld)\n", numBytes);
       return false;
     }
   }
