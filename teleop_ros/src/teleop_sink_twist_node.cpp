@@ -71,12 +71,12 @@
 #define PARAM_KEY_MAX_ROT_Y             "max_rot_y"
 #define PARAM_KEY_MAX_ROT_Z             "max_rot_z"
 
-#define PARAM_KEY_EXP_LIN_X             "exp_lin_x"
-#define PARAM_KEY_EXP_LIN_Y             "exp_lin_y"
-#define PARAM_KEY_EXP_LIN_Z             "exp_lin_z"
-#define PARAM_KEY_EXP_ROT_X             "exp_rot_x"
-#define PARAM_KEY_EXP_ROT_Y             "exp_rot_y"
-#define PARAM_KEY_EXP_ROT_Z             "exp_rot_z"
+#define PARAM_KEY_QUADRATIC_LIN_X       "quadratic_lin_x"
+#define PARAM_KEY_QUADRATIC_LIN_Y       "quadratic_lin_y"
+#define PARAM_KEY_QUADRATIC_LIN_Z       "quadratic_lin_z"
+#define PARAM_KEY_QUADRATIC_ROT_X       "quadratic_rot_x"
+#define PARAM_KEY_QUADRATIC_ROT_Y       "quadratic_rot_y"
+#define PARAM_KEY_QUADRATIC_ROT_Z       "quadratic_rot_z"
 
 #define PARAM_KEY_THROTTLE_LIN_X        "throttle_lin_x"
 #define PARAM_KEY_THROTTLE_LIN_Y        "throttle_lin_y"
@@ -111,12 +111,12 @@
 #define PARAM_DEFAULT_MAX_ROT_Y         (0.8)
 #define PARAM_DEFAULT_MAX_ROT_Z         (0.8)
 
-#define PARAM_DEFAULT_EXP_LIN_X         1
-#define PARAM_DEFAULT_EXP_LIN_Y         1
-#define PARAM_DEFAULT_EXP_LIN_Z         1
-#define PARAM_DEFAULT_EXP_ROT_X         0
-#define PARAM_DEFAULT_EXP_ROT_Y         0
-#define PARAM_DEFAULT_EXP_ROT_Z         0
+#define PARAM_DEFAULT_QUADRATIC_LIN_X   1
+#define PARAM_DEFAULT_QUADRATIC_LIN_Y   1
+#define PARAM_DEFAULT_QUADRATIC_LIN_Z   1
+#define PARAM_DEFAULT_QUADRATIC_ROT_X   0
+#define PARAM_DEFAULT_QUADRATIC_ROT_Y   0
+#define PARAM_DEFAULT_QUADRATIC_ROT_Z   0
 
 #define PARAM_DEFAULT_THROTTLE_LIN_X    0
 #define PARAM_DEFAULT_THROTTLE_LIN_Y    0
@@ -163,12 +163,12 @@ public:
    *   @param maxRotX [in] - max value for this axis
    *   @param maxRotY [in] - max value for this axis
    *   @param maxRotZ [in] - max value for this axis
-   *   @param expLinX [in] - true if axis should be exponential
-   *   @param expLinY [in] - true if axis should be exponential
-   *   @param expLinZ [in] - true if axis should be exponential
-   *   @param expRotX [in] - true if axis should be exponential
-   *   @param expRotY [in] - true if axis should be exponential
-   *   @param expRotZ [in] - true if axis should be exponential
+   *   @param quadraticLinX [in] - true if axis should be quadratic
+   *   @param quadraticLinY [in] - true if axis should be quadratic
+   *   @param quadraticLinZ [in] - true if axis should be quadratic
+   *   @param quadraticRotX [in] - true if axis should be quadratic
+   *   @param quadraticRotY [in] - true if axis should be quadratic
+   *   @param quadraticRotZ [in] - true if axis should be quadratic
    *   @param throttleLinX [in] - true if axis should be affected by throttle
    *   @param throttleLinY [in] - true if axis should be affected by throttle
    *   @param throttleLinZ [in] - true if axis should be affected by throttle
@@ -183,8 +183,8 @@ public:
                              double minRotX, double minRotY, double minRotZ,
                              double maxLinX, double maxLinY, double maxLinZ,
                              double maxRotX, double maxRotY, double maxRotZ,
-                             bool expLinX, bool expLinY, bool expLinZ,
-                             bool expRotX, bool expRotY, bool expRotZ,
+                             bool quadraticLinX, bool quadraticLinY, bool quadraticLinZ,
+                             bool quadraticRotX, bool quadraticRotY, bool quadraticRotZ,
                              bool throttleLinX, bool throttleLinY, bool throttleLinZ,
                              bool throttleRotX, bool throttleRotY, bool throttleRotZ);
 
@@ -213,7 +213,7 @@ private:
   bool mHasLinX, mHasLinY, mHasLinZ, mHasRotX, mHasRotY, mHasRotZ;
   double mMinLinX, mMinLinY, mMinLinZ, mMinRotX, mMinRotY, mMinRotZ;
   double mMaxLinX, mMaxLinY, mMaxLinZ, mMaxRotX, mMaxRotY, mMaxRotZ;
-  bool mExpLinX, mExpLinY, mExpLinZ, mExpRotX, mExpRotY, mExpRotZ;
+  bool mQuadraticLinX, mQuadraticLinY, mQuadraticLinZ, mQuadraticRotX, mQuadraticRotY, mQuadraticRotZ;
   bool mThrottleLinX, mThrottleLinY, mThrottleLinZ, mThrottleRotX, mThrottleRotY, mThrottleRotZ;
   /**@}*/
 
@@ -234,14 +234,14 @@ private:
   bool teleopStateToTwist(const teleop_msgs::State* const teleopStateMsg, geometry_msgs::Twist* const twistMsg);
 
   /**
-   * Apply exponential factor to teleop axis value if enabled
+   * Apply quadratic factor to teleop axis value if enabled
    *
    *   @param enabled [in] - true if enabled
    *   @param teleopAxisValue [in] - original teleop axis value
    *
    *   @return updated teleopAxisValue
    */
-  teleop::TeleopAxisValue applyExponential(bool enabled, teleop::TeleopAxisValue teleopAxisValue);
+  teleop::TeleopAxisValue applyQuadratic(bool enabled, teleop::TeleopAxisValue teleopAxisValue);
 
   /**
    * Apply throttle factor to teleop axis value if enabled
@@ -327,8 +327,8 @@ TeleopSinkTwistCallbackRos::TeleopSinkTwistCallbackRos(const ros::Publisher* con
                                                        double minRotX, double minRotY, double minRotZ,
                                                        double maxLinX, double maxLinY, double maxLinZ,
                                                        double maxRotX, double maxRotY, double maxRotZ,
-                                                       bool expLinX, bool expLinY, bool expLinZ,
-                                                       bool expRotX, bool expRotY, bool expRotZ,
+                                                       bool quadraticLinX, bool quadraticLinY, bool quadraticLinZ,
+                                                       bool quadraticRotX, bool quadraticRotY, bool quadraticRotZ,
                                                        bool throttleLinX, bool throttleLinY, bool throttleLinZ,
                                                        bool throttleRotX, bool throttleRotY, bool throttleRotZ) :
   mPublisher(publisher),
@@ -350,12 +350,12 @@ TeleopSinkTwistCallbackRos::TeleopSinkTwistCallbackRos(const ros::Publisher* con
   mMaxRotX(maxRotX),
   mMaxRotY(maxRotY),
   mMaxRotZ(maxRotZ),
-  mExpLinX(expLinX),
-  mExpLinY(expLinY),
-  mExpLinZ(expLinZ),
-  mExpRotX(expRotX),
-  mExpRotY(expRotY),
-  mExpRotZ(expRotZ),
+  mQuadraticLinX(quadraticLinX),
+  mQuadraticLinY(quadraticLinY),
+  mQuadraticLinZ(quadraticLinZ),
+  mQuadraticRotX(quadraticRotX),
+  mQuadraticRotY(quadraticRotY),
+  mQuadraticRotZ(quadraticRotZ),
   mThrottleLinX(throttleLinX),
   mThrottleLinY(throttleLinY),
   mThrottleLinZ(throttleLinZ),
@@ -551,8 +551,8 @@ bool TeleopSinkTwistCallbackRos::teleopStateToTwist(const teleop_msgs::State* co
   return true;
 }
 //=============================================================================
-teleop::TeleopAxisValue TeleopSinkTwistCallbackRos::applyExponential(bool enabled,
-                                                                     teleop::TeleopAxisValue teleopAxisValue) {
+teleop::TeleopAxisValue TeleopSinkTwistCallbackRos::applyQuadratic(bool enabled,
+                                                                   teleop::TeleopAxisValue teleopAxisValue) {
   if (enabled) {
     if (0.0 <= teleopAxisValue) {
       return (teleopAxisValue * teleopAxisValue);
@@ -574,7 +574,7 @@ teleop::TeleopAxisValue TeleopSinkTwistCallbackRos::applyThrottle(bool enabled,
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistLinX(teleop::TeleopAxisValue teleopAxisValue) {
-  double level = applyThrottle(mThrottleLinX, (applyExponential(mExpLinX, teleopAxisValue)));
+  double level = applyThrottle(mThrottleLinX, (applyQuadratic(mQuadraticLinX, teleopAxisValue)));
   if (0.0 <= teleopAxisValue) {
     return level * mMaxLinX;
   } else {
@@ -583,7 +583,7 @@ double TeleopSinkTwistCallbackRos::teleopToTwistLinX(teleop::TeleopAxisValue tel
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistLinY(teleop::TeleopAxisValue teleopAxisValue) {
-  double level = applyThrottle(mThrottleLinY, (applyExponential(mExpLinY, teleopAxisValue)));
+  double level = applyThrottle(mThrottleLinY, (applyQuadratic(mQuadraticLinY, teleopAxisValue)));
   if (0.0 <= teleopAxisValue) {
     return level * mMaxLinY;
   } else {
@@ -592,7 +592,7 @@ double TeleopSinkTwistCallbackRos::teleopToTwistLinY(teleop::TeleopAxisValue tel
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistLinZ(teleop::TeleopAxisValue teleopAxisValue) {
-  double level = applyThrottle(mThrottleLinZ, (applyExponential(mExpLinZ, teleopAxisValue)));
+  double level = applyThrottle(mThrottleLinZ, (applyQuadratic(mQuadraticLinZ, teleopAxisValue)));
   if (0.0 <= teleopAxisValue) {
     return level * mMaxLinZ;
   } else {
@@ -601,7 +601,7 @@ double TeleopSinkTwistCallbackRos::teleopToTwistLinZ(teleop::TeleopAxisValue tel
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistRotX(teleop::TeleopAxisValue teleopAxisValue) {
-  double level = applyThrottle(mThrottleRotX, (applyExponential(mExpRotX, teleopAxisValue)));
+  double level = applyThrottle(mThrottleRotX, (applyQuadratic(mQuadraticRotX, teleopAxisValue)));
   if (0.0 <= teleopAxisValue) {
     return level * mMaxRotX;
   } else {
@@ -610,7 +610,7 @@ double TeleopSinkTwistCallbackRos::teleopToTwistRotX(teleop::TeleopAxisValue tel
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistRotY(teleop::TeleopAxisValue teleopAxisValue) {
-  double level = applyThrottle(mThrottleRotY, (applyExponential(mExpRotY, teleopAxisValue)));
+  double level = applyThrottle(mThrottleRotY, (applyQuadratic(mQuadraticRotY, teleopAxisValue)));
   if (0.0 <= teleopAxisValue) {
     return level * mMaxRotY;
   } else {
@@ -619,7 +619,7 @@ double TeleopSinkTwistCallbackRos::teleopToTwistRotY(teleop::TeleopAxisValue tel
 }
 //=============================================================================
 double TeleopSinkTwistCallbackRos::teleopToTwistRotZ(teleop::TeleopAxisValue teleopAxisValue) {
-  double level = applyThrottle(mThrottleRotZ, (applyExponential(mExpRotZ, teleopAxisValue)));
+  double level = applyThrottle(mThrottleRotZ, (applyQuadratic(mQuadraticRotZ, teleopAxisValue)));
   if (0.0 <= teleopAxisValue) {
     return level * mMaxRotZ;
   } else {
@@ -660,36 +660,36 @@ bool printUsage(int argc, char** argv) {
                                  (std::string("<node>/") + std::string(PARAM_DEFAULT_TELEOP_TOPIC)).c_str());
       printf("    _%s:=%s\n",    PARAM_KEY_TWIST_TOPIC,
                                  (std::string("<node>/") + std::string(PARAM_DEFAULT_TWIST_TOPIC)).c_str());
-      printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_X,      PARAM_DEFAULT_HAS_LIN_X);
-      printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Y,      PARAM_DEFAULT_HAS_LIN_Y);
-      printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Z,      PARAM_DEFAULT_HAS_LIN_Z);
-      printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_X,      PARAM_DEFAULT_HAS_ROT_X);
-      printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_Y,      PARAM_DEFAULT_HAS_ROT_Y);
-      printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_Z,      PARAM_DEFAULT_HAS_ROT_Z);
-      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_X,      PARAM_DEFAULT_MIN_LIN_X);
-      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_Y,      PARAM_DEFAULT_MIN_LIN_Y);
-      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_Z,      PARAM_DEFAULT_MIN_LIN_Z);
-      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_X,      PARAM_DEFAULT_MIN_ROT_X);
-      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_Y,      PARAM_DEFAULT_MIN_ROT_Y);
-      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_Z,      PARAM_DEFAULT_MIN_ROT_Z);
-      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_X,      PARAM_DEFAULT_MAX_LIN_X);
-      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_Y,      PARAM_DEFAULT_MAX_LIN_Y);
-      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_Z,      PARAM_DEFAULT_MAX_LIN_Z);
-      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_X,      PARAM_DEFAULT_MAX_ROT_X);
-      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_Y,      PARAM_DEFAULT_MAX_ROT_Y);
-      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_Z,      PARAM_DEFAULT_MAX_ROT_Z);
-      printf("    _%s:=%d\n",    PARAM_KEY_EXP_LIN_X,      PARAM_DEFAULT_EXP_LIN_X);
-      printf("    _%s:=%d\n",    PARAM_KEY_EXP_LIN_Y,      PARAM_DEFAULT_EXP_LIN_Y);
-      printf("    _%s:=%d\n",    PARAM_KEY_EXP_LIN_Z,      PARAM_DEFAULT_EXP_LIN_Z);
-      printf("    _%s:=%d\n",    PARAM_KEY_EXP_ROT_X,      PARAM_DEFAULT_EXP_ROT_X);
-      printf("    _%s:=%d\n",    PARAM_KEY_EXP_ROT_Y,      PARAM_DEFAULT_EXP_ROT_Y);
-      printf("    _%s:=%d\n",    PARAM_KEY_EXP_ROT_Z,      PARAM_DEFAULT_EXP_ROT_Z);
-      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_LIN_X, PARAM_DEFAULT_THROTTLE_LIN_X);
-      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_LIN_Y, PARAM_DEFAULT_THROTTLE_LIN_Y);
-      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_LIN_Z, PARAM_DEFAULT_THROTTLE_LIN_Z);
-      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_ROT_X, PARAM_DEFAULT_THROTTLE_ROT_X);
-      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_ROT_Y, PARAM_DEFAULT_THROTTLE_ROT_Y);
-      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_ROT_Z, PARAM_DEFAULT_THROTTLE_ROT_Z);
+      printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_X,       PARAM_DEFAULT_HAS_LIN_X);
+      printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Y,       PARAM_DEFAULT_HAS_LIN_Y);
+      printf("    _%s:=%d\n",    PARAM_KEY_HAS_LIN_Z,       PARAM_DEFAULT_HAS_LIN_Z);
+      printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_X,       PARAM_DEFAULT_HAS_ROT_X);
+      printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_Y,       PARAM_DEFAULT_HAS_ROT_Y);
+      printf("    _%s:=%d\n",    PARAM_KEY_HAS_ROT_Z,       PARAM_DEFAULT_HAS_ROT_Z);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_X,       PARAM_DEFAULT_MIN_LIN_X);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_Y,       PARAM_DEFAULT_MIN_LIN_Y);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_LIN_Z,       PARAM_DEFAULT_MIN_LIN_Z);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_X,       PARAM_DEFAULT_MIN_ROT_X);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_Y,       PARAM_DEFAULT_MIN_ROT_Y);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MIN_ROT_Z,       PARAM_DEFAULT_MIN_ROT_Z);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_X,       PARAM_DEFAULT_MAX_LIN_X);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_Y,       PARAM_DEFAULT_MAX_LIN_Y);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_LIN_Z,       PARAM_DEFAULT_MAX_LIN_Z);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_X,       PARAM_DEFAULT_MAX_ROT_X);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_Y,       PARAM_DEFAULT_MAX_ROT_Y);
+      printf("    _%s:=%lf\n",   PARAM_KEY_MAX_ROT_Z,       PARAM_DEFAULT_MAX_ROT_Z);
+      printf("    _%s:=%d\n",    PARAM_KEY_QUADRATIC_LIN_X, PARAM_DEFAULT_QUADRATIC_LIN_X);
+      printf("    _%s:=%d\n",    PARAM_KEY_QUADRATIC_LIN_Y, PARAM_DEFAULT_QUADRATIC_LIN_Y);
+      printf("    _%s:=%d\n",    PARAM_KEY_QUADRATIC_LIN_Z, PARAM_DEFAULT_QUADRATIC_LIN_Z);
+      printf("    _%s:=%d\n",    PARAM_KEY_QUADRATIC_ROT_X, PARAM_DEFAULT_QUADRATIC_ROT_X);
+      printf("    _%s:=%d\n",    PARAM_KEY_QUADRATIC_ROT_Y, PARAM_DEFAULT_QUADRATIC_ROT_Y);
+      printf("    _%s:=%d\n",    PARAM_KEY_QUADRATIC_ROT_Z, PARAM_DEFAULT_QUADRATIC_ROT_Z);
+      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_LIN_X,  PARAM_DEFAULT_THROTTLE_LIN_X);
+      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_LIN_Y,  PARAM_DEFAULT_THROTTLE_LIN_Y);
+      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_LIN_Z,  PARAM_DEFAULT_THROTTLE_LIN_Z);
+      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_ROT_X,  PARAM_DEFAULT_THROTTLE_ROT_X);
+      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_ROT_Y,  PARAM_DEFAULT_THROTTLE_ROT_Y);
+      printf("    _%s:=%d\n",    PARAM_KEY_THROTTLE_ROT_Z,  PARAM_DEFAULT_THROTTLE_ROT_Z);
       printf("\n");
       return true;
     }
@@ -727,7 +727,7 @@ int main(int argc, char** argv) {
   int hasLinX, hasLinY, hasLinZ, hasRotX, hasRotY, hasRotZ;
   double maxLinX, maxLinY, maxLinZ, maxRotX, maxRotY, maxRotZ;
   double minLinX, minLinY, minLinZ, minRotX, minRotY, minRotZ;
-  int expLinX, expLinY, expLinZ, expRotX, expRotY, expRotZ;
+  int quadraticLinX, quadraticLinY, quadraticLinZ, quadraticRotX, quadraticRotY, quadraticRotZ;
   int throttleLinX, throttleLinY, throttleLinZ, throttleRotX, throttleRotY, throttleRotZ;
 
   //Read parameters and set default values
@@ -735,70 +735,70 @@ int main(int argc, char** argv) {
                           nodeName + std::string("/") + std::string(PARAM_DEFAULT_TELEOP_TOPIC));
   nodeHandlePrivate.param(PARAM_KEY_TWIST_TOPIC,    twistTopic,
                           nodeName + std::string("/") + std::string(PARAM_DEFAULT_TWIST_TOPIC));
-  nodeHandlePrivate.param(PARAM_KEY_HAS_LIN_X,      hasLinX,      PARAM_DEFAULT_HAS_LIN_X);
-  nodeHandlePrivate.param(PARAM_KEY_HAS_LIN_Y,      hasLinY,      PARAM_DEFAULT_HAS_LIN_Y);
-  nodeHandlePrivate.param(PARAM_KEY_HAS_LIN_Z,      hasLinZ,      PARAM_DEFAULT_HAS_LIN_Z);
-  nodeHandlePrivate.param(PARAM_KEY_HAS_ROT_X,      hasRotX,      PARAM_DEFAULT_HAS_ROT_X);
-  nodeHandlePrivate.param(PARAM_KEY_HAS_ROT_Y,      hasRotY,      PARAM_DEFAULT_HAS_ROT_Y);
-  nodeHandlePrivate.param(PARAM_KEY_HAS_ROT_Z,      hasRotZ,      PARAM_DEFAULT_HAS_ROT_Z);
-  nodeHandlePrivate.param(PARAM_KEY_MIN_LIN_X,      minLinX,      PARAM_DEFAULT_MIN_LIN_X);
-  nodeHandlePrivate.param(PARAM_KEY_MIN_LIN_Y,      minLinY,      PARAM_DEFAULT_MIN_LIN_Y);
-  nodeHandlePrivate.param(PARAM_KEY_MIN_LIN_Z,      minLinZ,      PARAM_DEFAULT_MIN_LIN_Z);
-  nodeHandlePrivate.param(PARAM_KEY_MIN_ROT_X,      minRotX,      PARAM_DEFAULT_MIN_ROT_X);
-  nodeHandlePrivate.param(PARAM_KEY_MIN_ROT_Y,      minRotY,      PARAM_DEFAULT_MIN_ROT_Y);
-  nodeHandlePrivate.param(PARAM_KEY_MIN_ROT_Z,      minRotZ,      PARAM_DEFAULT_MIN_ROT_Z);
-  nodeHandlePrivate.param(PARAM_KEY_MAX_LIN_X,      maxLinX,      PARAM_DEFAULT_MAX_LIN_X);
-  nodeHandlePrivate.param(PARAM_KEY_MAX_LIN_Y,      maxLinY,      PARAM_DEFAULT_MAX_LIN_Y);
-  nodeHandlePrivate.param(PARAM_KEY_MAX_LIN_Z,      maxLinZ,      PARAM_DEFAULT_MAX_LIN_Z);
-  nodeHandlePrivate.param(PARAM_KEY_MAX_ROT_X,      maxRotX,      PARAM_DEFAULT_MAX_ROT_X);
-  nodeHandlePrivate.param(PARAM_KEY_MAX_ROT_Y,      maxRotY,      PARAM_DEFAULT_MAX_ROT_Y);
-  nodeHandlePrivate.param(PARAM_KEY_MAX_ROT_Z,      maxRotZ,      PARAM_DEFAULT_MAX_ROT_Z);
-  nodeHandlePrivate.param(PARAM_KEY_EXP_LIN_X,      expLinX,      PARAM_DEFAULT_EXP_LIN_X);
-  nodeHandlePrivate.param(PARAM_KEY_EXP_LIN_Y,      expLinY,      PARAM_DEFAULT_EXP_LIN_Y);
-  nodeHandlePrivate.param(PARAM_KEY_EXP_LIN_Z,      expLinZ,      PARAM_DEFAULT_EXP_LIN_Z);
-  nodeHandlePrivate.param(PARAM_KEY_EXP_ROT_X,      expRotX,      PARAM_DEFAULT_EXP_ROT_X);
-  nodeHandlePrivate.param(PARAM_KEY_EXP_ROT_Y,      expRotY,      PARAM_DEFAULT_EXP_ROT_Y);
-  nodeHandlePrivate.param(PARAM_KEY_EXP_ROT_Z,      expRotZ,      PARAM_DEFAULT_EXP_ROT_Z);
-  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_LIN_X, throttleLinX, PARAM_DEFAULT_THROTTLE_LIN_X);
-  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_LIN_Y, throttleLinY, PARAM_DEFAULT_THROTTLE_LIN_Y);
-  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_LIN_Z, throttleLinZ, PARAM_DEFAULT_THROTTLE_LIN_Z);
-  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_ROT_X, throttleRotX, PARAM_DEFAULT_THROTTLE_ROT_X);
-  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_ROT_Y, throttleRotY, PARAM_DEFAULT_THROTTLE_ROT_Y);
-  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_ROT_Z, throttleRotZ, PARAM_DEFAULT_THROTTLE_ROT_Z);
+  nodeHandlePrivate.param(PARAM_KEY_HAS_LIN_X,       hasLinX,       PARAM_DEFAULT_HAS_LIN_X);
+  nodeHandlePrivate.param(PARAM_KEY_HAS_LIN_Y,       hasLinY,       PARAM_DEFAULT_HAS_LIN_Y);
+  nodeHandlePrivate.param(PARAM_KEY_HAS_LIN_Z,       hasLinZ,       PARAM_DEFAULT_HAS_LIN_Z);
+  nodeHandlePrivate.param(PARAM_KEY_HAS_ROT_X,       hasRotX,       PARAM_DEFAULT_HAS_ROT_X);
+  nodeHandlePrivate.param(PARAM_KEY_HAS_ROT_Y,       hasRotY,       PARAM_DEFAULT_HAS_ROT_Y);
+  nodeHandlePrivate.param(PARAM_KEY_HAS_ROT_Z,       hasRotZ,       PARAM_DEFAULT_HAS_ROT_Z);
+  nodeHandlePrivate.param(PARAM_KEY_MIN_LIN_X,       minLinX,       PARAM_DEFAULT_MIN_LIN_X);
+  nodeHandlePrivate.param(PARAM_KEY_MIN_LIN_Y,       minLinY,       PARAM_DEFAULT_MIN_LIN_Y);
+  nodeHandlePrivate.param(PARAM_KEY_MIN_LIN_Z,       minLinZ,       PARAM_DEFAULT_MIN_LIN_Z);
+  nodeHandlePrivate.param(PARAM_KEY_MIN_ROT_X,       minRotX,       PARAM_DEFAULT_MIN_ROT_X);
+  nodeHandlePrivate.param(PARAM_KEY_MIN_ROT_Y,       minRotY,       PARAM_DEFAULT_MIN_ROT_Y);
+  nodeHandlePrivate.param(PARAM_KEY_MIN_ROT_Z,       minRotZ,       PARAM_DEFAULT_MIN_ROT_Z);
+  nodeHandlePrivate.param(PARAM_KEY_MAX_LIN_X,       maxLinX,       PARAM_DEFAULT_MAX_LIN_X);
+  nodeHandlePrivate.param(PARAM_KEY_MAX_LIN_Y,       maxLinY,       PARAM_DEFAULT_MAX_LIN_Y);
+  nodeHandlePrivate.param(PARAM_KEY_MAX_LIN_Z,       maxLinZ,       PARAM_DEFAULT_MAX_LIN_Z);
+  nodeHandlePrivate.param(PARAM_KEY_MAX_ROT_X,       maxRotX,       PARAM_DEFAULT_MAX_ROT_X);
+  nodeHandlePrivate.param(PARAM_KEY_MAX_ROT_Y,       maxRotY,       PARAM_DEFAULT_MAX_ROT_Y);
+  nodeHandlePrivate.param(PARAM_KEY_MAX_ROT_Z,       maxRotZ,       PARAM_DEFAULT_MAX_ROT_Z);
+  nodeHandlePrivate.param(PARAM_KEY_QUADRATIC_LIN_X, quadraticLinX, PARAM_DEFAULT_QUADRATIC_LIN_X);
+  nodeHandlePrivate.param(PARAM_KEY_QUADRATIC_LIN_Y, quadraticLinY, PARAM_DEFAULT_QUADRATIC_LIN_Y);
+  nodeHandlePrivate.param(PARAM_KEY_QUADRATIC_LIN_Z, quadraticLinZ, PARAM_DEFAULT_QUADRATIC_LIN_Z);
+  nodeHandlePrivate.param(PARAM_KEY_QUADRATIC_ROT_X, quadraticRotX, PARAM_DEFAULT_QUADRATIC_ROT_X);
+  nodeHandlePrivate.param(PARAM_KEY_QUADRATIC_ROT_Y, quadraticRotY, PARAM_DEFAULT_QUADRATIC_ROT_Y);
+  nodeHandlePrivate.param(PARAM_KEY_QUADRATIC_ROT_Z, quadraticRotZ, PARAM_DEFAULT_QUADRATIC_ROT_Z);
+  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_LIN_X,  throttleLinX,  PARAM_DEFAULT_THROTTLE_LIN_X);
+  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_LIN_Y,  throttleLinY,  PARAM_DEFAULT_THROTTLE_LIN_Y);
+  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_LIN_Z,  throttleLinZ,  PARAM_DEFAULT_THROTTLE_LIN_Z);
+  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_ROT_X,  throttleRotX,  PARAM_DEFAULT_THROTTLE_ROT_X);
+  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_ROT_Y,  throttleRotY,  PARAM_DEFAULT_THROTTLE_ROT_Y);
+  nodeHandlePrivate.param(PARAM_KEY_THROTTLE_ROT_Z,  throttleRotZ,  PARAM_DEFAULT_THROTTLE_ROT_Z);
 
   //Advertise all parameters to allow introspection
-  nodeHandlePrivate.setParam(PARAM_KEY_TELEOP_TOPIC,   teleopTopic);
-  nodeHandlePrivate.setParam(PARAM_KEY_TWIST_TOPIC,    twistTopic);
-  nodeHandlePrivate.setParam(PARAM_KEY_HAS_LIN_X,      hasLinX);
-  nodeHandlePrivate.setParam(PARAM_KEY_HAS_LIN_Y,      hasLinY);
-  nodeHandlePrivate.setParam(PARAM_KEY_HAS_LIN_Z,      hasLinZ);
-  nodeHandlePrivate.setParam(PARAM_KEY_HAS_ROT_X,      hasRotX);
-  nodeHandlePrivate.setParam(PARAM_KEY_HAS_ROT_Y,      hasRotY);
-  nodeHandlePrivate.setParam(PARAM_KEY_HAS_ROT_Z,      hasRotZ);
-  nodeHandlePrivate.setParam(PARAM_KEY_MIN_LIN_X,      minLinX);
-  nodeHandlePrivate.setParam(PARAM_KEY_MIN_LIN_Y,      minLinY);
-  nodeHandlePrivate.setParam(PARAM_KEY_MIN_LIN_Z,      minLinZ);
-  nodeHandlePrivate.setParam(PARAM_KEY_MIN_ROT_X,      minRotX);
-  nodeHandlePrivate.setParam(PARAM_KEY_MIN_ROT_Y,      minRotY);
-  nodeHandlePrivate.setParam(PARAM_KEY_MIN_ROT_Z,      minRotZ);
-  nodeHandlePrivate.setParam(PARAM_KEY_MAX_LIN_X,      maxLinX);
-  nodeHandlePrivate.setParam(PARAM_KEY_MAX_LIN_Y,      maxLinY);
-  nodeHandlePrivate.setParam(PARAM_KEY_MAX_LIN_Z,      maxLinZ);
-  nodeHandlePrivate.setParam(PARAM_KEY_MAX_ROT_X,      maxRotX);
-  nodeHandlePrivate.setParam(PARAM_KEY_MAX_ROT_Y,      maxRotY);
-  nodeHandlePrivate.setParam(PARAM_KEY_MAX_ROT_Z,      maxRotZ);
-  nodeHandlePrivate.setParam(PARAM_KEY_EXP_LIN_X,      expLinX);
-  nodeHandlePrivate.setParam(PARAM_KEY_EXP_LIN_Y,      expLinY);
-  nodeHandlePrivate.setParam(PARAM_KEY_EXP_LIN_Z,      expLinZ);
-  nodeHandlePrivate.setParam(PARAM_KEY_EXP_ROT_X,      expRotX);
-  nodeHandlePrivate.setParam(PARAM_KEY_EXP_ROT_Y,      expRotY);
-  nodeHandlePrivate.setParam(PARAM_KEY_EXP_ROT_Z,      expRotZ);
-  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_LIN_X, throttleLinX);
-  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_LIN_Y, throttleLinY);
-  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_LIN_Z, throttleLinZ);
-  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_ROT_X, throttleRotX);
-  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_ROT_Y, throttleRotY);
-  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_ROT_Z, throttleRotZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_TELEOP_TOPIC,    teleopTopic);
+  nodeHandlePrivate.setParam(PARAM_KEY_TWIST_TOPIC,     twistTopic);
+  nodeHandlePrivate.setParam(PARAM_KEY_HAS_LIN_X,       hasLinX);
+  nodeHandlePrivate.setParam(PARAM_KEY_HAS_LIN_Y,       hasLinY);
+  nodeHandlePrivate.setParam(PARAM_KEY_HAS_LIN_Z,       hasLinZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_HAS_ROT_X,       hasRotX);
+  nodeHandlePrivate.setParam(PARAM_KEY_HAS_ROT_Y,       hasRotY);
+  nodeHandlePrivate.setParam(PARAM_KEY_HAS_ROT_Z,       hasRotZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_MIN_LIN_X,       minLinX);
+  nodeHandlePrivate.setParam(PARAM_KEY_MIN_LIN_Y,       minLinY);
+  nodeHandlePrivate.setParam(PARAM_KEY_MIN_LIN_Z,       minLinZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_MIN_ROT_X,       minRotX);
+  nodeHandlePrivate.setParam(PARAM_KEY_MIN_ROT_Y,       minRotY);
+  nodeHandlePrivate.setParam(PARAM_KEY_MIN_ROT_Z,       minRotZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_MAX_LIN_X,       maxLinX);
+  nodeHandlePrivate.setParam(PARAM_KEY_MAX_LIN_Y,       maxLinY);
+  nodeHandlePrivate.setParam(PARAM_KEY_MAX_LIN_Z,       maxLinZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_MAX_ROT_X,       maxRotX);
+  nodeHandlePrivate.setParam(PARAM_KEY_MAX_ROT_Y,       maxRotY);
+  nodeHandlePrivate.setParam(PARAM_KEY_MAX_ROT_Z,       maxRotZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_QUADRATIC_LIN_X, quadraticLinX);
+  nodeHandlePrivate.setParam(PARAM_KEY_QUADRATIC_LIN_Y, quadraticLinY);
+  nodeHandlePrivate.setParam(PARAM_KEY_QUADRATIC_LIN_Z, quadraticLinZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_QUADRATIC_ROT_X, quadraticRotX);
+  nodeHandlePrivate.setParam(PARAM_KEY_QUADRATIC_ROT_Y, quadraticRotY);
+  nodeHandlePrivate.setParam(PARAM_KEY_QUADRATIC_ROT_Z, quadraticRotZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_LIN_X,  throttleLinX);
+  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_LIN_Y,  throttleLinY);
+  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_LIN_Z,  throttleLinZ);
+  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_ROT_X,  throttleRotX);
+  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_ROT_Y,  throttleRotY);
+  nodeHandlePrivate.setParam(PARAM_KEY_THROTTLE_ROT_Z,  throttleRotZ);
 
   //Create publisher with buffer size set to 1 and latching on.  The publisher
   //should basically just always contain the latest desired velocity.
@@ -814,8 +814,8 @@ int main(int argc, char** argv) {
       0 != hasRotX, 0 != hasRotY, 0 != hasRotZ,
       minLinX, minLinY, minLinZ, minRotX,minRotY, minRotZ,
       maxLinX, maxLinY, maxLinZ, maxRotX, maxRotY, maxRotZ,
-      0 != expLinX, 0 != expLinY, 0 != expLinZ,
-      0 != expRotX, 0 != expRotY, 0 != expRotZ,
+      0 != quadraticLinX, 0 != quadraticLinY, 0 != quadraticLinZ,
+      0 != quadraticRotX, 0 != quadraticRotY, 0 != quadraticRotZ,
       0 != throttleLinX, 0 != throttleLinY, 0 != throttleLinZ,
       0 != throttleRotX, 0 != throttleRotY, 0 != throttleRotZ);
 
