@@ -330,8 +330,7 @@ bool TeleopSourceNode::init(int argc, char** argv, std::string nodeName, uint32_
     ros::NodeHandle nodeHandlePrivate("~");
 
     //Read parameters and/or set default values
-    nodeHandlePrivate.param(PARAM_KEY_TELEOP_TOPIC,    mTeleopTopic,
-                            nodeName + std::string("/") + std::string(PARAM_DEFAULT_TELEOP_TOPIC));
+    nodeHandlePrivate.param(PARAM_KEY_TELEOP_TOPIC,    mTeleopTopic, nodeName + "/" + PARAM_DEFAULT_TELEOP_TOPIC);
     nodeHandlePrivate.param(PARAM_KEY_TELEOP_TYPE,     mTeleopType,     std::string(PARAM_DEFAULT_TELEOP_TYPE));
     nodeHandlePrivate.param(PARAM_KEY_LISTEN_TIMEOUT,  mListenTimeout,  PARAM_DEFAULT_LISTEN_TIMEOUT);
     nodeHandlePrivate.param(PARAM_KEY_AXIS_DEAD_ZONE,  mAxisDeadZone,   PARAM_DEFAULT_AXIS_DEAD_ZONE);
@@ -380,8 +379,8 @@ bool TeleopSourceNode::init(int argc, char** argv, std::string nodeName, uint32_
     ros::shutdown();
     return false;
   }
-  if (!mTeleopSourceAdapter.setListenTimeout(mListenTimeout)
-      || !mTeleopSourceAdapter.setAxisDeadZoneForAllAxes(mAxisDeadZone)) {
+  if (!mTeleopSourceAdapter.setListenTimeout((unsigned int)mListenTimeout)
+      || !mTeleopSourceAdapter.setAxisDeadZoneForAllAxes((teleop::TeleopAxisValue)mAxisDeadZone)) {
     ROS_ERROR("TeleopSourceNode::init: error configuring teleop source adapter");
     delete mTeleopSource;
     ros::shutdown();
@@ -513,12 +512,16 @@ teleop::TeleopSource* TeleopSourceNode::teleopSourceFactory() {
   if (0 == teleopType.compare(std::string(TELEOP_TYPE_KEYBOARD))) {
     teleop::TeleopSourceKeyboard* teleopSourceKeyboard;
     teleopSourceKeyboard = new teleop::TeleopSourceKeyboard();
-    teleopSourceKeyboard->setSteps(mKeyboardSteps);
+    if (!teleopSourceKeyboard->setSteps((unsigned int)mKeyboardSteps)) {
+      ROS_WARN("TeleopSourceNode::teleopSourceFactory: unable to set keyboard steps");
+    }
     teleopSource = teleopSourceKeyboard;
   } else if (0 == teleopType.compare(std::string(TELEOP_TYPE_JOYSTICK))) {
     teleop::TeleopSourceJoystick* teleopSourceJoystick;
     teleopSourceJoystick = new teleop::TeleopSourceJoystick();
-    teleopSourceJoystick->setDevice(mJoystickDevice);
+    if (!teleopSourceJoystick->setDevice(mJoystickDevice)) {
+      ROS_WARN("TeleopSourceNode::teleopSourceFactory: unable to set joystick device");
+    }
     teleopSource = teleopSourceJoystick;
   } else {
     ROS_ERROR("TeleopSourceNode::teleopSourceFactory: unknown teleop source type (%s)", teleopType.c_str());
