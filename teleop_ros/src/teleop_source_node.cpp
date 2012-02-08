@@ -38,6 +38,7 @@
 #include <teleop_msgs/State.h>
 #include <ros/ros.h>
 #include <boost/thread.hpp>
+#include <stdint.h>
 #include <signal.h>
 #include <stdio.h>
 
@@ -138,38 +139,6 @@ public:
    */
   bool shutdown();
 
-  /**
-   * Start node.
-   *
-   *   @param blocking - if true block until stopped
-   *
-   *   @return true on success
-   */
-  bool start(bool blocking);
-
-  /**
-   * Stop node.
-   *
-   *   @param blocking - if true block until stopped
-   *
-   *   @return true on success
-   */
-  bool stop(bool blocking);
-
-  /**
-   * Check if node is initialised.
-   *
-   *   @return true if initialised
-   */
-  bool isInitialised();
-
-  /**
-   * Check if node is running.
-   *
-   *   @return true if running
-   */
-  bool isRunning();
-
 private:
 
   /**@{ Parameters */
@@ -190,10 +159,10 @@ private:
   /** Publisher for teleop messages */
   ros::Publisher mPublisher;
 
-  /** Teleop message member to avoid re-creation at every call to updated() */
+  /** Latest message */
   teleop_msgs::State mTeleopStateMsg;
 
-  /** Init done flag */
+  /** Is initialised flag */
   bool mIsInitialised;
 
   /** Mutex to protect is initialised flag */
@@ -249,7 +218,7 @@ bool printUsage(int argc, char** argv);
 //=============================================================================
 //Globals
 //=============================================================================
-//Global atomic flag used to indicate if an interrupt has been requested.
+/** Global atomic flag used to indicate if an interrupt has been requested. */
 sig_atomic_t gInterruptRequested = 0;
 
 
@@ -352,11 +321,11 @@ bool TeleopSourceNode::init(int argc, char** argv, std::string nodeName, uint32_
 
   //Create publisher
   try {
-    //Create relative node handle for topics (exceptions ignored intentionally).
-    ros::NodeHandle nodeHandleRelative = ros::NodeHandle("");
+    //Create relative node handle for topics
+    ros::NodeHandle nodeHandleRelative = ros::NodeHandle();
 
     //Create publisher with buffer size set to 1 and latching on.  The publisher
-    //should basically just always contain the latest teleop state.
+    //should basically just always contain the latest state.
     mPublisher = nodeHandleRelative.advertise<teleop_msgs::State>(mTeleopTopic, 1, true);
   } catch (ros::InvalidNameException& e) {
     ROS_ERROR("TeleopSourceNode::init: error creating publisher");
@@ -387,6 +356,14 @@ bool TeleopSourceNode::init(int argc, char** argv, std::string nodeName, uint32_
     return false;
   }
 
+  //Start teleop source adapter
+  if (!mTeleopSourceAdapter.start(false)) {
+    ROS_ERROR("TeleopSourceNode::init: error starting teleop source");
+    delete mTeleopSource;
+    ros::shutdown();
+    return false;
+  }
+
   //Update init done flag
   mIsInitialised = true;
 
@@ -401,7 +378,7 @@ bool TeleopSourceNode::shutdown() {
     return true;
   }
 
-  //Shutdown teleop source adapter
+  //Shutdown teleop source adapter (will stop if necessary)
   if (!mTeleopSourceAdapter.shutdown()) {
     ROS_WARN("TeleopSourceNode::shutdown: ignoring error in teleop source adapter shutdown");
   }
@@ -436,56 +413,8 @@ bool TeleopSourceNode::shutdown() {
   //Set init done flag
   mIsInitialised = false;
 
+  //Return result
   return true;
-}
-//=============================================================================
-bool TeleopSourceNode::start(bool blocking) {
-  //Check init done flag
-  boost::unique_lock<boost::recursive_mutex> isInitialisedLock(mIsInitialisedMutex);
-  if (!mIsInitialised) {
-    ROS_ERROR("TeleopSourceNode::start: node not initialised");
-    return false;
-  }
-  isInitialisedLock.unlock();
-
-  if (!mTeleopSourceAdapter.start(blocking)) {
-    ROS_ERROR("TeleopSourceNode::start: error starting teleop source");
-    return false;
-  } else {
-    return true;
-  }
-}
-//=============================================================================
-bool TeleopSourceNode::stop(bool blocking) {
-  //Check init done flag
-  boost::unique_lock<boost::recursive_mutex> isInitialisedLock(mIsInitialisedMutex);
-  if (!mIsInitialised) {
-    ROS_ERROR("TeleopSourceNode::stop: node not initialised");
-    return false;
-  }
-  isInitialisedLock.unlock();
-
-  if (!mTeleopSourceAdapter.stop(blocking)) {
-    ROS_ERROR("TeleopSourceNode::stop: error stopping teleop source");
-    return false;
-  } else {
-    return true;
-  }
-}
-//=============================================================================
-bool TeleopSourceNode::isInitialised() {
-  boost::lock_guard<boost::recursive_mutex> isInitialisedLock(mIsInitialisedMutex);
-  return mIsInitialised;
-}
-//=============================================================================
-bool TeleopSourceNode::isRunning() {
-  //Check init done flag
-  boost::lock_guard<boost::recursive_mutex> isInitialisedLock(mIsInitialisedMutex);
-  if (!mIsInitialised) {
-    return false;
-  } else {
-    return mTeleopSourceAdapter.isRunning();
-  }
 }
 //=============================================================================
 teleop::TeleopSource* TeleopSourceNode::teleopSourceFactory() {
@@ -644,17 +573,11 @@ int main(int argc, char** argv) {
   signal(SIGINT, signalHandler);
 
   //Create the node object
-  TeleopSourceNode TeleopSourceNode;
+  TeleopSourceNode node;
 
   //Init node object
-  if (!TeleopSourceNode.init(argc, argv, nodeName, ros::init_options::NoSigintHandler)) {
+  if (!node.init(argc, argv, nodeName, ros::init_options::NoSigintHandler)) {
     ROS_ERROR("main: error initialising node");
-    return 1;
-  }
-
-  //Start the node in non-blocking mode
-  if (!TeleopSourceNode.start(false)) {
-    ROS_ERROR("main: error starting node");
     return 1;
   }
 
