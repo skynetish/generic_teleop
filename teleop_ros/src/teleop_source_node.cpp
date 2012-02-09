@@ -67,9 +67,6 @@ namespace {
  * The init() and shutdown() methods control the life cycle of the object.
  * Note that shutdown() is always called on destruction.
  *
- * The start() and stop() methods control the teleop source (and corresponding
- * message publication).
- *
  * Optional parameters for the node are the following:
  *
  *   topic:           topic to which to publish the teleop state
@@ -274,7 +271,7 @@ TeleopSourceNode::~TeleopSourceNode() {
 }
 //=============================================================================
 bool TeleopSourceNode::init(int argc, char** argv, std::string nodeName, uint32_t rosInitOptions) {
-  //Lock access to init status
+  //Lock access to is initialised
   boost::lock_guard<boost::recursive_mutex> isInitialisedLock(mIsInitialisedMutex);
 
   //If already initialised shutdown first (shutdown should always succeed)
@@ -290,7 +287,7 @@ bool TeleopSourceNode::init(int argc, char** argv, std::string nodeName, uint32_
     return false;
   }
 
-  //Start node manually to avoid node shutdown when last handle is destroyed
+  //Start node manually to avoid node shutdown when last node handle is destroyed
   ros::start();
 
   //Init parameters
@@ -372,8 +369,10 @@ bool TeleopSourceNode::init(int argc, char** argv, std::string nodeName, uint32_
 }
 //=============================================================================
 bool TeleopSourceNode::shutdown() {
-  //Check init done flag
+  //Lock access to is initialised
   boost::lock_guard<boost::recursive_mutex> isInitialisedLock(mIsInitialisedMutex);
+
+  //Check if done
   if (!mIsInitialised) {
     return true;
   }
