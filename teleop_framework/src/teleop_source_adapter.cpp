@@ -55,7 +55,7 @@ namespace teleop {
 //=============================================================================
 const unsigned int    TeleopSourceAdapter::LISTEN_TIMEOUT_DEFAULT = 200;
 
-const TeleopAxisValue TeleopSourceAdapter::AXIS_DEAD_ZONE_DEFAULT = 0.01;
+const TeleopAxisValue TeleopSourceAdapter::AXIS_DEAD_ZONE_DEFAULT = 0.05;
 const TeleopAxisValue TeleopSourceAdapter::AXIS_DEAD_ZONE_MIN     = 0.01;
 const TeleopAxisValue TeleopSourceAdapter::AXIS_DEAD_ZONE_MAX     = 0.99;
 
