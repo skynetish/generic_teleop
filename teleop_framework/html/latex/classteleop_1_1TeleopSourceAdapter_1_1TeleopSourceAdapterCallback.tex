@@ -1,0 +1,78 @@
+\section{teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback Class Reference}
+\label{classteleop_1_1TeleopSourceAdapter_1_1TeleopSourceAdapterCallback}\index{teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback@{teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback}}
+
+
+{\ttfamily \#include $<$teleop\_\-source\_\-adapter.hpp$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void {\bf stopping} (bool error)=0
+\item 
+virtual void {\bf updated} (const {\bf TeleopState} $\ast$const teleopState, bool stopping, bool error)=0
+\item 
+virtual {\bf $\sim$TeleopSourceAdapterCallback} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Callback class which reports teleop state updates and listening thread termination. Users should sub-\/class this to handle events. 
+
+Definition at line 92 of file teleop\_\-source\_\-adapter.hpp.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback@{teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback}!$\sim$TeleopSourceAdapterCallback@{$\sim$TeleopSourceAdapterCallback}}
+\index{$\sim$TeleopSourceAdapterCallback@{$\sim$TeleopSourceAdapterCallback}!teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback@{teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback}}
+\subsubsection[{$\sim$TeleopSourceAdapterCallback}]{\setlength{\rightskip}{0pt plus 5cm}virtual teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback::$\sim$TeleopSourceAdapterCallback (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline, virtual]}}\label{classteleop_1_1TeleopSourceAdapter_1_1TeleopSourceAdapterCallback_a1f93f61980400d325379c88d7626064f}
+Destructor. Virtual so destruction will invoke sub-\/class destructor. 
+
+Definition at line 99 of file teleop\_\-source\_\-adapter.hpp.
+
+
+
+\subsection{Member Function Documentation}
+\index{teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback@{teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback}!stopping@{stopping}}
+\index{stopping@{stopping}!teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback@{teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback}}
+\subsubsection[{stopping}]{\setlength{\rightskip}{0pt plus 5cm}virtual void teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback::stopping (
+\begin{DoxyParamCaption}
+\item[{bool}]{error}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [pure virtual]}}\label{classteleop_1_1TeleopSourceAdapter_1_1TeleopSourceAdapterCallback_a2f4680bfd6d0df62b8edcfef09d0220b}
+Callback used to report that the listening thread is stopping. This is called from the listening thread. The listening thread may be stopping due to a call to \doxyref{stop()}{p.}{classteleop_1_1TeleopSourceAdapter_ad531b50253e9c4e5468340a03c77f608}, an error, or destruction of the adapter object.
+
+
+\begin{DoxyParams}{Parameters}
+{\em error} & [in] -\/ true if stopping due to an error \\
+\hline
+\end{DoxyParams}
+\index{teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback@{teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback}!updated@{updated}}
+\index{updated@{updated}!teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback@{teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback}}
+\subsubsection[{updated}]{\setlength{\rightskip}{0pt plus 5cm}virtual void teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback::updated (
+\begin{DoxyParamCaption}
+\item[{const {\bf TeleopState} $\ast$const}]{teleopState, }
+\item[{bool}]{stopping, }
+\item[{bool}]{error}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [pure virtual]}}\label{classteleop_1_1TeleopSourceAdapter_1_1TeleopSourceAdapterCallback_a3d117cc350755bf68cba4f1ca1f4c7fa}
+Callback used to report an updated teleop state. This is called from the listening thread. As such, this method should return quickly, to avoid delaying or even losing teleop events. An alternative could be to create a new thread for each call, but this could cause performance, buffering and synchronisation problems.
+
+
+\begin{DoxyParams}{Parameters}
+{\em teleopState} & [in] -\/ the latest teleop state \\
+\hline
+{\em stopping} & [in] -\/ true if listening thread is stopping \\
+\hline
+{\em error} & [in] -\/ true if there were errors while listening \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file:\begin{DoxyCompactItemize}
+\item 
+/home/klc/Code/github.com/teleop/teleop\_\-framework/include/{\bf teleop\_\-source\_\-adapter.hpp}\end{DoxyCompactItemize}

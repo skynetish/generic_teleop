@@ -1,0 +1,314 @@
+\section{teleop Namespace Reference}
+\label{namespaceteleop}\index{teleop@{teleop}}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct {\bf TeleopAxis}
+\item 
+struct {\bf TeleopButton}
+\item 
+class {\bf TeleopSource}
+\item 
+class {\bf TeleopSourceAdapter}
+\item 
+struct {\bf TeleopState}
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef double {\bf TeleopAxisValue}
+\item 
+typedef int {\bf TeleopButtonValue}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum {\bf TeleopAxisType} \{ \par
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-FIRST} =  0, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-X} =  TELEOP\_\-AXIS\_\-TYPE\_\-FIRST, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Y}, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Z}, 
+\par
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-X}, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Y}, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Z}, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-X}, 
+\par
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-Y}, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-X}, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-Y}, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-X}, 
+\par
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-Y}, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-X}, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-Y}, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-THROTTLE}, 
+\par
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-UNKNOWN}, 
+{\bf TELEOP\_\-AXIS\_\-TYPE\_\-LAST} =  TELEOP\_\-AXIS\_\-TYPE\_\-UNKNOWN
+ \}
+\item 
+enum {\bf TeleopButtonType} \{ \par
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST} =  0, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-0} =  TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-1}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-2}, 
+\par
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-3}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-4}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-5}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-6}, 
+\par
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-7}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-8}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-9}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-A}, 
+\par
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-B}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-C}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-X}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-Y}, 
+\par
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-Z}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-RIGHT}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-LEFT}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-SELECT}, 
+\par
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-START}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-STOP}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-TRIGGER}, 
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-UNKNOWN}, 
+\par
+{\bf TELEOP\_\-BUTTON\_\-TYPE\_\-LAST} =  TELEOP\_\-BUTTON\_\-TYPE\_\-UNKNOWN
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+std::string {\bf teleopAxisName} ({\bf TeleopAxisType} axisType)
+\item 
+std::string {\bf teleopButtonName} ({\bf TeleopButtonType} buttonType)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static const int {\bf TELEOP\_\-AXIS\_\-TYPE\_\-COUNT} = (TELEOP\_\-AXIS\_\-TYPE\_\-LAST -\/ TELEOP\_\-AXIS\_\-TYPE\_\-FIRST + 1)
+\item 
+static const int {\bf TELEOP\_\-BUTTON\_\-TYPE\_\-COUNT} = (TELEOP\_\-BUTTON\_\-TYPE\_\-LAST -\/ TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST + 1)
+\end{DoxyCompactItemize}
+\paragraph*{}
+\begin{DoxyCompactItemize}
+\item 
+static const {\bf TeleopAxisValue} {\bf TELEOP\_\-AXIS\_\-MIN} = -\/1.0
+\item 
+static const {\bf TeleopAxisValue} {\bf TELEOP\_\-AXIS\_\-MAX} = 1.0
+\end{DoxyCompactItemize}
+
+
+
+\subsection{Typedef Documentation}
+\index{teleop@{teleop}!TeleopAxisValue@{TeleopAxisValue}}
+\index{TeleopAxisValue@{TeleopAxisValue}!teleop@{teleop}}
+\subsubsection[{TeleopAxisValue}]{\setlength{\rightskip}{0pt plus 5cm}typedef double {\bf teleop::TeleopAxisValue}}\label{namespaceteleop_a76a980352ec9e25c22a88993b56e7085}
+Axis value (typedef makes it easier to change width) 
+
+Definition at line 83 of file teleop\_\-common.hpp.
+
+\index{teleop@{teleop}!TeleopButtonValue@{TeleopButtonValue}}
+\index{TeleopButtonValue@{TeleopButtonValue}!teleop@{teleop}}
+\subsubsection[{TeleopButtonValue}]{\setlength{\rightskip}{0pt plus 5cm}typedef int {\bf teleop::TeleopButtonValue}}\label{namespaceteleop_ac4714f8484c4ca73ffa50a497ae50032}
+Button value type (typedef makes it easier to change signed/width) 
+
+Definition at line 115 of file teleop\_\-common.hpp.
+
+
+
+\subsection{Enumeration Type Documentation}
+\index{teleop@{teleop}!TeleopAxisType@{TeleopAxisType}}
+\index{TeleopAxisType@{TeleopAxisType}!teleop@{teleop}}
+\subsubsection[{TeleopAxisType}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf teleop::TeleopAxisType}}\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60}
+Axis types (can be used as indices in an array) \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{TELEOP\_\-AXIS\_\-TYPE\_\-FIRST@{TELEOP\_\-AXIS\_\-TYPE\_\-FIRST}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-FIRST@{TELEOP\_\-AXIS\_\-TYPE\_\-FIRST}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-FIRST\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60a8f735e0db414ccaa86eab37d72f515ce}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-X@{TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-X}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-X@{TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-X}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-X\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60ae8e28293c1e34cdbcd83c905c24b40c5}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Y@{TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Y}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Y@{TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Y}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Y\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60a602bec111369ee2fdf3e3b127794a764}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Z@{TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Z}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Z@{TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Z}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Z\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60aee7393ef649be142eecbd79299bff093}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-X@{TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-X}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-X@{TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-X}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-X\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60acfac56ac1b5e7fcdec2643dd4ce9fdb0}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Y@{TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Y}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Y@{TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Y}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Y\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60a9ffbf87954b9918d8c0bc01544ee269b}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Z@{TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Z}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Z@{TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Z}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Z\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60afb25df5a48faebade632d8002050ed4e}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-X@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-X}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-X@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-X}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-X\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60a830e48e2715e3239fa1c9e79db6e3c98}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-Y@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-Y}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-Y@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-Y}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-Y\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60a76c355fd211e78e2077665e4844a67bc}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-X@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-X}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-X@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-X}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-X\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60abde149012316b44b95039d96e7f0d2f8}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-Y@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-Y}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-Y@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-Y}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-Y\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60adf0fd118ed4c5d1c1d3700b396552056}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-X@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-X}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-X@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-X}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-X\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60ad43e4669784f2f328215711d1617f8c0}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-Y@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-Y}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-Y@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-Y}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-Y\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60ac4adf62522604474724e0c31dfede079}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-X@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-X}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-X@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-X}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-X\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60abc30fd72f5cbfeaa25b7c100b59007df}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-Y@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-Y}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-Y@{TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-Y}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-Y\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60a5dd3863df0e380d94a758c417f4b68c9}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-THROTTLE@{TELEOP\_\-AXIS\_\-TYPE\_\-THROTTLE}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-THROTTLE@{TELEOP\_\-AXIS\_\-TYPE\_\-THROTTLE}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-THROTTLE\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60a9e816f2b2304e288ce049a93e6d8f7a4}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-UNKNOWN@{TELEOP\_\-AXIS\_\-TYPE\_\-UNKNOWN}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-UNKNOWN@{TELEOP\_\-AXIS\_\-TYPE\_\-UNKNOWN}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-UNKNOWN\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60a127bef8ab07b3273c0baee0b3fb77b45}
+}]\index{TELEOP\_\-AXIS\_\-TYPE\_\-LAST@{TELEOP\_\-AXIS\_\-TYPE\_\-LAST}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-LAST@{TELEOP\_\-AXIS\_\-TYPE\_\-LAST}}\item[{\em 
+TELEOP\_\-AXIS\_\-TYPE\_\-LAST\label{namespaceteleop_a603263b6069fff7f972cbb34f0aa1e60a62c4fcb504536fcfb9197f159acf595f}
+}]\end{description}
+\end{Desc}
+
+
+
+Definition at line 61 of file teleop\_\-common.hpp.
+
+\index{teleop@{teleop}!TeleopButtonType@{TeleopButtonType}}
+\index{TeleopButtonType@{TeleopButtonType}!teleop@{teleop}}
+\subsubsection[{TeleopButtonType}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf teleop::TeleopButtonType}}\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4}
+Button types (can be used as indices in an array) \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST@{TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST@{TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4afbf4b1dea6ce67f807bbc8f2e286671f}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-0@{TELEOP\_\-BUTTON\_\-TYPE\_\-0}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-0@{TELEOP\_\-BUTTON\_\-TYPE\_\-0}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-0\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a70646790e9a446f6659886566e7f13de}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-1@{TELEOP\_\-BUTTON\_\-TYPE\_\-1}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-1@{TELEOP\_\-BUTTON\_\-TYPE\_\-1}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-1\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a0ffb8d0270d938eb322de5bf2d7cc6a1}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-2@{TELEOP\_\-BUTTON\_\-TYPE\_\-2}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-2@{TELEOP\_\-BUTTON\_\-TYPE\_\-2}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-2\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4addcc45bb59ed40cf195aaa0b655a755d}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-3@{TELEOP\_\-BUTTON\_\-TYPE\_\-3}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-3@{TELEOP\_\-BUTTON\_\-TYPE\_\-3}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-3\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4aa2f9f203fdbb9a832c797bfbc25d7897}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-4@{TELEOP\_\-BUTTON\_\-TYPE\_\-4}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-4@{TELEOP\_\-BUTTON\_\-TYPE\_\-4}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-4\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4af5040212229210d62cd716f65d9d94fc}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-5@{TELEOP\_\-BUTTON\_\-TYPE\_\-5}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-5@{TELEOP\_\-BUTTON\_\-TYPE\_\-5}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-5\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a070198f9082df07f7fb4c8bde58d3613}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-6@{TELEOP\_\-BUTTON\_\-TYPE\_\-6}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-6@{TELEOP\_\-BUTTON\_\-TYPE\_\-6}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-6\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4ad0d7bccdc0746d91ea018309ff9bc329}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-7@{TELEOP\_\-BUTTON\_\-TYPE\_\-7}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-7@{TELEOP\_\-BUTTON\_\-TYPE\_\-7}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-7\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a47703adb8280e566e0f432b4906032cf}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-8@{TELEOP\_\-BUTTON\_\-TYPE\_\-8}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-8@{TELEOP\_\-BUTTON\_\-TYPE\_\-8}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-8\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a18337871353ce80f48f9a1cb08922d8f}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-9@{TELEOP\_\-BUTTON\_\-TYPE\_\-9}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-9@{TELEOP\_\-BUTTON\_\-TYPE\_\-9}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-9\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4aab5a5865ffc82aae04f4e6b5ef29915c}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-A@{TELEOP\_\-BUTTON\_\-TYPE\_\-A}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-A@{TELEOP\_\-BUTTON\_\-TYPE\_\-A}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-A\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a432db58bce4a9112a5a4104b041b4901}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-B@{TELEOP\_\-BUTTON\_\-TYPE\_\-B}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-B@{TELEOP\_\-BUTTON\_\-TYPE\_\-B}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-B\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a2c3857e6c2d48470db0924eb0d912e30}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-C@{TELEOP\_\-BUTTON\_\-TYPE\_\-C}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-C@{TELEOP\_\-BUTTON\_\-TYPE\_\-C}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-C\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4ab2ab13ca907e7676f53b51b45370f288}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-X@{TELEOP\_\-BUTTON\_\-TYPE\_\-X}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-X@{TELEOP\_\-BUTTON\_\-TYPE\_\-X}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-X\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a3c4dc3bffa1cfddc6bac445c648b14d0}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-Y@{TELEOP\_\-BUTTON\_\-TYPE\_\-Y}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-Y@{TELEOP\_\-BUTTON\_\-TYPE\_\-Y}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-Y\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a35bbfd91abe055e454aff418d00c2990}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-Z@{TELEOP\_\-BUTTON\_\-TYPE\_\-Z}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-Z@{TELEOP\_\-BUTTON\_\-TYPE\_\-Z}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-Z\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a69081fb1fd8074d0e4bafed83c055b98}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-RIGHT@{TELEOP\_\-BUTTON\_\-TYPE\_\-RIGHT}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-RIGHT@{TELEOP\_\-BUTTON\_\-TYPE\_\-RIGHT}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-RIGHT\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a7fea322362d67cd5828b73b96a1d5213}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-LEFT@{TELEOP\_\-BUTTON\_\-TYPE\_\-LEFT}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-LEFT@{TELEOP\_\-BUTTON\_\-TYPE\_\-LEFT}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-LEFT\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4aededdaa10d334b5a00480abbf5424b68}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-SELECT@{TELEOP\_\-BUTTON\_\-TYPE\_\-SELECT}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-SELECT@{TELEOP\_\-BUTTON\_\-TYPE\_\-SELECT}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-SELECT\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a92a8b03bb78f2d4b6eeda515def55f69}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-START@{TELEOP\_\-BUTTON\_\-TYPE\_\-START}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-START@{TELEOP\_\-BUTTON\_\-TYPE\_\-START}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-START\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4aa9a00e516d188fb966e37295cac1f134}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-STOP@{TELEOP\_\-BUTTON\_\-TYPE\_\-STOP}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-STOP@{TELEOP\_\-BUTTON\_\-TYPE\_\-STOP}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-STOP\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4afbd303e013d270f1e4a63c84f59d15be}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-TRIGGER@{TELEOP\_\-BUTTON\_\-TYPE\_\-TRIGGER}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-TRIGGER@{TELEOP\_\-BUTTON\_\-TYPE\_\-TRIGGER}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-TRIGGER\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4ac57aaca85e7d54c1258867fcf806127f}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-UNKNOWN@{TELEOP\_\-BUTTON\_\-TYPE\_\-UNKNOWN}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-UNKNOWN@{TELEOP\_\-BUTTON\_\-TYPE\_\-UNKNOWN}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-UNKNOWN\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4a65a65a109b43876c888d2bd5364eab4d}
+}]\index{TELEOP\_\-BUTTON\_\-TYPE\_\-LAST@{TELEOP\_\-BUTTON\_\-TYPE\_\-LAST}!teleop@{teleop}}\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-LAST@{TELEOP\_\-BUTTON\_\-TYPE\_\-LAST}}\item[{\em 
+TELEOP\_\-BUTTON\_\-TYPE\_\-LAST\label{namespaceteleop_af6ccf714c65146e073b2a5cab306d8c4aaaed94dd18543c8e85123be96309e820}
+}]\end{description}
+\end{Desc}
+
+
+
+Definition at line 86 of file teleop\_\-common.hpp.
+
+
+
+\subsection{Function Documentation}
+\index{teleop@{teleop}!teleopAxisName@{teleopAxisName}}
+\index{teleopAxisName@{teleopAxisName}!teleop@{teleop}}
+\subsubsection[{teleopAxisName}]{\setlength{\rightskip}{0pt plus 5cm}std::string teleop::teleopAxisName (
+\begin{DoxyParamCaption}
+\item[{TeleopAxisType}]{axisType}
+\end{DoxyParamCaption}
+)}\label{namespaceteleop_a552f8c40becc6b4e4e24efba9296d777}
+Function to determine axis type name.
+
+
+\begin{DoxyParams}{Parameters}
+{\em axisType} & [in] -\/ axis type\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+axis type name 
+\end{DoxyReturn}
+
+
+Definition at line 51 of file teleop\_\-common.cpp.
+
+\index{teleop@{teleop}!teleopButtonName@{teleopButtonName}}
+\index{teleopButtonName@{teleopButtonName}!teleop@{teleop}}
+\subsubsection[{teleopButtonName}]{\setlength{\rightskip}{0pt plus 5cm}std::string teleop::teleopButtonName (
+\begin{DoxyParamCaption}
+\item[{TeleopButtonType}]{buttonType}
+\end{DoxyParamCaption}
+)}\label{namespaceteleop_a7fb3a1517e4653c4088e854e7f24d5a7}
+Function to determine button type name.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buttonType} & [in] -\/ button type\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+button type name 
+\end{DoxyReturn}
+
+
+Definition at line 74 of file teleop\_\-common.cpp.
+
+
+
+\subsection{Variable Documentation}
+\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-MAX@{TELEOP\_\-AXIS\_\-MAX}}
+\index{TELEOP\_\-AXIS\_\-MAX@{TELEOP\_\-AXIS\_\-MAX}!teleop@{teleop}}
+\subsubsection[{TELEOP\_\-AXIS\_\-MAX}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf TeleopAxisValue} {\bf teleop::TELEOP\_\-AXIS\_\-MAX} = 1.0\hspace{0.3cm}{\ttfamily  [static]}}\label{namespaceteleop_a7b31f056a58d5ff818cca8636dc07a0a}
+
+
+Definition at line 144 of file teleop\_\-common.hpp.
+
+\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-MIN@{TELEOP\_\-AXIS\_\-MIN}}
+\index{TELEOP\_\-AXIS\_\-MIN@{TELEOP\_\-AXIS\_\-MIN}!teleop@{teleop}}
+\subsubsection[{TELEOP\_\-AXIS\_\-MIN}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf TeleopAxisValue} {\bf teleop::TELEOP\_\-AXIS\_\-MIN} = -\/1.0\hspace{0.3cm}{\ttfamily  [static]}}\label{namespaceteleop_aa9f9524c2d63470cc26a17fc4b9f7cb3}
+Axis range (0=off) 
+
+Definition at line 143 of file teleop\_\-common.hpp.
+
+\index{teleop@{teleop}!TELEOP\_\-AXIS\_\-TYPE\_\-COUNT@{TELEOP\_\-AXIS\_\-TYPE\_\-COUNT}}
+\index{TELEOP\_\-AXIS\_\-TYPE\_\-COUNT@{TELEOP\_\-AXIS\_\-TYPE\_\-COUNT}!teleop@{teleop}}
+\subsubsection[{TELEOP\_\-AXIS\_\-TYPE\_\-COUNT}]{\setlength{\rightskip}{0pt plus 5cm}const int {\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-COUNT} = (TELEOP\_\-AXIS\_\-TYPE\_\-LAST -\/ TELEOP\_\-AXIS\_\-TYPE\_\-FIRST + 1)\hspace{0.3cm}{\ttfamily  [static]}}\label{namespaceteleop_a92a3d991740f795fc3f328bee57e455a}
+Number of axis types 
+
+Definition at line 148 of file teleop\_\-common.hpp.
+
+\index{teleop@{teleop}!TELEOP\_\-BUTTON\_\-TYPE\_\-COUNT@{TELEOP\_\-BUTTON\_\-TYPE\_\-COUNT}}
+\index{TELEOP\_\-BUTTON\_\-TYPE\_\-COUNT@{TELEOP\_\-BUTTON\_\-TYPE\_\-COUNT}!teleop@{teleop}}
+\subsubsection[{TELEOP\_\-BUTTON\_\-TYPE\_\-COUNT}]{\setlength{\rightskip}{0pt plus 5cm}const int {\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-COUNT} = (TELEOP\_\-BUTTON\_\-TYPE\_\-LAST -\/ TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST + 1)\hspace{0.3cm}{\ttfamily  [static]}}\label{namespaceteleop_a23f29b5821a25e5ab3d40d549f7ca9d6}
+Number of button types 
+
+Definition at line 151 of file teleop\_\-common.hpp.
+

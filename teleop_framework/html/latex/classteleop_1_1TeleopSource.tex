@@ -1,0 +1,97 @@
+\section{teleop::TeleopSource Class Reference}
+\label{classteleop_1_1TeleopSource}\index{teleop::TeleopSource@{teleop::TeleopSource}}
+
+
+{\ttfamily \#include $<$teleop\_\-source.hpp$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual bool {\bf init} ()=0
+\item 
+virtual bool {\bf listen} (unsigned int listenTimeout, {\bf TeleopState} $\ast$const teleopState, bool $\ast$updated)=0
+\item 
+virtual bool {\bf shutdown} ()=0
+\item 
+virtual {\bf $\sim$TeleopSource} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class defines a simple low-\/level interface to teleop sources.
+
+The \doxyref{init()}{p.}{classteleop_1_1TeleopSource_a7dff7881d778c2c25c81a3cacd5d21b8} and \doxyref{shutdown()}{p.}{classteleop_1_1TeleopSource_ac614e5667e191a537bfd66dbf05dcee6} methods control the life cycle of the object. Note that \doxyref{shutdown()}{p.}{classteleop_1_1TeleopSource_ac614e5667e191a537bfd66dbf05dcee6} is always called on destruction.
+
+The \doxyref{listen()}{p.}{classteleop_1_1TeleopSource_aa1592ea03919cfb3f1c0e79d9b664507} method listens for teleop source events and updates the provided teleop state accordingly. 
+
+Definition at line 67 of file teleop\_\-source.hpp.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{teleop::TeleopSource@{teleop::TeleopSource}!$\sim$TeleopSource@{$\sim$TeleopSource}}
+\index{$\sim$TeleopSource@{$\sim$TeleopSource}!teleop::TeleopSource@{teleop::TeleopSource}}
+\subsubsection[{$\sim$TeleopSource}]{\setlength{\rightskip}{0pt plus 5cm}virtual teleop::TeleopSource::$\sim$TeleopSource (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline, virtual]}}\label{classteleop_1_1TeleopSource_a3c6c6e57c41b49b0dcda414dd5359112}
+Destructor. Virtual so destruction will invoke sub-\/class destructor. 
+
+Definition at line 74 of file teleop\_\-source.hpp.
+
+
+
+\subsection{Member Function Documentation}
+\index{teleop::TeleopSource@{teleop::TeleopSource}!init@{init}}
+\index{init@{init}!teleop::TeleopSource@{teleop::TeleopSource}}
+\subsubsection[{init}]{\setlength{\rightskip}{0pt plus 5cm}virtual bool teleop::TeleopSource::init (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [pure virtual]}}\label{classteleop_1_1TeleopSource_a7dff7881d778c2c25c81a3cacd5d21b8}
+Initialise object (open files, etc.). If object is already initialised it is shutdown and reinitialised.
+
+\begin{DoxyReturn}{Returns}
+true on success 
+\end{DoxyReturn}
+\index{teleop::TeleopSource@{teleop::TeleopSource}!listen@{listen}}
+\index{listen@{listen}!teleop::TeleopSource@{teleop::TeleopSource}}
+\subsubsection[{listen}]{\setlength{\rightskip}{0pt plus 5cm}virtual bool teleop::TeleopSource::listen (
+\begin{DoxyParamCaption}
+\item[{unsigned int}]{listenTimeout, }
+\item[{{\bf TeleopState} $\ast$const}]{teleopState, }
+\item[{bool $\ast$}]{updated}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [pure virtual]}}\label{classteleop_1_1TeleopSource_aa1592ea03919cfb3f1c0e79d9b664507}
+Blocks until teleop source device events detected or the given timeout is reached. When events occur, updates the teleop state. Should only be called between \doxyref{init()}{p.}{classteleop_1_1TeleopSource_a7dff7881d778c2c25c81a3cacd5d21b8} and \doxyref{shutdown()}{p.}{classteleop_1_1TeleopSource_ac614e5667e191a537bfd66dbf05dcee6}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em listenTimeout} & [in] -\/ timeout value in milliseconds \\
+\hline
+{\em teleopState} & [in/out] -\/ the current teleop state, to be updated \\
+\hline
+{\em updated} & [out] -\/ true if teleop state was updated\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true on success 
+\end{DoxyReturn}
+\index{teleop::TeleopSource@{teleop::TeleopSource}!shutdown@{shutdown}}
+\index{shutdown@{shutdown}!teleop::TeleopSource@{teleop::TeleopSource}}
+\subsubsection[{shutdown}]{\setlength{\rightskip}{0pt plus 5cm}virtual bool teleop::TeleopSource::shutdown (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [pure virtual]}}\label{classteleop_1_1TeleopSource_ac614e5667e191a537bfd66dbf05dcee6}
+Shutdown object (close files, etc.). If object is already shutdown this has no effect. This method always cleans up as much as possible, even if there are errors. This method is always called on destruction.
+
+\begin{DoxyReturn}{Returns}
+true on success 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file:\begin{DoxyCompactItemize}
+\item 
+/home/klc/Code/github.com/teleop/teleop\_\-framework/include/{\bf teleop\_\-source.hpp}\end{DoxyCompactItemize}

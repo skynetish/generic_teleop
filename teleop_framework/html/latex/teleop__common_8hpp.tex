@@ -1,0 +1,125 @@
+\section{/home/klc/Code/github.com/teleop/teleop\_\-framework/include/teleop\_\-common.hpp File Reference}
+\label{teleop__common_8hpp}\index{/home/klc/Code/github.com/teleop/teleop\_\-framework/include/teleop\_\-common.hpp@{/home/klc/Code/github.com/teleop/teleop\_\-framework/include/teleop\_\-common.hpp}}
+{\ttfamily \#include $<$vector$>$}\par
+{\ttfamily \#include $<$string$>$}\par
+Include dependency graph for teleop\_\-common.hpp:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=400pt]{teleop__common_8hpp__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=400pt]{teleop__common_8hpp__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct {\bf teleop::TeleopAxis}
+\item 
+struct {\bf teleop::TeleopButton}
+\item 
+struct {\bf teleop::TeleopState}
+\end{DoxyCompactItemize}
+\subsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace {\bf teleop}
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef double {\bf teleop::TeleopAxisValue}
+\item 
+typedef int {\bf teleop::TeleopButtonValue}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum {\bf teleop::TeleopAxisType} \{ \par
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-FIRST} =  0, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-X} =  TELEOP\_\-AXIS\_\-TYPE\_\-FIRST, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Y}, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-LIN\_\-Z}, 
+\par
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-X}, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Y}, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-ROT\_\-Z}, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-X}, 
+\par
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-HAT0\_\-Y}, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-X}, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-HAT1\_\-Y}, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-X}, 
+\par
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-HAT2\_\-Y}, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-X}, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-HAT3\_\-Y}, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-THROTTLE}, 
+\par
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-UNKNOWN}, 
+{\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-LAST} =  TELEOP\_\-AXIS\_\-TYPE\_\-UNKNOWN
+ \}
+\item 
+enum {\bf teleop::TeleopButtonType} \{ \par
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST} =  0, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-0} =  TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-1}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-2}, 
+\par
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-3}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-4}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-5}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-6}, 
+\par
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-7}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-8}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-9}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-A}, 
+\par
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-B}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-C}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-X}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-Y}, 
+\par
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-Z}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-RIGHT}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-LEFT}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-SELECT}, 
+\par
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-START}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-STOP}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-TRIGGER}, 
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-UNKNOWN}, 
+\par
+{\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-LAST} =  TELEOP\_\-BUTTON\_\-TYPE\_\-UNKNOWN
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+std::string {\bf teleop::teleopAxisName} (TeleopAxisType axisType)
+\item 
+std::string {\bf teleop::teleopButtonName} (TeleopButtonType buttonType)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static const int {\bf teleop::TELEOP\_\-AXIS\_\-TYPE\_\-COUNT} = (TELEOP\_\-AXIS\_\-TYPE\_\-LAST -\/ TELEOP\_\-AXIS\_\-TYPE\_\-FIRST + 1)
+\item 
+static const int {\bf teleop::TELEOP\_\-BUTTON\_\-TYPE\_\-COUNT} = (TELEOP\_\-BUTTON\_\-TYPE\_\-LAST -\/ TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST + 1)
+\end{DoxyCompactItemize}
+\paragraph*{}
+\begin{DoxyCompactItemize}
+\item 
+static const TeleopAxisValue {\bf teleop::TELEOP\_\-AXIS\_\-MIN} = -\/1.0
+\item 
+static const TeleopAxisValue {\bf teleop::TELEOP\_\-AXIS\_\-MAX} = 1.0
+\end{DoxyCompactItemize}
+
