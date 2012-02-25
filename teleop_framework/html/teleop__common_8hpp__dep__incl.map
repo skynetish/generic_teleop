@@ -1,6 +1,5 @@
 <map id="G" name="G">
-<area shape="rect" id="node3" href="$teleop__source_8hpp.html" title="/home/klc/Code/github.com/teleop/teleop_framework/include/teleop_source.hpp" alt="" coords="208,83,691,112"/>
-<area shape="rect" id="node5" href="$teleop__source__adapter_8hpp.html" title="/home/klc/Code/github.com/teleop/teleop_framework/include/teleop_source_adapter.hpp" alt="" coords="5,160,539,189"/>
-<area shape="rect" id="node7" href="$teleop__source__adapter_8cpp.html" title="/home/klc/Code/github.com/teleop/teleop_framework/src/teleop_source_adapter.cpp" alt="" coords="321,237,831,267"/>
-<area shape="rect" id="node11" href="$teleop__common_8cpp.html" title="/home/klc/Code/github.com/teleop/teleop_framework/src/teleop_common.cpp" alt="" coords="765,83,1235,112"/>
+<area shape="rect" id="node3" href="$teleop__source_8hpp.html" title="/home/klc/Code/github.com/teleop/teleop_framework/include/teleop_source.hpp" alt="" coords="5,83,488,112"/>
+<area shape="rect" id="node5" href="$teleop__source__adapter_8hpp.html" title="/home/klc/Code/github.com/teleop/teleop_framework/include/teleop_source_adapter.hpp" alt="" coords="119,160,652,189"/>
+<area shape="rect" id="node7" href="$teleop__source__adapter_8cpp.html" title="/home/klc/Code/github.com/teleop/teleop_framework/src/teleop_source_adapter.cpp" alt="" coords="131,237,640,267"/>
 </map>
