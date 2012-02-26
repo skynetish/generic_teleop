@@ -1,0 +1,15 @@
+-Tests
+-Tutorials
+-Dead-man button option in sink nodes
+-Create new teleop sources
+  -Onscreen joystick (GUI)
+  -Android joystick (GUI)
+-Dynamically enable/disable available teleop sources
+  -Disable build of non-supported sources
+    -Compile time detection of non-supported sources (e.g. detect missing header file)
+    -Set pre-processor flag indicating source availability (for those who explicitly use sources)
+  -Dynamic loading of available sources
+    -Add separate wrapper ROS package with a wrapper class for each teleop source
+      -Wrapper class handles everything related to class loading (pluginlib?)
+    -Wrapper class supports generic get/set parameters using key/value pairs
+      -Or add this natively to teleop source low-level interface?
