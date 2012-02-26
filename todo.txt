@@ -1,6 +1,7 @@
 -Tests
 -Tutorials
 -Implement in python as well
+-Invert axis option in nodes (sink? source? both?)
 -Dead-man button option in sink nodes
 -Create new teleop sources
   -Onscreen joystick (GUI)
