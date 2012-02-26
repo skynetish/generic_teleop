@@ -80,29 +80,26 @@ class TeleopSourceNode : public teleop::TeleopSourceAdapter::TeleopSourceAdapter
 
 public:
 
-  /**@{ Teleop types */
+  //Teleop types
   static const char TELEOP_TYPE_AUTO[];
   static const char TELEOP_TYPE_KEYBOARD[];
   static const char TELEOP_TYPE_JOYSTICK[];
-  /**@}*/
 
-  /**@{ Parameter keys */
+  //Parameter keys
   static const char PARAM_KEY_TELEOP_TOPIC[];
   static const char PARAM_KEY_TELEOP_TYPE[];
   static const char PARAM_KEY_LISTEN_TIMEOUT[];
   static const char PARAM_KEY_AXIS_DEAD_ZONE[];
   static const char PARAM_KEY_KEYBOARD_STEPS[];
   static const char PARAM_KEY_JOYSTICK_DEVICE[];
-  /**@}*/
 
-  /**@{ Parameter default values */
+  //Parameter default values
   static const char   PARAM_DEFAULT_TELEOP_TOPIC[];
   static const char*  PARAM_DEFAULT_TELEOP_TYPE;
   static const int    PARAM_DEFAULT_LISTEN_TIMEOUT;
   static const double PARAM_DEFAULT_AXIS_DEAD_ZONE;
   static const int    PARAM_DEFAULT_KEYBOARD_STEPS;
   static const char   PARAM_DEFAULT_JOYSTICK_DEVICE[];
-  /**@}*/
 
   /**
    * Constructor.
@@ -138,14 +135,13 @@ public:
 
 private:
 
-  /**@{ Parameters */
+  //Parameters
   std::string mTeleopTopic;
   std::string mTeleopType;
   int mListenTimeout;
   double mAxisDeadZone;
   int mKeyboardSteps;
   std::string mJoystickDevice;
-  /**@}*/
 
   /** Teleop source (dynamically allocated) */
   teleop::TeleopSource* mTeleopSource;

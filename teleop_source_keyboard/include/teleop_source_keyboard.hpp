@@ -75,11 +75,12 @@ class TeleopSourceKeyboard : public TeleopSource {
 
 public:
 
-  /**@{ Number of steps to reach the maximum level for each axis */
+  /** Default number of steps to reach the maximum level for each axis */
   static const unsigned int STEPS_DEFAULT;
+  /** Min number of steps to reach the maximum level for each axis */
   static const unsigned int STEPS_MIN;
+  /** Max number of steps to reach the maximum level for each axis */
   static const unsigned int STEPS_MAX;
-  /**@}*/
 
   /**
    * Constructor.
@@ -124,13 +125,12 @@ public:
 
 private:
 
-  /**@{ Keycodes */
+  //Keycodes
   static const unsigned int KEYCODE_SPACE;
   static const unsigned int KEYCODE_UP;
   static const unsigned int KEYCODE_DOWN;
   static const unsigned int KEYCODE_RIGHT;
   static const unsigned int KEYCODE_LEFT;
-  /**@}*/
 
   /** Mutex for protecting all members from multi-threaded access */
   boost::recursive_mutex mMemberMutex;

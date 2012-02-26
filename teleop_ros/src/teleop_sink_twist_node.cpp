@@ -80,7 +80,7 @@ class TeleopSinkTwistNode  {
 
 public:
 
-  /**@{ Parameter keys */
+  //Parameter keys
   static const char PARAM_KEY_TELEOP_TOPIC[];
   static const char PARAM_KEY_TWIST_TOPIC[];
   static const char PARAM_KEY_HAS_LIN_X[];
@@ -113,9 +113,8 @@ public:
   static const char PARAM_KEY_THROTTLE_ROT_X[];
   static const char PARAM_KEY_THROTTLE_ROT_Y[];
   static const char PARAM_KEY_THROTTLE_ROT_Z[];
-  /**@}*/
 
-  /**@{ Parameter default values */
+  //Parameter default values
   static const char PARAM_DEFAULT_TELEOP_TOPIC[];
   static const char PARAM_DEFAULT_TWIST_TOPIC[];
   static const bool PARAM_DEFAULT_HAS_LIN_X;
@@ -148,7 +147,6 @@ public:
   static const bool PARAM_DEFAULT_THROTTLE_ROT_X;
   static const bool PARAM_DEFAULT_THROTTLE_ROT_Y;
   static const bool PARAM_DEFAULT_THROTTLE_ROT_Z;
-  /**@}*/
 
   /**
    * Constructor.
@@ -184,7 +182,7 @@ public:
 
 private:
 
-  /**@{ Parameters */
+  //Parameters
   std::string mTeleopTopic;
   std::string mTwistTopic;
   bool mHasLinX, mHasLinY, mHasLinZ, mHasRotX, mHasRotY, mHasRotZ;
@@ -192,7 +190,6 @@ private:
   double mMaxLinX, mMaxLinY, mMaxLinZ, mMaxRotX, mMaxRotY, mMaxRotZ;
   bool mQuadraticLinX, mQuadraticLinY, mQuadraticLinZ, mQuadraticRotX, mQuadraticRotY, mQuadraticRotZ;
   bool mThrottleLinX, mThrottleLinY, mThrottleLinZ, mThrottleRotX, mThrottleRotY, mThrottleRotZ;
-  /**@}*/
 
   /** Publisher for twist messages */
   ros::Publisher mPublisher;
@@ -251,10 +248,9 @@ private:
    */
   inline teleop::TeleopAxisValue applyThrottle(bool enabled, double throttle, teleop::TeleopAxisValue teleopAxisValue);
 
-  /**@{
-   * Methods to convert normalised teleop axis values into twist values.  These
-   * methods take all relevant data members into consideration when computing
-   * twist values.
+  /**
+   * Convert normalised teleop axis value into twist value.  This method takes
+   * all relevant data members into consideration when computing twist values.
    *
    *   @param throttle [in] - throttle value
    *   @param teleopAxisValue [in] - teleop axis value to convert
@@ -262,12 +258,61 @@ private:
    *   @return twist value
    */
   inline double teleopToTwistLinX(double throttle, teleop::TeleopAxisValue teleopAxisValue);
+
+  /**
+   * Convert normalised teleop axis value into twist value.  This method takes
+   * all relevant data members into consideration when computing twist values.
+   *
+   *   @param throttle [in] - throttle value
+   *   @param teleopAxisValue [in] - teleop axis value to convert
+   *
+   *   @return twist value
+   */
   inline double teleopToTwistLinY(double throttle, teleop::TeleopAxisValue teleopAxisValue);
+
+  /**
+   * Convert normalised teleop axis value into twist value.  This method takes
+   * all relevant data members into consideration when computing twist values.
+   *
+   *   @param throttle [in] - throttle value
+   *   @param teleopAxisValue [in] - teleop axis value to convert
+   *
+   *   @return twist value
+   */
   inline double teleopToTwistLinZ(double throttle, teleop::TeleopAxisValue teleopAxisValue);
+
+  /**
+   * Convert normalised teleop axis value into twist value.  This method takes
+   * all relevant data members into consideration when computing twist values.
+   *
+   *   @param throttle [in] - throttle value
+   *   @param teleopAxisValue [in] - teleop axis value to convert
+   *
+   *   @return twist value
+   */
   inline double teleopToTwistRotX(double throttle, teleop::TeleopAxisValue teleopAxisValue);
+
+  /**
+   * Convert normalised teleop axis value into twist value.  This method takes
+   * all relevant data members into consideration when computing twist values.
+   *
+   *   @param throttle [in] - throttle value
+   *   @param teleopAxisValue [in] - teleop axis value to convert
+   *
+   *   @return twist value
+   */
   inline double teleopToTwistRotY(double throttle, teleop::TeleopAxisValue teleopAxisValue);
+
+  /**
+   * Convert normalised teleop axis value into twist value.  This method takes
+   * all relevant data members into consideration when computing twist values.
+   *
+   *   @param throttle [in] - throttle value
+   *   @param teleopAxisValue [in] - teleop axis value to convert
+   *
+   *   @return twist value
+   */
   inline double teleopToTwistRotZ(double throttle, teleop::TeleopAxisValue teleopAxisValue);
-   /**@}*/
 
 }; //class
 

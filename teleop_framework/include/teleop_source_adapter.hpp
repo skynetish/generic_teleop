@@ -125,11 +125,12 @@ public:
   /** Listen timeout in milliseconds - check for interruption this often */
   static const unsigned int LISTEN_TIMEOUT_DEFAULT;
 
-  /**@{ Axis dead zone - values smaller than this are set to 0.0 */
+  /** Axis dead zone default - values smaller than dead zone are set to 0.0 */
   static const TeleopAxisValue AXIS_DEAD_ZONE_DEFAULT;
+  /** Axis dead zone min */
   static const TeleopAxisValue AXIS_DEAD_ZONE_MIN;
+  /** Axis dead zone max */
   static const TeleopAxisValue AXIS_DEAD_ZONE_MAX;
-  /**@}*/
 
   /**
    * Constructor.

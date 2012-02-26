@@ -139,10 +139,10 @@ typedef struct {
 //Globals
 //=============================================================================
 
-/**@{ Axis range (0=off) */
+/** Axis value min (0=off) */
 static const TeleopAxisValue TELEOP_AXIS_MIN = -1.0;
+/** Axis value max (0=off) */
 static const TeleopAxisValue TELEOP_AXIS_MAX = 1.0;
-/**@}*/
 
 /** Number of axis types */
 static const int TELEOP_AXIS_TYPE_COUNT = (TELEOP_AXIS_TYPE_LAST - TELEOP_AXIS_TYPE_FIRST + 1);
