@@ -31,7 +31,9 @@
 //=============================================================================
 //Includes
 //=============================================================================
+#include <teleop_source_node.hpp>
 #include <teleop_common.hpp>
+#include <teleop_source.hpp>
 #include <teleop_source_adapter.hpp>
 #include <teleop_source_keyboard.hpp>
 #include <teleop_source_joystick.hpp>
@@ -39,8 +41,6 @@
 #include <ros/ros.h>
 #include <boost/thread.hpp>
 #include <stdint.h>
-#include <signal.h>
-#include <stdio.h>
 
 
 
@@ -48,171 +48,7 @@
 //=============================================================================
 //Namespace
 //=============================================================================
-namespace {
-
-
-
-
-//=============================================================================
-//Types
-//=============================================================================
-/**
- * This class creates a teleop source ROS node which reads and publishes the
- * state of a teleop source device.
- *
- * A teleop source adapter object is used to control a teleop source object.
- * This class inherits the teleop source adapter callback interface in order to
- * receive updates about the teleop source state.
- *
- * The init() and shutdown() methods control the life cycle of the object.
- * Note that shutdown() is always called on destruction.
- *
- * Optional parameters for the node are the following:
- *
- *   topic:           topic to which to publish the teleop state
- *   teleop_type:     teleop source type ("auto", "keyboard", or "joystick")
- *   listen_timeout:  teleop source listen timeout in milliseconds
- *   axis_dead_zone:  teleop source initial axis dead zone for all axes
- *   keyboard_steps:  resolution in steps (for keyboard teleop source)
- *   joystick_device: device (for joystick teleop source)
- */
-class TeleopSourceNode : public teleop::TeleopSourceAdapter::TeleopSourceAdapterCallback {
-
-public:
-
-  //Teleop types
-  static const char TELEOP_TYPE_AUTO[];
-  static const char TELEOP_TYPE_KEYBOARD[];
-  static const char TELEOP_TYPE_JOYSTICK[];
-
-  //Parameter keys
-  static const char PARAM_KEY_TELEOP_TOPIC[];
-  static const char PARAM_KEY_TELEOP_TYPE[];
-  static const char PARAM_KEY_LISTEN_TIMEOUT[];
-  static const char PARAM_KEY_AXIS_DEAD_ZONE[];
-  static const char PARAM_KEY_KEYBOARD_STEPS[];
-  static const char PARAM_KEY_JOYSTICK_DEVICE[];
-
-  //Parameter default values
-  static const char   PARAM_DEFAULT_TELEOP_TOPIC[];
-  static const char*  PARAM_DEFAULT_TELEOP_TYPE;
-  static const int    PARAM_DEFAULT_LISTEN_TIMEOUT;
-  static const double PARAM_DEFAULT_AXIS_DEAD_ZONE;
-  static const int    PARAM_DEFAULT_KEYBOARD_STEPS;
-  static const char   PARAM_DEFAULT_JOYSTICK_DEVICE[];
-
-  /**
-   * Constructor.
-   */
-  TeleopSourceNode();
-
-  /**
-   * Destructor.
-   */
-  ~TeleopSourceNode();
-
-  /**
-   * Initialise object.  If object is already initialised it is shutdown and
-   * reinitialised.
-   *
-   *   @param argc - number of command line arguments to process
-   *   @param argv - command line arguments
-   *   @param nodeName - node name
-   *   @param initOptions - init options
-   *
-   *   @return true on success
-   */
-  bool init(int argc, char** argv, std::string nodeName, uint32_t initOptions);
-
-  /**
-   * Shutdown object.  If object is already shutdown this has no effect.  This
-   * method always cleans up as much as possible, even if there are errors.
-   * This method is always called on destruction.
-   *
-   *   @return true on success
-   */
-  bool shutdown();
-
-private:
-
-  //Parameters
-  std::string mTeleopTopic;
-  std::string mTeleopType;
-  int mListenTimeout;
-  double mAxisDeadZone;
-  int mKeyboardSteps;
-  std::string mJoystickDevice;
-
-  /** Teleop source (dynamically allocated) */
-  teleop::TeleopSource* mTeleopSource;
-
-  /** Teleop source adapter */
-  teleop::TeleopSourceAdapter mTeleopSourceAdapter;
-
-  /** Publisher for teleop messages */
-  ros::Publisher mPublisher;
-
-  /** Latest message */
-  teleop_msgs::State mTeleopStateMsg;
-
-  /** Is initialised flag */
-  bool mIsInitialised;
-
-  /** Mutex to protect is initialised flag */
-  boost::recursive_mutex mIsInitialisedMutex;
-
-  /**
-   * Utility method for creating a teleop source, given the currently set
-   * parameters.  The produced teleop source is dynamically allocated.
-   *
-   *   @return teleop source on success and NULL on error
-   */
-  teleop::TeleopSource* teleopSourceFactory();
-
-  /**
-   * Override virtual method from parent.
-   */
-  virtual void updated(const teleop::TeleopState* const teleopState, bool stopping, bool error);
-
-  /**
-   * Override virtual method from parent.
-   */
-  virtual void stopping(bool error);
-
-}; //class
-
-
-
-
-//=============================================================================
-//Function prototypes
-//=============================================================================
-/**
- * Signal handler.
- *
- *   @param signalNumber [in] - received signal number
- */
-void signalHandler(int signalNumber);
-
-/**
- * Check if we should just print usage information, and if so, print it.
- *
- *   @param nodeName [in] - node name
- *   @param argc [in] - number of command line arguments
- *   @param argv [in] - command line arguments
- *
- *   @return true if usage was printed
- */
-bool printUsage(int argc, char** argv);
-
-
-
-
-//=============================================================================
-//Globals
-//=============================================================================
-/** Global atomic flag used to indicate if an interrupt has been requested. */
-sig_atomic_t gInterruptRequested = 0;
+namespace teleop {
 
 
 
@@ -233,9 +69,9 @@ const char TeleopSourceNode::PARAM_KEY_JOYSTICK_DEVICE[] =      "joystick_device
 
 const char TeleopSourceNode::PARAM_DEFAULT_TELEOP_TOPIC[] =     "teleop";
 const char* TeleopSourceNode::PARAM_DEFAULT_TELEOP_TYPE =       TeleopSourceNode::TELEOP_TYPE_KEYBOARD;
-const int  TeleopSourceNode::PARAM_DEFAULT_LISTEN_TIMEOUT =     teleop::TeleopSourceAdapter::LISTEN_TIMEOUT_DEFAULT;
-const double TeleopSourceNode::PARAM_DEFAULT_AXIS_DEAD_ZONE =   teleop::TeleopSourceAdapter::AXIS_DEAD_ZONE_DEFAULT;
-const int  TeleopSourceNode::PARAM_DEFAULT_KEYBOARD_STEPS =     teleop::TeleopSourceKeyboard::STEPS_DEFAULT;
+const int  TeleopSourceNode::PARAM_DEFAULT_LISTEN_TIMEOUT =     TeleopSourceAdapter::LISTEN_TIMEOUT_DEFAULT;
+const double TeleopSourceNode::PARAM_DEFAULT_AXIS_DEAD_ZONE =   TeleopSourceAdapter::AXIS_DEAD_ZONE_DEFAULT;
+const int  TeleopSourceNode::PARAM_DEFAULT_KEYBOARD_STEPS =     TeleopSourceKeyboard::STEPS_DEFAULT;
 
 //Ideally this should be TeleopSourceJoystick::getDefaultDevice().c_str(),
 //but C++ makes this difficult.  Since we assume the user should set this
@@ -342,7 +178,7 @@ bool TeleopSourceNode::init(int argc, char** argv, std::string nodeName, uint32_
     return false;
   }
   if (!mTeleopSourceAdapter.setListenTimeout((unsigned int)mListenTimeout)
-      || !mTeleopSourceAdapter.setAxisDeadZoneForAllAxes((teleop::TeleopAxisValue)mAxisDeadZone)) {
+      || !mTeleopSourceAdapter.setAxisDeadZoneForAllAxes((TeleopAxisValue)mAxisDeadZone)) {
     ROS_ERROR("TeleopSourceNode::init: error configuring teleop source adapter");
     delete mTeleopSource;
     ros::shutdown();
@@ -412,14 +248,14 @@ bool TeleopSourceNode::shutdown() {
   return true;
 }
 //=============================================================================
-teleop::TeleopSource* TeleopSourceNode::teleopSourceFactory() {
-  teleop::TeleopSource* teleopSource = NULL;
+TeleopSource* TeleopSourceNode::teleopSourceFactory() {
+  TeleopSource* teleopSource = NULL;
   std::string teleopType = mTeleopType;
 
   //If type is auto, check for best alternative
   if (0 == teleopType.compare(std::string(TELEOP_TYPE_AUTO))) {
-    teleop::TeleopSourceJoystick* teleopSourceJoystick;
-    teleopSourceJoystick = new teleop::TeleopSourceJoystick();
+    TeleopSourceJoystick* teleopSourceJoystick;
+    teleopSourceJoystick = new TeleopSourceJoystick();
     teleopSourceJoystick->setDevice(mJoystickDevice);
     if (teleopSourceJoystick->init()) {
       if (!teleopSourceJoystick->shutdown()) {
@@ -434,15 +270,15 @@ teleop::TeleopSource* TeleopSourceNode::teleopSourceFactory() {
 
   //Handle known types
   if (0 == teleopType.compare(std::string(TELEOP_TYPE_KEYBOARD))) {
-    teleop::TeleopSourceKeyboard* teleopSourceKeyboard;
-    teleopSourceKeyboard = new teleop::TeleopSourceKeyboard();
+    TeleopSourceKeyboard* teleopSourceKeyboard;
+    teleopSourceKeyboard = new TeleopSourceKeyboard();
     if (!teleopSourceKeyboard->setSteps((unsigned int)mKeyboardSteps)) {
       ROS_WARN("TeleopSourceNode::teleopSourceFactory: unable to set keyboard steps");
     }
     teleopSource = teleopSourceKeyboard;
   } else if (0 == teleopType.compare(std::string(TELEOP_TYPE_JOYSTICK))) {
-    teleop::TeleopSourceJoystick* teleopSourceJoystick;
-    teleopSourceJoystick = new teleop::TeleopSourceJoystick();
+    TeleopSourceJoystick* teleopSourceJoystick;
+    teleopSourceJoystick = new TeleopSourceJoystick();
     if (!teleopSourceJoystick->setDevice(mJoystickDevice)) {
       ROS_WARN("TeleopSourceNode::teleopSourceFactory: unable to set joystick device");
     }
@@ -456,14 +292,14 @@ teleop::TeleopSource* TeleopSourceNode::teleopSourceFactory() {
   return teleopSource;
 }
 //=============================================================================
-void TeleopSourceNode::updated(const teleop::TeleopState* const teleopState, bool stopping, bool error) {
+void TeleopSourceNode::updated(const TeleopState* const teleopState, bool stopping, bool error) {
   //Sanity check teleopState
   if (NULL == teleopState) {
     ROS_ERROR("TeleopSourceNode::updated: NULL teleopState");
     return;
   }
 
-  //Convert from teleop::TeleopState to teleop_msgs::State
+  //Convert from TeleopState to teleop_msgs::State
   if (mTeleopStateMsg.axes.size() != teleopState->axes.size()) {
     mTeleopStateMsg.axes.resize(teleopState->axes.size());
   }
@@ -501,87 +337,5 @@ void TeleopSourceNode::stopping(bool error) {
 
 
 //=============================================================================
-//Function definitions
-//=============================================================================
-void signalHandler(int signalNumber) {
-  gInterruptRequested = 1;
-}
-//=============================================================================
-bool printUsage(std::string nodeName, int argc, char** argv) {
-  //Check for "-h" or "--help", if found, print usage
-  for (int i = 1; i < argc; i++) {
-    if ((0 == strcmp(argv[i], "-h")) || (0 == strcmp(argv[i], "--help"))) {
-      printf("\n");
-      printf("Usage:\n");
-      printf("    %s [params]\n", nodeName.c_str());
-      printf("\n");
-      printf("Parameters and their default values\n");
-      printf("    _%s:=%s\n",
-             TeleopSourceNode::PARAM_KEY_TELEOP_TOPIC,
-             (nodeName + std::string("/") + std::string(TeleopSourceNode::PARAM_DEFAULT_TELEOP_TOPIC)).c_str());
-      printf("    _%s:=%s\n",
-             TeleopSourceNode::PARAM_KEY_TELEOP_TYPE,
-             TeleopSourceNode::PARAM_DEFAULT_TELEOP_TYPE);
-      printf("    _%s:=%d\n",
-             TeleopSourceNode::PARAM_KEY_LISTEN_TIMEOUT,
-             TeleopSourceNode::PARAM_DEFAULT_LISTEN_TIMEOUT);
-      printf("    _%s:=%.02f\n",
-             TeleopSourceNode::PARAM_KEY_AXIS_DEAD_ZONE,
-             TeleopSourceNode::PARAM_DEFAULT_AXIS_DEAD_ZONE);
-      printf("    _%s:=%d\n",
-             TeleopSourceNode::PARAM_KEY_KEYBOARD_STEPS,
-             TeleopSourceNode::PARAM_DEFAULT_KEYBOARD_STEPS);
-      printf("    _%s:=%s\n",
-             TeleopSourceNode::PARAM_KEY_JOYSTICK_DEVICE,
-             TeleopSourceNode::PARAM_DEFAULT_JOYSTICK_DEVICE);
-      printf("\n");
-      return true;
-    }
-  }
-  return false;
-}
-//=============================================================================
-
-
-
-
-//=============================================================================
 } //namespace
-//=============================================================================
-
-
-
-
-//=============================================================================
-//Main
-//=============================================================================
-int main(int argc, char** argv) {
-  //Use first argument (executable name) as node name
-  std::string nodeName(basename(argv[0]));
-
-  //Check if we should just print usage information and quit
-  if (printUsage(nodeName, argc, argv)) {
-    return 0;
-  }
-
-  //Set SIGINT signal handler
-  signal(SIGINT, signalHandler);
-
-  //Create the node object
-  TeleopSourceNode node;
-
-  //Init node object
-  if (!node.init(argc, argv, nodeName, ros::init_options::NoSigintHandler)) {
-    ROS_ERROR("main: error initialising node");
-    return 1;
-  }
-
-  //Periodically check for interruption
-  while (0 == gInterruptRequested) {
-    boost::this_thread::sleep(boost::posix_time::milliseconds(500));
-  }
-
-  //Done
-  return 0;
-}
 //=============================================================================

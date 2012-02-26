@@ -31,14 +31,13 @@
 //=============================================================================
 //Includes
 //=============================================================================
+#include <teleop_sink_twist_node.hpp>
 #include <teleop_common.hpp>
 #include <teleop_msgs/State.h>
 #include <geometry_msgs/Twist.h>
 #include <ros/ros.h>
 #include <boost/thread.hpp>
 #include <stdint.h>
-#include <signal.h>
-#include <stdio.h>
 
 
 
@@ -46,309 +45,7 @@
 //=============================================================================
 //Namespace
 //=============================================================================
-namespace {
-
-
-
-
-//=============================================================================
-//Types
-//=============================================================================
-/**
- * This class creates a teleop sink ROS node which subscribes to a teleop topic
- * provided by a teleop source device and publishes a corresponding twist
- * topic.
- *
- * The sink node can represent various types of devices, as long as they can
- * interpret twist messages.  Available axes and axis characteristics (e.g.
- * grow quadradically and obey throttle axis if available) can be set.
- *
- * The init() and shutdown() methods control the life cycle of the object.
- * Note that shutdown() is always called on destruction.
- *
- * Optional parameters for the node are the following:
- *
- *   teleop_topic:                teleop topic to which to subscribe
- *   twist_topic:                 twist topic to which to publish
- *   has_(lin|rot)_(x|y|z)        true if this sink device has the given axis
- *   min_(lin|rot)_(x|y|z)        min value for given axis
- *   max_(lin|rot)_(x|y|z)        max value for given axis
- *   quadratic_(lin|rot)_(x|y|z)  true if given axis should grow quadratically
- *   throttle_(lin|rot)_(x|y|z)   true if given axis should obey the throttle
- */
-class TeleopSinkTwistNode  {
-
-public:
-
-  //Parameter keys
-  static const char PARAM_KEY_TELEOP_TOPIC[];
-  static const char PARAM_KEY_TWIST_TOPIC[];
-  static const char PARAM_KEY_HAS_LIN_X[];
-  static const char PARAM_KEY_HAS_LIN_Y[];
-  static const char PARAM_KEY_HAS_LIN_Z[];
-  static const char PARAM_KEY_HAS_ROT_X[];
-  static const char PARAM_KEY_HAS_ROT_Y[];
-  static const char PARAM_KEY_HAS_ROT_Z[];
-  static const char PARAM_KEY_MIN_LIN_X[];
-  static const char PARAM_KEY_MIN_LIN_Y[];
-  static const char PARAM_KEY_MIN_LIN_Z[];
-  static const char PARAM_KEY_MIN_ROT_X[];
-  static const char PARAM_KEY_MIN_ROT_Y[];
-  static const char PARAM_KEY_MIN_ROT_Z[];
-  static const char PARAM_KEY_MAX_LIN_X[];
-  static const char PARAM_KEY_MAX_LIN_Y[];
-  static const char PARAM_KEY_MAX_LIN_Z[];
-  static const char PARAM_KEY_MAX_ROT_X[];
-  static const char PARAM_KEY_MAX_ROT_Y[];
-  static const char PARAM_KEY_MAX_ROT_Z[];
-  static const char PARAM_KEY_QUADRATIC_LIN_X[];
-  static const char PARAM_KEY_QUADRATIC_LIN_Y[];
-  static const char PARAM_KEY_QUADRATIC_LIN_Z[];
-  static const char PARAM_KEY_QUADRATIC_ROT_X[];
-  static const char PARAM_KEY_QUADRATIC_ROT_Y[];
-  static const char PARAM_KEY_QUADRATIC_ROT_Z[];
-  static const char PARAM_KEY_THROTTLE_LIN_X[];
-  static const char PARAM_KEY_THROTTLE_LIN_Y[];
-  static const char PARAM_KEY_THROTTLE_LIN_Z[];
-  static const char PARAM_KEY_THROTTLE_ROT_X[];
-  static const char PARAM_KEY_THROTTLE_ROT_Y[];
-  static const char PARAM_KEY_THROTTLE_ROT_Z[];
-
-  //Parameter default values
-  static const char PARAM_DEFAULT_TELEOP_TOPIC[];
-  static const char PARAM_DEFAULT_TWIST_TOPIC[];
-  static const bool PARAM_DEFAULT_HAS_LIN_X;
-  static const bool PARAM_DEFAULT_HAS_LIN_Y;
-  static const bool PARAM_DEFAULT_HAS_LIN_Z;
-  static const bool PARAM_DEFAULT_HAS_ROT_X;
-  static const bool PARAM_DEFAULT_HAS_ROT_Y;
-  static const bool PARAM_DEFAULT_HAS_ROT_Z;
-  static const double PARAM_DEFAULT_MIN_LIN_X;
-  static const double PARAM_DEFAULT_MIN_LIN_Y;
-  static const double PARAM_DEFAULT_MIN_LIN_Z;
-  static const double PARAM_DEFAULT_MIN_ROT_X;
-  static const double PARAM_DEFAULT_MIN_ROT_Y;
-  static const double PARAM_DEFAULT_MIN_ROT_Z;
-  static const double PARAM_DEFAULT_MAX_LIN_X;
-  static const double PARAM_DEFAULT_MAX_LIN_Y;
-  static const double PARAM_DEFAULT_MAX_LIN_Z;
-  static const double PARAM_DEFAULT_MAX_ROT_X;
-  static const double PARAM_DEFAULT_MAX_ROT_Y;
-  static const double PARAM_DEFAULT_MAX_ROT_Z;
-  static const bool PARAM_DEFAULT_QUADRATIC_LIN_X;
-  static const bool PARAM_DEFAULT_QUADRATIC_LIN_Y;
-  static const bool PARAM_DEFAULT_QUADRATIC_LIN_Z;
-  static const bool PARAM_DEFAULT_QUADRATIC_ROT_X;
-  static const bool PARAM_DEFAULT_QUADRATIC_ROT_Y;
-  static const bool PARAM_DEFAULT_QUADRATIC_ROT_Z;
-  static const bool PARAM_DEFAULT_THROTTLE_LIN_X;
-  static const bool PARAM_DEFAULT_THROTTLE_LIN_Y;
-  static const bool PARAM_DEFAULT_THROTTLE_LIN_Z;
-  static const bool PARAM_DEFAULT_THROTTLE_ROT_X;
-  static const bool PARAM_DEFAULT_THROTTLE_ROT_Y;
-  static const bool PARAM_DEFAULT_THROTTLE_ROT_Z;
-
-  /**
-   * Constructor.
-   */
-  TeleopSinkTwistNode();
-
-  /**
-   * Destructor.
-   */
-  ~TeleopSinkTwistNode();
-
-  /**
-   * Initialise object.  If object is already initialised it is shutdown and
-   * reinitialised.
-   *
-   *   @param argc - number of command line arguments to process
-   *   @param argv - command line arguments
-   *   @param nodeName - node name
-   *   @param initOptions - init options
-   *
-   *   @return true on success
-   */
-  bool init(int argc, char** argv, std::string nodeName, uint32_t initOptions);
-
-  /**
-   * Shutdown object.  If object is already shutdown this has no effect.  This
-   * method always cleans up as much as possible, even if there are errors.
-   * This method is always called on destruction.
-   *
-   *   @return true on success
-   */
-  bool shutdown();
-
-private:
-
-  //Parameters
-  std::string mTeleopTopic;
-  std::string mTwistTopic;
-  bool mHasLinX, mHasLinY, mHasLinZ, mHasRotX, mHasRotY, mHasRotZ;
-  double mMinLinX, mMinLinY, mMinLinZ, mMinRotX, mMinRotY, mMinRotZ;
-  double mMaxLinX, mMaxLinY, mMaxLinZ, mMaxRotX, mMaxRotY, mMaxRotZ;
-  bool mQuadraticLinX, mQuadraticLinY, mQuadraticLinZ, mQuadraticRotX, mQuadraticRotY, mQuadraticRotZ;
-  bool mThrottleLinX, mThrottleLinY, mThrottleLinZ, mThrottleRotX, mThrottleRotY, mThrottleRotZ;
-
-  /** Publisher for twist messages */
-  ros::Publisher mPublisher;
-
-  /** Subscriber for teleop messages */
-  ros::Subscriber mSubscriber;
-
-  /** Latest message */
-  geometry_msgs::Twist mTwistMsg;
-
-  /** Spinner to receive ROS events */
-  ros::AsyncSpinner* mSpinner;
-
-  /** Is initialised flag */
-  bool mIsInitialised;
-
-  /** Mutex to protect is initialised flag */
-  boost::recursive_mutex mIsInitialisedMutex;
-
-  /**
-   * Called when teleop topic is updated.  This converts the given teleop state
-   * message to a twist message and publishes it.
-   *
-   *   @param teleopStateMsg [in] - received teleop state message
-   */
-  void updated(const teleop_msgs::State& teleopStateMsg);
-
-  /**
-   * Convert teleop state to twist.
-   *
-   *  @param teleopStateMsg [in] - teleop state to convert
-   *  @param twistMsg [out] - resulting twist message
-   *
-   *  @return true on success
-   */
-  inline bool teleopStateToTwist(const teleop_msgs::State* const teleopStateMsg, geometry_msgs::Twist* const twistMsg);
-
-  /**
-   * Apply quadratic factor to teleop axis value if enabled.
-   *
-   *   @param enabled [in] - true if enabled
-   *   @param teleopAxisValue [in] - original teleop axis value
-   *
-   *   @return updated teleopAxisValue
-   */
-  inline teleop::TeleopAxisValue applyQuadratic(bool enabled, teleop::TeleopAxisValue teleopAxisValue);
-
-  /**
-   * Apply throttle factor to teleop axis value if enabled.
-   *
-   *   @param enabled [in] - true if enabled
-   *   @param throttle [in] - throttle value
-   *   @param teleopAxisValue [in] - original teleop axis value
-   *
-   *   @return updated teleopAxisValue
-   */
-  inline teleop::TeleopAxisValue applyThrottle(bool enabled, double throttle, teleop::TeleopAxisValue teleopAxisValue);
-
-  /**
-   * Convert normalised teleop axis value into twist value.  This method takes
-   * all relevant data members into consideration when computing twist values.
-   *
-   *   @param throttle [in] - throttle value
-   *   @param teleopAxisValue [in] - teleop axis value to convert
-   *
-   *   @return twist value
-   */
-  inline double teleopToTwistLinX(double throttle, teleop::TeleopAxisValue teleopAxisValue);
-
-  /**
-   * Convert normalised teleop axis value into twist value.  This method takes
-   * all relevant data members into consideration when computing twist values.
-   *
-   *   @param throttle [in] - throttle value
-   *   @param teleopAxisValue [in] - teleop axis value to convert
-   *
-   *   @return twist value
-   */
-  inline double teleopToTwistLinY(double throttle, teleop::TeleopAxisValue teleopAxisValue);
-
-  /**
-   * Convert normalised teleop axis value into twist value.  This method takes
-   * all relevant data members into consideration when computing twist values.
-   *
-   *   @param throttle [in] - throttle value
-   *   @param teleopAxisValue [in] - teleop axis value to convert
-   *
-   *   @return twist value
-   */
-  inline double teleopToTwistLinZ(double throttle, teleop::TeleopAxisValue teleopAxisValue);
-
-  /**
-   * Convert normalised teleop axis value into twist value.  This method takes
-   * all relevant data members into consideration when computing twist values.
-   *
-   *   @param throttle [in] - throttle value
-   *   @param teleopAxisValue [in] - teleop axis value to convert
-   *
-   *   @return twist value
-   */
-  inline double teleopToTwistRotX(double throttle, teleop::TeleopAxisValue teleopAxisValue);
-
-  /**
-   * Convert normalised teleop axis value into twist value.  This method takes
-   * all relevant data members into consideration when computing twist values.
-   *
-   *   @param throttle [in] - throttle value
-   *   @param teleopAxisValue [in] - teleop axis value to convert
-   *
-   *   @return twist value
-   */
-  inline double teleopToTwistRotY(double throttle, teleop::TeleopAxisValue teleopAxisValue);
-
-  /**
-   * Convert normalised teleop axis value into twist value.  This method takes
-   * all relevant data members into consideration when computing twist values.
-   *
-   *   @param throttle [in] - throttle value
-   *   @param teleopAxisValue [in] - teleop axis value to convert
-   *
-   *   @return twist value
-   */
-  inline double teleopToTwistRotZ(double throttle, teleop::TeleopAxisValue teleopAxisValue);
-
-}; //class
-
-
-
-
-//=============================================================================
-//Function prototypes
-//=============================================================================
-
-/**
- * Signal handler.
- *
- *   @param signalNumber [in] - received signal number
- */
-void signalHandler(int signalNumber);
-
-/**
- * Check if we should just print usage information, and if so, print it.
- *
- *   @param nodeName [in] - node name
- *   @param argc [in] - number of command line arguments
- *   @param argv [in] - command line arguments
- *
- *   @return true if usage was printed
- */
-bool printUsage(int argc, char** argv);
-
-
-
-
-//=============================================================================
-//Globals
-//=============================================================================
-/** Global atomic flag used to indicate if an interrupt has been requested. */
-sig_atomic_t gInterruptRequested = 0;
+namespace teleop {
 
 
 
@@ -704,13 +401,13 @@ bool TeleopSinkTwistNode::teleopStateToTwist(const teleop_msgs::State* const tel
   int indexThrottle = -1;
   for (size_t i = 0; i < teleopStateMsg->axes.size(); i++) {
     switch (teleopStateMsg->axes[i].type) {
-      case teleop::TELEOP_AXIS_TYPE_LIN_X:    indexLinX = i;     break;
-      case teleop::TELEOP_AXIS_TYPE_LIN_Y:    indexLinY = i;     break;
-      case teleop::TELEOP_AXIS_TYPE_LIN_Z:    indexLinZ = i;     break;
-      case teleop::TELEOP_AXIS_TYPE_ROT_X:    indexRotX = i;     break;
-      case teleop::TELEOP_AXIS_TYPE_ROT_Y:    indexRotY = i;     break;
-      case teleop::TELEOP_AXIS_TYPE_ROT_Z:    indexRotZ = i;     break;
-      case teleop::TELEOP_AXIS_TYPE_THROTTLE: indexThrottle = i; break;
+      case TELEOP_AXIS_TYPE_LIN_X:    indexLinX = i;     break;
+      case TELEOP_AXIS_TYPE_LIN_Y:    indexLinY = i;     break;
+      case TELEOP_AXIS_TYPE_LIN_Z:    indexLinZ = i;     break;
+      case TELEOP_AXIS_TYPE_ROT_X:    indexRotX = i;     break;
+      case TELEOP_AXIS_TYPE_ROT_Y:    indexRotY = i;     break;
+      case TELEOP_AXIS_TYPE_ROT_Z:    indexRotZ = i;     break;
+      case TELEOP_AXIS_TYPE_THROTTLE: indexThrottle = i; break;
       default:
         //Ignore other axes
         break;
@@ -805,7 +502,7 @@ bool TeleopSinkTwistNode::teleopStateToTwist(const teleop_msgs::State* const tel
   return true;
 }
 //=============================================================================
-teleop::TeleopAxisValue TeleopSinkTwistNode::applyQuadratic(bool enabled, teleop::TeleopAxisValue teleopAxisValue) {
+TeleopAxisValue TeleopSinkTwistNode::applyQuadratic(bool enabled, TeleopAxisValue teleopAxisValue) {
   if (enabled) {
     if (0.0 <= teleopAxisValue) {
       return (teleopAxisValue * teleopAxisValue);
@@ -817,9 +514,9 @@ teleop::TeleopAxisValue TeleopSinkTwistNode::applyQuadratic(bool enabled, teleop
   }
 }
 //=============================================================================
-teleop::TeleopAxisValue TeleopSinkTwistNode::applyThrottle(bool enabled,
+TeleopAxisValue TeleopSinkTwistNode::applyThrottle(bool enabled,
                                                            double throttle,
-                                                           teleop::TeleopAxisValue teleopAxisValue) {
+                                                           TeleopAxisValue teleopAxisValue) {
   if (enabled) {
     return (throttle * teleopAxisValue);
   } else {
@@ -827,7 +524,7 @@ teleop::TeleopAxisValue TeleopSinkTwistNode::applyThrottle(bool enabled,
   }
 }
 //=============================================================================
-double TeleopSinkTwistNode::teleopToTwistLinX(double throttle, teleop::TeleopAxisValue teleopAxisValue) {
+double TeleopSinkTwistNode::teleopToTwistLinX(double throttle, TeleopAxisValue teleopAxisValue) {
   double level = applyThrottle(mThrottleLinX, throttle, (applyQuadratic(mQuadraticLinX, teleopAxisValue)));
   if (0.0 <= teleopAxisValue) {
     return level * mMaxLinX;
@@ -836,7 +533,7 @@ double TeleopSinkTwistNode::teleopToTwistLinX(double throttle, teleop::TeleopAxi
   }
 }
 //=============================================================================
-double TeleopSinkTwistNode::teleopToTwistLinY(double throttle,teleop::TeleopAxisValue teleopAxisValue) {
+double TeleopSinkTwistNode::teleopToTwistLinY(double throttle, TeleopAxisValue teleopAxisValue) {
   double level = applyThrottle(mThrottleLinY, throttle, (applyQuadratic(mQuadraticLinY, teleopAxisValue)));
   if (0.0 <= teleopAxisValue) {
     return level * mMaxLinY;
@@ -845,7 +542,7 @@ double TeleopSinkTwistNode::teleopToTwistLinY(double throttle,teleop::TeleopAxis
   }
 }
 //=============================================================================
-double TeleopSinkTwistNode::teleopToTwistLinZ(double throttle, teleop::TeleopAxisValue teleopAxisValue) {
+double TeleopSinkTwistNode::teleopToTwistLinZ(double throttle, TeleopAxisValue teleopAxisValue) {
   double level = applyThrottle(mThrottleLinZ, throttle, (applyQuadratic(mQuadraticLinZ, teleopAxisValue)));
   if (0.0 <= teleopAxisValue) {
     return level * mMaxLinZ;
@@ -854,7 +551,7 @@ double TeleopSinkTwistNode::teleopToTwistLinZ(double throttle, teleop::TeleopAxi
   }
 }
 //=============================================================================
-double TeleopSinkTwistNode::teleopToTwistRotX(double throttle, teleop::TeleopAxisValue teleopAxisValue) {
+double TeleopSinkTwistNode::teleopToTwistRotX(double throttle, TeleopAxisValue teleopAxisValue) {
   double level = applyThrottle(mThrottleRotX, throttle, (applyQuadratic(mQuadraticRotX, teleopAxisValue)));
   if (0.0 <= teleopAxisValue) {
     return level * mMaxRotX;
@@ -863,7 +560,7 @@ double TeleopSinkTwistNode::teleopToTwistRotX(double throttle, teleop::TeleopAxi
   }
 }
 //=============================================================================
-double TeleopSinkTwistNode::teleopToTwistRotY(double throttle, teleop::TeleopAxisValue teleopAxisValue) {
+double TeleopSinkTwistNode::teleopToTwistRotY(double throttle, TeleopAxisValue teleopAxisValue) {
   double level = applyThrottle(mThrottleRotY, throttle, (applyQuadratic(mQuadraticRotY, teleopAxisValue)));
   if (0.0 <= teleopAxisValue) {
     return level * mMaxRotY;
@@ -872,7 +569,7 @@ double TeleopSinkTwistNode::teleopToTwistRotY(double throttle, teleop::TeleopAxi
   }
 }
 //=============================================================================
-double TeleopSinkTwistNode::teleopToTwistRotZ(double throttle, teleop::TeleopAxisValue teleopAxisValue) {
+double TeleopSinkTwistNode::teleopToTwistRotZ(double throttle, TeleopAxisValue teleopAxisValue) {
   double level = applyThrottle(mThrottleRotZ, throttle, (applyQuadratic(mQuadraticRotZ, teleopAxisValue)));
   if (0.0 <= teleopAxisValue) {
     return level * mMaxRotZ;
@@ -886,165 +583,5 @@ double TeleopSinkTwistNode::teleopToTwistRotZ(double throttle, teleop::TeleopAxi
 
 
 //=============================================================================
-//Function definitions
-//=============================================================================
-void signalHandler(int signalNumber) {
-  gInterruptRequested = 1;
-}
-//=============================================================================
-bool printUsage(std::string nodeName, int argc, char** argv) {
-  //Check for "-h" or "--help", if found, print usage
-  for (int i = 1; i < argc; i++) {
-    if ((0 == strcmp(argv[i], "-h")) || (0 == strcmp(argv[i], "--help"))) {
-      printf("\n");
-      printf("Usage:\n");
-      printf("    %s [params]\n", nodeName.c_str());
-      printf("\n");
-      printf("Parameters and their default values\n");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_TELEOP_TOPIC,
-             (nodeName + "/" + TeleopSinkTwistNode::PARAM_DEFAULT_TELEOP_TOPIC).c_str());
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_TWIST_TOPIC,
-             (nodeName + "/" + TeleopSinkTwistNode::PARAM_DEFAULT_TWIST_TOPIC).c_str());
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_HAS_LIN_X,
-             TeleopSinkTwistNode::PARAM_DEFAULT_HAS_LIN_X ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_HAS_LIN_Y,
-             TeleopSinkTwistNode::PARAM_DEFAULT_HAS_LIN_Y ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_HAS_LIN_Z,
-             TeleopSinkTwistNode::PARAM_DEFAULT_HAS_LIN_Z ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_HAS_ROT_X,
-             TeleopSinkTwistNode::PARAM_DEFAULT_HAS_ROT_X ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_HAS_ROT_Y,
-             TeleopSinkTwistNode::PARAM_DEFAULT_HAS_ROT_Y ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_HAS_ROT_Z,
-             TeleopSinkTwistNode::PARAM_DEFAULT_HAS_ROT_Z ? "true" : "false");
-      printf("    _%s:=%lf\n",
-             TeleopSinkTwistNode::PARAM_KEY_MIN_LIN_X,
-             TeleopSinkTwistNode::PARAM_DEFAULT_MIN_LIN_X);
-      printf("    _%s:=%lf\n",
-             TeleopSinkTwistNode::PARAM_KEY_MIN_LIN_Y,
-             TeleopSinkTwistNode::PARAM_DEFAULT_MIN_LIN_Y);
-      printf("    _%s:=%lf\n",
-             TeleopSinkTwistNode::PARAM_KEY_MIN_LIN_Z,
-             TeleopSinkTwistNode::PARAM_DEFAULT_MIN_LIN_Z);
-      printf("    _%s:=%lf\n",
-             TeleopSinkTwistNode::PARAM_KEY_MIN_ROT_X,
-             TeleopSinkTwistNode::PARAM_DEFAULT_MIN_ROT_X);
-      printf("    _%s:=%lf\n",
-             TeleopSinkTwistNode::PARAM_KEY_MIN_ROT_Y,
-             TeleopSinkTwistNode::PARAM_DEFAULT_MIN_ROT_Y);
-      printf("    _%s:=%lf\n",
-             TeleopSinkTwistNode::PARAM_KEY_MIN_ROT_Z,
-             TeleopSinkTwistNode::PARAM_DEFAULT_MIN_ROT_Z);
-      printf("    _%s:=%lf\n",
-             TeleopSinkTwistNode::PARAM_KEY_MAX_LIN_X,
-             TeleopSinkTwistNode::PARAM_DEFAULT_MAX_LIN_X);
-      printf("    _%s:=%lf\n",
-             TeleopSinkTwistNode::PARAM_KEY_MAX_LIN_Y,
-             TeleopSinkTwistNode::PARAM_DEFAULT_MAX_LIN_Y);
-      printf("    _%s:=%lf\n",
-             TeleopSinkTwistNode::PARAM_KEY_MAX_LIN_Z,
-             TeleopSinkTwistNode::PARAM_DEFAULT_MAX_LIN_Z);
-      printf("    _%s:=%lf\n",
-             TeleopSinkTwistNode::PARAM_KEY_MAX_ROT_X,
-             TeleopSinkTwistNode::PARAM_DEFAULT_MAX_ROT_X);
-      printf("    _%s:=%lf\n",
-             TeleopSinkTwistNode::PARAM_KEY_MAX_ROT_Y,
-             TeleopSinkTwistNode::PARAM_DEFAULT_MAX_ROT_Y);
-      printf("    _%s:=%lf\n",
-             TeleopSinkTwistNode::PARAM_KEY_MAX_ROT_Z,
-             TeleopSinkTwistNode::PARAM_DEFAULT_MAX_ROT_Z);
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_QUADRATIC_LIN_X,
-             TeleopSinkTwistNode::PARAM_DEFAULT_QUADRATIC_LIN_X ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_QUADRATIC_LIN_Y,
-             TeleopSinkTwistNode::PARAM_DEFAULT_QUADRATIC_LIN_Y ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_QUADRATIC_LIN_Z,
-             TeleopSinkTwistNode::PARAM_DEFAULT_QUADRATIC_LIN_Z ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_QUADRATIC_ROT_X,
-             TeleopSinkTwistNode::PARAM_DEFAULT_QUADRATIC_ROT_X ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_QUADRATIC_ROT_Y,
-             TeleopSinkTwistNode::PARAM_DEFAULT_QUADRATIC_ROT_Y ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_QUADRATIC_ROT_Z,
-             TeleopSinkTwistNode::PARAM_DEFAULT_QUADRATIC_ROT_Z ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_THROTTLE_LIN_X,
-             TeleopSinkTwistNode::PARAM_DEFAULT_THROTTLE_LIN_X ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_THROTTLE_LIN_Y,
-             TeleopSinkTwistNode::PARAM_DEFAULT_THROTTLE_LIN_Y ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_THROTTLE_LIN_Z,
-             TeleopSinkTwistNode::PARAM_DEFAULT_THROTTLE_LIN_Z ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_THROTTLE_ROT_X,
-             TeleopSinkTwistNode::PARAM_DEFAULT_THROTTLE_ROT_X ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_THROTTLE_ROT_Y,
-             TeleopSinkTwistNode::PARAM_DEFAULT_THROTTLE_ROT_Y ? "true" : "false");
-      printf("    _%s:=%s\n",
-             TeleopSinkTwistNode::PARAM_KEY_THROTTLE_ROT_Z,
-             TeleopSinkTwistNode::PARAM_DEFAULT_THROTTLE_ROT_Z ? "true" : "false");
-      printf("\n");
-      return true;
-    }
-  }
-  return false;
-}
-//=============================================================================
-
-
-
-
-//=============================================================================
 } //namespace
-//=============================================================================
-
-
-
-
-//=============================================================================
-//Main
-//=============================================================================
-int main(int argc, char** argv) {
-  //Use first argument (executable name) as node name
-  std::string nodeName(basename(argv[0]));
-
-  //Check if we should just print usage information and quit
-  if (printUsage(nodeName, argc, argv)) {
-    return 0;
-  }
-
-  //Set SIGINT signal handler
-  signal(SIGINT, signalHandler);
-
-  //Create the node object
-  TeleopSinkTwistNode node;
-
-  //Init node object
-  if (!node.init(argc, argv, nodeName, ros::init_options::NoSigintHandler)) {
-    ROS_ERROR("main: error initialising node");
-    return 1;
-  }
-
-  //Periodically check for interruption
-  while (0 == gInterruptRequested) {
-    boost::this_thread::sleep(boost::posix_time::milliseconds(500));
-  }
-
-  //Done
-  return 0;
-}
 //=============================================================================
