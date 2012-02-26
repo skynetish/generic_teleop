@@ -51,18 +51,14 @@ bool {\bf waitForStopped} ()
 \subsection*{Static Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
-static const unsigned int {\bf LISTEN\_\-TIMEOUT\_\-DEFAULT} = 200
-\end{DoxyCompactItemize}
-{\bf }\par
-\begin{DoxyCompactItemize}
-\item 
 static const {\bf TeleopAxisValue} {\bf AXIS\_\-DEAD\_\-ZONE\_\-DEFAULT} = 0.05
+\item 
+static const {\bf TeleopAxisValue} {\bf AXIS\_\-DEAD\_\-ZONE\_\-MAX} = 0.99
 \item 
 static const {\bf TeleopAxisValue} {\bf AXIS\_\-DEAD\_\-ZONE\_\-MIN} = 0.01
 \item 
-static const {\bf TeleopAxisValue} {\bf AXIS\_\-DEAD\_\-ZONE\_\-MAX} = 0.99
+static const unsigned int {\bf LISTEN\_\-TIMEOUT\_\-DEFAULT} = 200
 \end{DoxyCompactItemize}
-
 \subsection*{Private Member Functions}
 \begin{DoxyCompactItemize}
 \item 
@@ -110,7 +106,7 @@ To wait for the listening thread to stop, the \doxyref{waitForStopped()}{p.}{cla
 
 Both callbacks are called from the listening thread. As such, calls to \doxyref{init()}{p.}{classteleop_1_1TeleopSourceAdapter_a2015a77728ce26515a7bf37a234cdc3d}, \doxyref{start()}{p.}{classteleop_1_1TeleopSourceAdapter_a98e341938478434c34f50e554e028607}, \doxyref{stop()}{p.}{classteleop_1_1TeleopSourceAdapter_ad531b50253e9c4e5468340a03c77f608}, and \doxyref{waitForStopped()}{p.}{classteleop_1_1TeleopSourceAdapter_a624f8f41a9aff80853116f0a804d3cda} will always fail when called from either callback. Calls to \doxyref{shutdown()}{p.}{classteleop_1_1TeleopSourceAdapter_a76ebc9ecd211a9539780edfddaeffa3d} or destruction of the adapter object from either callback are not permitted, and will cause the program to be aborted (to avoid undefined behaviour). 
 
-Definition at line 85 of file teleop\_\-source\_\-adapter.hpp.
+Definition at line 84 of file teleop\_\-source\_\-adapter.hpp.
 
 
 
@@ -124,7 +120,7 @@ Definition at line 85 of file teleop\_\-source\_\-adapter.hpp.
 )}\label{classteleop_1_1TeleopSourceAdapter_a4de895719bf230b00b363c3d04d8f825}
 Constructor. 
 
-Definition at line 69 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 68 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!$\sim$TeleopSourceAdapter@{$\sim$TeleopSourceAdapter}}
 \index{$\sim$TeleopSourceAdapter@{$\sim$TeleopSourceAdapter}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -135,7 +131,7 @@ Definition at line 69 of file teleop\_\-source\_\-adapter.cpp.
 )}\label{classteleop_1_1TeleopSourceAdapter_aed47bdc6b6af58f315b507889e78e0ed}
 Destructor. 
 
-Definition at line 82 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 81 of file teleop\_\-source\_\-adapter.cpp.
 
 
 
@@ -159,7 +155,7 @@ axis dead zone
 \end{DoxyReturn}
 
 
-Definition at line 397 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 396 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!getAxisInverted@{getAxisInverted}}
 \index{getAxisInverted@{getAxisInverted}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -180,7 +176,7 @@ axis inverted
 \end{DoxyReturn}
 
 
-Definition at line 419 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 418 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!getListenTimeout@{getListenTimeout}}
 \index{getListenTimeout@{getListenTimeout}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -196,7 +192,7 @@ listen timeout in milliseconds
 \end{DoxyReturn}
 
 
-Definition at line 363 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 362 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!init@{init}}
 \index{init@{init}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -220,7 +216,7 @@ true on success
 \end{DoxyReturn}
 
 
-Definition at line 96 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 95 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!isInitialised@{isInitialised}}
 \index{isInitialised@{isInitialised}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -236,7 +232,7 @@ true if initialised
 \end{DoxyReturn}
 
 
-Definition at line 260 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 259 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!isListeningThread@{isListeningThread}}
 \index{isListeningThread@{isListeningThread}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -252,7 +248,7 @@ true if this is the listening thread
 \end{DoxyReturn}
 
 
-Definition at line 270 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 269 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!isRunning@{isRunning}}
 \index{isRunning@{isRunning}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -268,7 +264,7 @@ true if running
 \end{DoxyReturn}
 
 
-Definition at line 265 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 264 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!listeningThread@{listeningThread}}
 \index{listeningThread@{listeningThread}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -279,7 +275,7 @@ Definition at line 265 of file teleop\_\-source\_\-adapter.cpp.
 )\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceAdapter_a7d12b25ae28324708f6df5c3186eb793}
 Executes main listen loop (run in listening thread). 
 
-Definition at line 278 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 277 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!setAxisDeadZone@{setAxisDeadZone}}
 \index{setAxisDeadZone@{setAxisDeadZone}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -303,7 +299,7 @@ true on success
 \end{DoxyReturn}
 
 
-Definition at line 384 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 383 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!setAxisDeadZoneForAllAxes@{setAxisDeadZoneForAllAxes}}
 \index{setAxisDeadZoneForAllAxes@{setAxisDeadZoneForAllAxes}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -324,7 +320,7 @@ true on success
 \end{DoxyReturn}
 
 
-Definition at line 369 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 368 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!setAxisInverted@{setAxisInverted}}
 \index{setAxisInverted@{setAxisInverted}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -348,7 +344,7 @@ true on success
 \end{DoxyReturn}
 
 
-Definition at line 412 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 411 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!setAxisInvertedForAllAxes@{setAxisInvertedForAllAxes}}
 \index{setAxisInvertedForAllAxes@{setAxisInvertedForAllAxes}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -369,7 +365,7 @@ true on success
 \end{DoxyReturn}
 
 
-Definition at line 403 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 402 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!setListenTimeout@{setListenTimeout}}
 \index{setListenTimeout@{setListenTimeout}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -390,7 +386,7 @@ true on success
 \end{DoxyReturn}
 
 
-Definition at line 356 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 355 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!shutdown@{shutdown}}
 \index{shutdown@{shutdown}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -406,7 +402,7 @@ true on success
 \end{DoxyReturn}
 
 
-Definition at line 129 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 128 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!start@{start}}
 \index{start@{start}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -427,7 +423,7 @@ true on success (or already running)
 \end{DoxyReturn}
 
 
-Definition at line 159 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 158 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!stop@{stop}}
 \index{stop@{stop}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -448,7 +444,7 @@ true on success (or already stopped)
 \end{DoxyReturn}
 
 
-Definition at line 201 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 200 of file teleop\_\-source\_\-adapter.cpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!waitForStopped@{waitForStopped}}
 \index{waitForStopped@{waitForStopped}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
@@ -464,7 +460,7 @@ true on success
 \end{DoxyReturn}
 
 
-Definition at line 237 of file teleop\_\-source\_\-adapter.cpp.
+Definition at line 236 of file teleop\_\-source\_\-adapter.cpp.
 
 
 
@@ -472,30 +468,30 @@ Definition at line 237 of file teleop\_\-source\_\-adapter.cpp.
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!AXIS\_\-DEAD\_\-ZONE\_\-DEFAULT@{AXIS\_\-DEAD\_\-ZONE\_\-DEFAULT}}
 \index{AXIS\_\-DEAD\_\-ZONE\_\-DEFAULT@{AXIS\_\-DEAD\_\-ZONE\_\-DEFAULT}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
 \subsubsection[{AXIS\_\-DEAD\_\-ZONE\_\-DEFAULT}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf TeleopAxisValue} {\bf teleop::TeleopSourceAdapter::AXIS\_\-DEAD\_\-ZONE\_\-DEFAULT} = 0.05\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceAdapter_afd4444eebb19bb0363d3da7dcd559bc1}
-Axis dead zone -\/ values smaller than this are set to 0.0 
+Axis dead zone default -\/ values smaller than dead zone are set to 0.0 
 
-Definition at line 130 of file teleop\_\-source\_\-adapter.hpp.
+Definition at line 129 of file teleop\_\-source\_\-adapter.hpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!AXIS\_\-DEAD\_\-ZONE\_\-MAX@{AXIS\_\-DEAD\_\-ZONE\_\-MAX}}
 \index{AXIS\_\-DEAD\_\-ZONE\_\-MAX@{AXIS\_\-DEAD\_\-ZONE\_\-MAX}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
 \subsubsection[{AXIS\_\-DEAD\_\-ZONE\_\-MAX}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf TeleopAxisValue} {\bf teleop::TeleopSourceAdapter::AXIS\_\-DEAD\_\-ZONE\_\-MAX} = 0.99\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceAdapter_a609150532eb1309842ac7c9713e6c74e}
+Axis dead zone max 
 
-
-Definition at line 132 of file teleop\_\-source\_\-adapter.hpp.
+Definition at line 133 of file teleop\_\-source\_\-adapter.hpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!AXIS\_\-DEAD\_\-ZONE\_\-MIN@{AXIS\_\-DEAD\_\-ZONE\_\-MIN}}
 \index{AXIS\_\-DEAD\_\-ZONE\_\-MIN@{AXIS\_\-DEAD\_\-ZONE\_\-MIN}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
 \subsubsection[{AXIS\_\-DEAD\_\-ZONE\_\-MIN}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf TeleopAxisValue} {\bf teleop::TeleopSourceAdapter::AXIS\_\-DEAD\_\-ZONE\_\-MIN} = 0.01\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceAdapter_afb159eb407a444dd0b81a2cdf71b245c}
-
+Axis dead zone min 
 
 Definition at line 131 of file teleop\_\-source\_\-adapter.hpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!LISTEN\_\-TIMEOUT\_\-DEFAULT@{LISTEN\_\-TIMEOUT\_\-DEFAULT}}
 \index{LISTEN\_\-TIMEOUT\_\-DEFAULT@{LISTEN\_\-TIMEOUT\_\-DEFAULT}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}
-\subsubsection[{LISTEN\_\-TIMEOUT\_\-DEFAULT}]{\setlength{\rightskip}{0pt plus 5cm}home klc Code github com teleop teleop\_\-framework src teleop\_\-source\_\-adapter cpp const unsigned int {\bf teleop::TeleopSourceAdapter::LISTEN\_\-TIMEOUT\_\-DEFAULT} = 200\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceAdapter_a8f33b54f200089ab25e41d03d3b0b311}
+\subsubsection[{LISTEN\_\-TIMEOUT\_\-DEFAULT}]{\setlength{\rightskip}{0pt plus 5cm}const unsigned int {\bf teleop::TeleopSourceAdapter::LISTEN\_\-TIMEOUT\_\-DEFAULT} = 200\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceAdapter_a842873978d9af74b61eaea2bf5e1680d}
 Listen timeout in milliseconds -\/ check for interruption this often 
 
-Definition at line 127 of file teleop\_\-source\_\-adapter.hpp.
+Definition at line 126 of file teleop\_\-source\_\-adapter.hpp.
 
 \index{teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}!mAxisDeadZone@{mAxisDeadZone}}
 \index{mAxisDeadZone@{mAxisDeadZone}!teleop::TeleopSourceAdapter@{teleop::TeleopSourceAdapter}}

@@ -92,18 +92,14 @@ std::string {\bf teleopButtonName} ({\bf TeleopButtonType} buttonType)
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
+static const {\bf TeleopAxisValue} {\bf TELEOP\_\-AXIS\_\-MAX} = 1.0
+\item 
+static const {\bf TeleopAxisValue} {\bf TELEOP\_\-AXIS\_\-MIN} = -\/1.0
+\item 
 static const int {\bf TELEOP\_\-AXIS\_\-TYPE\_\-COUNT} = (TELEOP\_\-AXIS\_\-TYPE\_\-LAST -\/ TELEOP\_\-AXIS\_\-TYPE\_\-FIRST + 1)
 \item 
 static const int {\bf TELEOP\_\-BUTTON\_\-TYPE\_\-COUNT} = (TELEOP\_\-BUTTON\_\-TYPE\_\-LAST -\/ TELEOP\_\-BUTTON\_\-TYPE\_\-FIRST + 1)
 \end{DoxyCompactItemize}
-{\bf }\par
-\begin{DoxyCompactItemize}
-\item 
-static const {\bf TeleopAxisValue} {\bf TELEOP\_\-AXIS\_\-MIN} = -\/1.0
-\item 
-static const {\bf TeleopAxisValue} {\bf TELEOP\_\-AXIS\_\-MAX} = 1.0
-\end{DoxyCompactItemize}
-
 
 
 \subsection{Typedef Documentation}
@@ -287,14 +283,14 @@ Definition at line 74 of file teleop\_\-common.cpp.
 \index{teleop@{teleop}!TELEOP\_\-AXIS\_\-MAX@{TELEOP\_\-AXIS\_\-MAX}}
 \index{TELEOP\_\-AXIS\_\-MAX@{TELEOP\_\-AXIS\_\-MAX}!teleop@{teleop}}
 \subsubsection[{TELEOP\_\-AXIS\_\-MAX}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf TeleopAxisValue} {\bf teleop::TELEOP\_\-AXIS\_\-MAX} = 1.0\hspace{0.3cm}{\ttfamily  [static]}}\label{namespaceteleop_a7b31f056a58d5ff818cca8636dc07a0a}
+Axis value max (0=off) 
 
-
-Definition at line 144 of file teleop\_\-common.hpp.
+Definition at line 145 of file teleop\_\-common.hpp.
 
 \index{teleop@{teleop}!TELEOP\_\-AXIS\_\-MIN@{TELEOP\_\-AXIS\_\-MIN}}
 \index{TELEOP\_\-AXIS\_\-MIN@{TELEOP\_\-AXIS\_\-MIN}!teleop@{teleop}}
 \subsubsection[{TELEOP\_\-AXIS\_\-MIN}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf TeleopAxisValue} {\bf teleop::TELEOP\_\-AXIS\_\-MIN} = -\/1.0\hspace{0.3cm}{\ttfamily  [static]}}\label{namespaceteleop_aa9f9524c2d63470cc26a17fc4b9f7cb3}
-Axis range (0=off) 
+Axis value min (0=off) 
 
 Definition at line 143 of file teleop\_\-common.hpp.
 

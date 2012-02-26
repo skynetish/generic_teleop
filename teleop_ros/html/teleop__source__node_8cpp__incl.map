@@ -1,6 +1,3 @@
 <map id="G" name="G">
-<area shape="rect" id="node5" href="$teleop__source__adapter_8hpp.html" title="teleop_source_adapter.hpp" alt="" coords="26,83,205,112"/>
-<area shape="rect" id="node13" href="$teleop__source__keyboard_8hpp.html" title="teleop_source_keyboard.hpp" alt="" coords="289,83,476,112"/>
-<area shape="rect" id="node21" href="$teleop__source__joystick_8hpp.html" title="teleop_source_joystick.hpp" alt="" coords="500,83,678,112"/>
-<area shape="rect" id="node8" href="$teleop__source_8hpp.html" title="teleop_source.hpp" alt="" coords="46,160,174,189"/>
+<area shape="rect" id="node3" href="$teleop__source__node_8hpp.html" title="teleop_source_node.hpp" alt="" coords="467,83,629,112"/>
 </map>

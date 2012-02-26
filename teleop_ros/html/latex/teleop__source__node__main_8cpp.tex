@@ -1,0 +1,100 @@
+\section{/home/klc/Code/github.com/teleop/teleop\_\-ros/src/teleop\_\-source\_\-node\_\-main.cpp File Reference}
+\label{teleop__source__node__main_8cpp}\index{/home/klc/Code/github.com/teleop/teleop\_\-ros/src/teleop\_\-source\_\-node\_\-main.cpp@{/home/klc/Code/github.com/teleop/teleop\_\-ros/src/teleop\_\-source\_\-node\_\-main.cpp}}
+{\ttfamily \#include $<$teleop\_\-source\_\-node.hpp$>$}\par
+{\ttfamily \#include $<$ros/ros.h$>$}\par
+{\ttfamily \#include $<$boost/thread.hpp$>$}\par
+{\ttfamily \#include $<$signal.h$>$}\par
+{\ttfamily \#include $<$string.h$>$}\par
+{\ttfamily \#include $<$stdio.h$>$}\par
+Include dependency graph for teleop\_\-source\_\-node\_\-main.cpp:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=400pt]{teleop__source__node__main_8cpp__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int {\bf main} (int argc, char $\ast$$\ast$argv)
+\item 
+static bool {\bf printUsage} (std::string nodeName, int argc, char $\ast$$\ast$argv)
+\item 
+static void {\bf signalHandler} (int signalNumber)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static sig\_\-atomic\_\-t {\bf gInterruptRequested} = 0
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\index{teleop\_\-source\_\-node\_\-main.cpp@{teleop\_\-source\_\-node\_\-main.cpp}!main@{main}}
+\index{main@{main}!teleop_source_node_main.cpp@{teleop\_\-source\_\-node\_\-main.cpp}}
+\subsubsection[{main}]{\setlength{\rightskip}{0pt plus 5cm}int main (
+\begin{DoxyParamCaption}
+\item[{int}]{argc, }
+\item[{char $\ast$$\ast$}]{argv}
+\end{DoxyParamCaption}
+)}\label{teleop__source__node__main_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}
+
+
+Definition at line 125 of file teleop\_\-source\_\-node\_\-main.cpp.
+
+\index{teleop\_\-source\_\-node\_\-main.cpp@{teleop\_\-source\_\-node\_\-main.cpp}!printUsage@{printUsage}}
+\index{printUsage@{printUsage}!teleop_source_node_main.cpp@{teleop\_\-source\_\-node\_\-main.cpp}}
+\subsubsection[{printUsage}]{\setlength{\rightskip}{0pt plus 5cm}static bool printUsage (
+\begin{DoxyParamCaption}
+\item[{std::string}]{nodeName, }
+\item[{int}]{argc, }
+\item[{char $\ast$$\ast$}]{argv}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [static]}}\label{teleop__source__node__main_8cpp_a45a08ffb90ada6472f08f092b6a403f4}
+Check if we should just print usage information, and if so, print it.
+
+
+\begin{DoxyParams}{Parameters}
+{\em nodeName} & [in] -\/ node name \\
+\hline
+{\em argc} & [in] -\/ number of command line arguments \\
+\hline
+{\em argv} & [in] -\/ command line arguments\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if usage was printed 
+\end{DoxyReturn}
+
+
+Definition at line 84 of file teleop\_\-source\_\-node\_\-main.cpp.
+
+\index{teleop\_\-source\_\-node\_\-main.cpp@{teleop\_\-source\_\-node\_\-main.cpp}!signalHandler@{signalHandler}}
+\index{signalHandler@{signalHandler}!teleop_source_node_main.cpp@{teleop\_\-source\_\-node\_\-main.cpp}}
+\subsubsection[{signalHandler}]{\setlength{\rightskip}{0pt plus 5cm}static void signalHandler (
+\begin{DoxyParamCaption}
+\item[{int}]{signalNumber}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [static]}}\label{teleop__source__node__main_8cpp_af7cb763a339a6219a80607a4947b9f5f}
+Signal handler.
+
+
+\begin{DoxyParams}{Parameters}
+{\em signalNumber} & [in] -\/ received signal number \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 80 of file teleop\_\-source\_\-node\_\-main.cpp.
+
+
+
+\subsection{Variable Documentation}
+\index{teleop\_\-source\_\-node\_\-main.cpp@{teleop\_\-source\_\-node\_\-main.cpp}!gInterruptRequested@{gInterruptRequested}}
+\index{gInterruptRequested@{gInterruptRequested}!teleop_source_node_main.cpp@{teleop\_\-source\_\-node\_\-main.cpp}}
+\subsubsection[{gInterruptRequested}]{\setlength{\rightskip}{0pt plus 5cm}sig\_\-atomic\_\-t {\bf gInterruptRequested} = 0\hspace{0.3cm}{\ttfamily  [static]}}\label{teleop__source__node__main_8cpp_a22bc7c017fbdfd918e67984d16126658}
+Global atomic flag used to indicate if an interrupt has been requested. 
+
+Definition at line 72 of file teleop\_\-source\_\-node\_\-main.cpp.
+

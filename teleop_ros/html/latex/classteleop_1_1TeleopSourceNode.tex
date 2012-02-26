@@ -1,0 +1,413 @@
+\section{teleop::TeleopSourceNode Class Reference}
+\label{classteleop_1_1TeleopSourceNode}\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+
+
+{\ttfamily \#include $<$teleop\_\-source\_\-node.hpp$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool {\bf init} (int argc, char $\ast$$\ast$argv, std::string nodeName, uint32\_\-t initOptions)
+\item 
+bool {\bf shutdown} ()
+\item 
+{\bf TeleopSourceNode} ()
+\item 
+{\bf $\sim$TeleopSourceNode} ()
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const double {\bf PARAM\_\-DEFAULT\_\-AXIS\_\-DEAD\_\-ZONE} = TeleopSourceAdapter::AXIS\_\-DEAD\_\-ZONE\_\-DEFAULT
+\item 
+static const char {\bf PARAM\_\-DEFAULT\_\-JOYSTICK\_\-DEVICE} [$\,$] = \char`\"{}/dev/input/js0\char`\"{}
+\item 
+static const int {\bf PARAM\_\-DEFAULT\_\-KEYBOARD\_\-STEPS} = TeleopSourceKeyboard::STEPS\_\-DEFAULT
+\item 
+static const int {\bf PARAM\_\-DEFAULT\_\-LISTEN\_\-TIMEOUT} = TeleopSourceAdapter::LISTEN\_\-TIMEOUT\_\-DEFAULT
+\item 
+static const char {\bf PARAM\_\-DEFAULT\_\-TELEOP\_\-TOPIC} [$\,$] = \char`\"{}teleop\char`\"{}
+\item 
+static const char $\ast$ {\bf PARAM\_\-DEFAULT\_\-TELEOP\_\-TYPE} = {\bf TeleopSourceNode::TELEOP\_\-TYPE\_\-KEYBOARD}
+\item 
+static const char {\bf PARAM\_\-KEY\_\-AXIS\_\-DEAD\_\-ZONE} [$\,$] = \char`\"{}axis\_\-dead\_\-zone\char`\"{}
+\item 
+static const char {\bf PARAM\_\-KEY\_\-JOYSTICK\_\-DEVICE} [$\,$] = \char`\"{}joystick\_\-device\char`\"{}
+\item 
+static const char {\bf PARAM\_\-KEY\_\-KEYBOARD\_\-STEPS} [$\,$] = \char`\"{}keyboard\_\-steps\char`\"{}
+\item 
+static const char {\bf PARAM\_\-KEY\_\-LISTEN\_\-TIMEOUT} [$\,$] = \char`\"{}listen\_\-timeout\char`\"{}
+\item 
+static const char {\bf PARAM\_\-KEY\_\-TELEOP\_\-TOPIC} [$\,$] = \char`\"{}teleop\_\-topic\char`\"{}
+\item 
+static const char {\bf PARAM\_\-KEY\_\-TELEOP\_\-TYPE} [$\,$] = \char`\"{}teleop\_\-type\char`\"{}
+\item 
+static const char {\bf TELEOP\_\-TYPE\_\-AUTO} [$\,$] = \char`\"{}auto\char`\"{}
+\item 
+static const char {\bf TELEOP\_\-TYPE\_\-JOYSTICK} [$\,$] = \char`\"{}joystick\char`\"{}
+\item 
+static const char {\bf TELEOP\_\-TYPE\_\-KEYBOARD} [$\,$] = \char`\"{}keyboard\char`\"{}
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void {\bf stopping} (bool error)
+\item 
+TeleopSource $\ast$ {\bf teleopSourceFactory} ()
+\item 
+virtual void {\bf updated} (const TeleopState $\ast$const teleopState, bool stopping, bool error)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+double {\bf mAxisDeadZone}
+\item 
+bool {\bf mIsInitialised}
+\item 
+boost::recursive\_\-mutex {\bf mIsInitialisedMutex}
+\item 
+std::string {\bf mJoystickDevice}
+\item 
+int {\bf mKeyboardSteps}
+\item 
+int {\bf mListenTimeout}
+\item 
+ros::Publisher {\bf mPublisher}
+\item 
+TeleopSource $\ast$ {\bf mTeleopSource}
+\item 
+TeleopSourceAdapter {\bf mTeleopSourceAdapter}
+\item 
+teleop\_\-msgs::State {\bf mTeleopStateMsg}
+\item 
+std::string {\bf mTeleopTopic}
+\item 
+std::string {\bf mTeleopType}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class creates a teleop source ROS node which reads and publishes the state of a teleop source device.
+
+A teleop source adapter object is used to control a teleop source object. This class inherits the teleop source adapter callback interface in order to receive updates about the teleop source state.
+
+The \doxyref{init()}{p.}{classteleop_1_1TeleopSourceNode_a7f6687095aff8a4cd84fc3a3b39dbd17} and \doxyref{shutdown()}{p.}{classteleop_1_1TeleopSourceNode_a3b1a05841f308cb39407f9409a7b6273} methods control the life cycle of the object. Note that \doxyref{shutdown()}{p.}{classteleop_1_1TeleopSourceNode_a3b1a05841f308cb39407f9409a7b6273} is always called on destruction.
+
+Optional parameters for the node are the following:
+
+topic: topic to which to publish the teleop state teleop\_\-type: teleop source type (\char`\"{}auto\char`\"{}, \char`\"{}keyboard\char`\"{}, or \char`\"{}joystick\char`\"{}) listen\_\-timeout: teleop source listen timeout in milliseconds axis\_\-dead\_\-zone: teleop source initial axis dead zone for all axes keyboard\_\-steps: resolution in steps (for keyboard teleop source) joystick\_\-device: device (for joystick teleop source) 
+
+Definition at line 84 of file teleop\_\-source\_\-node.hpp.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!TeleopSourceNode@{TeleopSourceNode}}
+\index{TeleopSourceNode@{TeleopSourceNode}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{TeleopSourceNode}]{\setlength{\rightskip}{0pt plus 5cm}teleop::TeleopSourceNode::TeleopSourceNode (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{classteleop_1_1TeleopSourceNode_a595885a4c8e3320dec470da5b3500e16}
+Constructor. 
+
+Definition at line 87 of file teleop\_\-source\_\-node.cpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!$\sim$TeleopSourceNode@{$\sim$TeleopSourceNode}}
+\index{$\sim$TeleopSourceNode@{$\sim$TeleopSourceNode}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{$\sim$TeleopSourceNode}]{\setlength{\rightskip}{0pt plus 5cm}teleop::TeleopSourceNode::$\sim$TeleopSourceNode (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{classteleop_1_1TeleopSourceNode_ac46d84c718e5d423b6771183db52fd0a}
+Destructor. 
+
+Definition at line 98 of file teleop\_\-source\_\-node.cpp.
+
+
+
+\subsection{Member Function Documentation}
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!init@{init}}
+\index{init@{init}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{init}]{\setlength{\rightskip}{0pt plus 5cm}bool teleop::TeleopSourceNode::init (
+\begin{DoxyParamCaption}
+\item[{int}]{argc, }
+\item[{char $\ast$$\ast$}]{argv, }
+\item[{std::string}]{nodeName, }
+\item[{uint32\_\-t}]{initOptions}
+\end{DoxyParamCaption}
+)}\label{classteleop_1_1TeleopSourceNode_a7f6687095aff8a4cd84fc3a3b39dbd17}
+Initialise object. If object is already initialised it is shutdown and reinitialised.
+
+
+\begin{DoxyParams}{Parameters}
+{\em argc} & -\/ number of command line arguments to process \\
+\hline
+{\em argv} & -\/ command line arguments \\
+\hline
+{\em nodeName} & -\/ node name \\
+\hline
+{\em initOptions} & -\/ init options\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true on success 
+\end{DoxyReturn}
+
+
+Definition at line 105 of file teleop\_\-source\_\-node.cpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!shutdown@{shutdown}}
+\index{shutdown@{shutdown}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{shutdown}]{\setlength{\rightskip}{0pt plus 5cm}bool teleop::TeleopSourceNode::shutdown (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{classteleop_1_1TeleopSourceNode_a3b1a05841f308cb39407f9409a7b6273}
+Shutdown object. If object is already shutdown this has no effect. This method always cleans up as much as possible, even if there are errors. This method is always called on destruction.
+
+\begin{DoxyReturn}{Returns}
+true on success 
+\end{DoxyReturn}
+
+
+Definition at line 203 of file teleop\_\-source\_\-node.cpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!stopping@{stopping}}
+\index{stopping@{stopping}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{stopping}]{\setlength{\rightskip}{0pt plus 5cm}void teleop::TeleopSourceNode::stopping (
+\begin{DoxyParamCaption}
+\item[{bool}]{error}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [private, virtual]}}\label{classteleop_1_1TeleopSourceNode_a10ee5f69ee623c22dbdbe974789ae5bd}
+Override virtual method from parent. 
+
+Definition at line 328 of file teleop\_\-source\_\-node.cpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!teleopSourceFactory@{teleopSourceFactory}}
+\index{teleopSourceFactory@{teleopSourceFactory}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{teleopSourceFactory}]{\setlength{\rightskip}{0pt plus 5cm}TeleopSource $\ast$ teleop::TeleopSourceNode::teleopSourceFactory (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_a4ede08aae74551a070e0fc9942fb837e}
+Utility method for creating a teleop source, given the currently set parameters. The produced teleop source is dynamically allocated.
+
+\begin{DoxyReturn}{Returns}
+teleop source on success and NULL on error 
+\end{DoxyReturn}
+
+
+Definition at line 251 of file teleop\_\-source\_\-node.cpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!updated@{updated}}
+\index{updated@{updated}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{updated}]{\setlength{\rightskip}{0pt plus 5cm}void teleop::TeleopSourceNode::updated (
+\begin{DoxyParamCaption}
+\item[{const TeleopState $\ast$const}]{teleopState, }
+\item[{bool}]{stopping, }
+\item[{bool}]{error}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [private, virtual]}}\label{classteleop_1_1TeleopSourceNode_ab84ee1767bc2fc6e0d03238f7cba2157}
+Override virtual method from parent. 
+
+Definition at line 295 of file teleop\_\-source\_\-node.cpp.
+
+
+
+\subsection{Member Data Documentation}
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!mAxisDeadZone@{mAxisDeadZone}}
+\index{mAxisDeadZone@{mAxisDeadZone}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{mAxisDeadZone}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf teleop::TeleopSourceNode::mAxisDeadZone}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_a8df8a60feecb6068cf2d37048567e575}
+
+
+Definition at line 147 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!mIsInitialised@{mIsInitialised}}
+\index{mIsInitialised@{mIsInitialised}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{mIsInitialised}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf teleop::TeleopSourceNode::mIsInitialised}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_a321d274805d93fdbf5fb71263b6ef39d}
+Is initialised flag 
+
+Definition at line 164 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!mIsInitialisedMutex@{mIsInitialisedMutex}}
+\index{mIsInitialisedMutex@{mIsInitialisedMutex}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{mIsInitialisedMutex}]{\setlength{\rightskip}{0pt plus 5cm}boost::recursive\_\-mutex {\bf teleop::TeleopSourceNode::mIsInitialisedMutex}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_a51ace56f2c14fb8490778ec184e8c495}
+Mutex to protect is initialised flag 
+
+Definition at line 167 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!mJoystickDevice@{mJoystickDevice}}
+\index{mJoystickDevice@{mJoystickDevice}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{mJoystickDevice}]{\setlength{\rightskip}{0pt plus 5cm}std::string {\bf teleop::TeleopSourceNode::mJoystickDevice}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_a4b3f882e5d4fc86c1e4a092a5ac814b6}
+
+
+Definition at line 149 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!mKeyboardSteps@{mKeyboardSteps}}
+\index{mKeyboardSteps@{mKeyboardSteps}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{mKeyboardSteps}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf teleop::TeleopSourceNode::mKeyboardSteps}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_a982d2d6c227b887e2f74f9fd3c7ef07c}
+
+
+Definition at line 148 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!mListenTimeout@{mListenTimeout}}
+\index{mListenTimeout@{mListenTimeout}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{mListenTimeout}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf teleop::TeleopSourceNode::mListenTimeout}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_a3747eedc0369baddc7d983f0ec0acfa2}
+
+
+Definition at line 146 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!mPublisher@{mPublisher}}
+\index{mPublisher@{mPublisher}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{mPublisher}]{\setlength{\rightskip}{0pt plus 5cm}ros::Publisher {\bf teleop::TeleopSourceNode::mPublisher}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_a20d1faf2c6c8c4caa36ae2ac9b23c925}
+Publisher for teleop messages 
+
+Definition at line 158 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!mTeleopSource@{mTeleopSource}}
+\index{mTeleopSource@{mTeleopSource}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{mTeleopSource}]{\setlength{\rightskip}{0pt plus 5cm}TeleopSource$\ast$ {\bf teleop::TeleopSourceNode::mTeleopSource}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_a0d7411fbc20e83a54fa5bc92e994cad0}
+Teleop source (dynamically allocated) 
+
+Definition at line 152 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!mTeleopSourceAdapter@{mTeleopSourceAdapter}}
+\index{mTeleopSourceAdapter@{mTeleopSourceAdapter}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{mTeleopSourceAdapter}]{\setlength{\rightskip}{0pt plus 5cm}TeleopSourceAdapter {\bf teleop::TeleopSourceNode::mTeleopSourceAdapter}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_a241ab5129ecd579faea5266db2ad4a47}
+Teleop source adapter 
+
+Definition at line 155 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!mTeleopStateMsg@{mTeleopStateMsg}}
+\index{mTeleopStateMsg@{mTeleopStateMsg}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{mTeleopStateMsg}]{\setlength{\rightskip}{0pt plus 5cm}teleop\_\-msgs::State {\bf teleop::TeleopSourceNode::mTeleopStateMsg}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_aa634880e8a56ef94bb19c1c3ba289903}
+Latest message 
+
+Definition at line 161 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!mTeleopTopic@{mTeleopTopic}}
+\index{mTeleopTopic@{mTeleopTopic}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{mTeleopTopic}]{\setlength{\rightskip}{0pt plus 5cm}std::string {\bf teleop::TeleopSourceNode::mTeleopTopic}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_a3f14d648dac54d0e9296ac0ce409123f}
+
+
+Definition at line 144 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!mTeleopType@{mTeleopType}}
+\index{mTeleopType@{mTeleopType}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{mTeleopType}]{\setlength{\rightskip}{0pt plus 5cm}std::string {\bf teleop::TeleopSourceNode::mTeleopType}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceNode_a91183b0c42ce6b0101e8a6d273f70756}
+
+
+Definition at line 145 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!PARAM\_\-DEFAULT\_\-AXIS\_\-DEAD\_\-ZONE@{PARAM\_\-DEFAULT\_\-AXIS\_\-DEAD\_\-ZONE}}
+\index{PARAM\_\-DEFAULT\_\-AXIS\_\-DEAD\_\-ZONE@{PARAM\_\-DEFAULT\_\-AXIS\_\-DEAD\_\-ZONE}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{PARAM\_\-DEFAULT\_\-AXIS\_\-DEAD\_\-ZONE}]{\setlength{\rightskip}{0pt plus 5cm}const double {\bf teleop::TeleopSourceNode::PARAM\_\-DEFAULT\_\-AXIS\_\-DEAD\_\-ZONE} = TeleopSourceAdapter::AXIS\_\-DEAD\_\-ZONE\_\-DEFAULT\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_a25c0a87737814e6172450ad00e0b4ce3}
+
+
+Definition at line 105 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!PARAM\_\-DEFAULT\_\-JOYSTICK\_\-DEVICE@{PARAM\_\-DEFAULT\_\-JOYSTICK\_\-DEVICE}}
+\index{PARAM\_\-DEFAULT\_\-JOYSTICK\_\-DEVICE@{PARAM\_\-DEFAULT\_\-JOYSTICK\_\-DEVICE}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{PARAM\_\-DEFAULT\_\-JOYSTICK\_\-DEVICE}]{\setlength{\rightskip}{0pt plus 5cm}const char {\bf teleop::TeleopSourceNode::PARAM\_\-DEFAULT\_\-JOYSTICK\_\-DEVICE} = \char`\"{}/dev/input/js0\char`\"{}\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_a0e4e795bbc14665a7f5801523884975d}
+
+
+Definition at line 107 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!PARAM\_\-DEFAULT\_\-KEYBOARD\_\-STEPS@{PARAM\_\-DEFAULT\_\-KEYBOARD\_\-STEPS}}
+\index{PARAM\_\-DEFAULT\_\-KEYBOARD\_\-STEPS@{PARAM\_\-DEFAULT\_\-KEYBOARD\_\-STEPS}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{PARAM\_\-DEFAULT\_\-KEYBOARD\_\-STEPS}]{\setlength{\rightskip}{0pt plus 5cm}const int {\bf teleop::TeleopSourceNode::PARAM\_\-DEFAULT\_\-KEYBOARD\_\-STEPS} = TeleopSourceKeyboard::STEPS\_\-DEFAULT\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_a78abceed4df44f0d392ba5957c10aaa6}
+
+
+Definition at line 106 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!PARAM\_\-DEFAULT\_\-LISTEN\_\-TIMEOUT@{PARAM\_\-DEFAULT\_\-LISTEN\_\-TIMEOUT}}
+\index{PARAM\_\-DEFAULT\_\-LISTEN\_\-TIMEOUT@{PARAM\_\-DEFAULT\_\-LISTEN\_\-TIMEOUT}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{PARAM\_\-DEFAULT\_\-LISTEN\_\-TIMEOUT}]{\setlength{\rightskip}{0pt plus 5cm}const int {\bf teleop::TeleopSourceNode::PARAM\_\-DEFAULT\_\-LISTEN\_\-TIMEOUT} = TeleopSourceAdapter::LISTEN\_\-TIMEOUT\_\-DEFAULT\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_a9285a2c1947dbd7c7ff35fc6d538991c}
+
+
+Definition at line 104 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!PARAM\_\-DEFAULT\_\-TELEOP\_\-TOPIC@{PARAM\_\-DEFAULT\_\-TELEOP\_\-TOPIC}}
+\index{PARAM\_\-DEFAULT\_\-TELEOP\_\-TOPIC@{PARAM\_\-DEFAULT\_\-TELEOP\_\-TOPIC}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{PARAM\_\-DEFAULT\_\-TELEOP\_\-TOPIC}]{\setlength{\rightskip}{0pt plus 5cm}const char {\bf teleop::TeleopSourceNode::PARAM\_\-DEFAULT\_\-TELEOP\_\-TOPIC} = \char`\"{}teleop\char`\"{}\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_aa3d6236a8bc82dc20826a1c6d8708914}
+
+
+Definition at line 102 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!PARAM\_\-DEFAULT\_\-TELEOP\_\-TYPE@{PARAM\_\-DEFAULT\_\-TELEOP\_\-TYPE}}
+\index{PARAM\_\-DEFAULT\_\-TELEOP\_\-TYPE@{PARAM\_\-DEFAULT\_\-TELEOP\_\-TYPE}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{PARAM\_\-DEFAULT\_\-TELEOP\_\-TYPE}]{\setlength{\rightskip}{0pt plus 5cm}const char $\ast$ {\bf teleop::TeleopSourceNode::PARAM\_\-DEFAULT\_\-TELEOP\_\-TYPE} = {\bf TeleopSourceNode::TELEOP\_\-TYPE\_\-KEYBOARD}\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_acaf6fb46cb7e0dc75cd8161e943e9f97}
+
+
+Definition at line 103 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!PARAM\_\-KEY\_\-AXIS\_\-DEAD\_\-ZONE@{PARAM\_\-KEY\_\-AXIS\_\-DEAD\_\-ZONE}}
+\index{PARAM\_\-KEY\_\-AXIS\_\-DEAD\_\-ZONE@{PARAM\_\-KEY\_\-AXIS\_\-DEAD\_\-ZONE}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{PARAM\_\-KEY\_\-AXIS\_\-DEAD\_\-ZONE}]{\setlength{\rightskip}{0pt plus 5cm}const char {\bf teleop::TeleopSourceNode::PARAM\_\-KEY\_\-AXIS\_\-DEAD\_\-ZONE} = \char`\"{}axis\_\-dead\_\-zone\char`\"{}\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_afebca4ec6a8deeb89606ed45870ca5e0}
+
+
+Definition at line 97 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!PARAM\_\-KEY\_\-JOYSTICK\_\-DEVICE@{PARAM\_\-KEY\_\-JOYSTICK\_\-DEVICE}}
+\index{PARAM\_\-KEY\_\-JOYSTICK\_\-DEVICE@{PARAM\_\-KEY\_\-JOYSTICK\_\-DEVICE}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{PARAM\_\-KEY\_\-JOYSTICK\_\-DEVICE}]{\setlength{\rightskip}{0pt plus 5cm}const char {\bf teleop::TeleopSourceNode::PARAM\_\-KEY\_\-JOYSTICK\_\-DEVICE} = \char`\"{}joystick\_\-device\char`\"{}\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_a611d9584cc816d0e1110cb161d1f34b7}
+
+
+Definition at line 99 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!PARAM\_\-KEY\_\-KEYBOARD\_\-STEPS@{PARAM\_\-KEY\_\-KEYBOARD\_\-STEPS}}
+\index{PARAM\_\-KEY\_\-KEYBOARD\_\-STEPS@{PARAM\_\-KEY\_\-KEYBOARD\_\-STEPS}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{PARAM\_\-KEY\_\-KEYBOARD\_\-STEPS}]{\setlength{\rightskip}{0pt plus 5cm}const char {\bf teleop::TeleopSourceNode::PARAM\_\-KEY\_\-KEYBOARD\_\-STEPS} = \char`\"{}keyboard\_\-steps\char`\"{}\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_abd792614983fc5409cc2269e1c0d8e44}
+
+
+Definition at line 98 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!PARAM\_\-KEY\_\-LISTEN\_\-TIMEOUT@{PARAM\_\-KEY\_\-LISTEN\_\-TIMEOUT}}
+\index{PARAM\_\-KEY\_\-LISTEN\_\-TIMEOUT@{PARAM\_\-KEY\_\-LISTEN\_\-TIMEOUT}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{PARAM\_\-KEY\_\-LISTEN\_\-TIMEOUT}]{\setlength{\rightskip}{0pt plus 5cm}const char {\bf teleop::TeleopSourceNode::PARAM\_\-KEY\_\-LISTEN\_\-TIMEOUT} = \char`\"{}listen\_\-timeout\char`\"{}\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_a99f66f0b2aefb84016b8b8d46eabe2dd}
+
+
+Definition at line 96 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!PARAM\_\-KEY\_\-TELEOP\_\-TOPIC@{PARAM\_\-KEY\_\-TELEOP\_\-TOPIC}}
+\index{PARAM\_\-KEY\_\-TELEOP\_\-TOPIC@{PARAM\_\-KEY\_\-TELEOP\_\-TOPIC}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{PARAM\_\-KEY\_\-TELEOP\_\-TOPIC}]{\setlength{\rightskip}{0pt plus 5cm}const char {\bf teleop::TeleopSourceNode::PARAM\_\-KEY\_\-TELEOP\_\-TOPIC} = \char`\"{}teleop\_\-topic\char`\"{}\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_a1f15c3bf15a662aee26aa9f7d2a1a171}
+
+
+Definition at line 94 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!PARAM\_\-KEY\_\-TELEOP\_\-TYPE@{PARAM\_\-KEY\_\-TELEOP\_\-TYPE}}
+\index{PARAM\_\-KEY\_\-TELEOP\_\-TYPE@{PARAM\_\-KEY\_\-TELEOP\_\-TYPE}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{PARAM\_\-KEY\_\-TELEOP\_\-TYPE}]{\setlength{\rightskip}{0pt plus 5cm}const char {\bf teleop::TeleopSourceNode::PARAM\_\-KEY\_\-TELEOP\_\-TYPE} = \char`\"{}teleop\_\-type\char`\"{}\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_a6f36effcc5d0e7601e0ecaf9979ae81a}
+
+
+Definition at line 95 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!TELEOP\_\-TYPE\_\-AUTO@{TELEOP\_\-TYPE\_\-AUTO}}
+\index{TELEOP\_\-TYPE\_\-AUTO@{TELEOP\_\-TYPE\_\-AUTO}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{TELEOP\_\-TYPE\_\-AUTO}]{\setlength{\rightskip}{0pt plus 5cm}const char {\bf teleop::TeleopSourceNode::TELEOP\_\-TYPE\_\-AUTO} = \char`\"{}auto\char`\"{}\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_adf3f455325f5e9b3a40d9cc7c09ebaab}
+
+
+Definition at line 89 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!TELEOP\_\-TYPE\_\-JOYSTICK@{TELEOP\_\-TYPE\_\-JOYSTICK}}
+\index{TELEOP\_\-TYPE\_\-JOYSTICK@{TELEOP\_\-TYPE\_\-JOYSTICK}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{TELEOP\_\-TYPE\_\-JOYSTICK}]{\setlength{\rightskip}{0pt plus 5cm}const char {\bf teleop::TeleopSourceNode::TELEOP\_\-TYPE\_\-JOYSTICK} = \char`\"{}joystick\char`\"{}\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_afeeaf106fd06d746ff1b3d37c76e19f2}
+
+
+Definition at line 91 of file teleop\_\-source\_\-node.hpp.
+
+\index{teleop::TeleopSourceNode@{teleop::TeleopSourceNode}!TELEOP\_\-TYPE\_\-KEYBOARD@{TELEOP\_\-TYPE\_\-KEYBOARD}}
+\index{TELEOP\_\-TYPE\_\-KEYBOARD@{TELEOP\_\-TYPE\_\-KEYBOARD}!teleop::TeleopSourceNode@{teleop::TeleopSourceNode}}
+\subsubsection[{TELEOP\_\-TYPE\_\-KEYBOARD}]{\setlength{\rightskip}{0pt plus 5cm}const char {\bf teleop::TeleopSourceNode::TELEOP\_\-TYPE\_\-KEYBOARD} = \char`\"{}keyboard\char`\"{}\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceNode_af03508c1a15a671d68e97c1902b7cfa1}
+
+
+Definition at line 90 of file teleop\_\-source\_\-node.hpp.
+
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+/home/klc/Code/github.com/teleop/teleop\_\-ros/include/{\bf teleop\_\-source\_\-node.hpp}\item 
+/home/klc/Code/github.com/teleop/teleop\_\-ros/src/{\bf teleop\_\-source\_\-node.cpp}\end{DoxyCompactItemize}

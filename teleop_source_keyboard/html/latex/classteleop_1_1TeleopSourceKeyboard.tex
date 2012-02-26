@@ -22,16 +22,14 @@ virtual bool {\bf shutdown} ()
 {\bf $\sim$TeleopSourceKeyboard} ()
 \end{DoxyCompactItemize}
 \subsection*{Static Public Attributes}
-{\bf }\par
 \begin{DoxyCompactItemize}
 \item 
 static const unsigned int {\bf STEPS\_\-DEFAULT} = 3
 \item 
-static const unsigned int {\bf STEPS\_\-MIN} = 1
-\item 
 static const unsigned int {\bf STEPS\_\-MAX} = 5
+\item 
+static const unsigned int {\bf STEPS\_\-MIN} = 1
 \end{DoxyCompactItemize}
-
 \subsection*{Private Member Functions}
 \begin{DoxyCompactItemize}
 \item 
@@ -51,20 +49,18 @@ unsigned int {\bf mSteps}
 TeleopAxisValue {\bf mStepSize}
 \end{DoxyCompactItemize}
 \subsection*{Static Private Attributes}
-{\bf }\par
 \begin{DoxyCompactItemize}
+\item 
+static const unsigned int {\bf KEYCODE\_\-DOWN} = 0x42
+\item 
+static const unsigned int {\bf KEYCODE\_\-LEFT} = 0x44
+\item 
+static const unsigned int {\bf KEYCODE\_\-RIGHT} = 0x43
 \item 
 static const unsigned int {\bf KEYCODE\_\-SPACE} = 0x20
 \item 
 static const unsigned int {\bf KEYCODE\_\-UP} = 0x41
-\item 
-static const unsigned int {\bf KEYCODE\_\-DOWN} = 0x42
-\item 
-static const unsigned int {\bf KEYCODE\_\-RIGHT} = 0x43
-\item 
-static const unsigned int {\bf KEYCODE\_\-LEFT} = 0x44
 \end{DoxyCompactItemize}
-
 
 
 \subsection{Detailed Description}
@@ -72,7 +68,7 @@ This class implements a keyboard teleop source. The arrow keys are used to incre
 
 Key presses are detected by reading raw standard input using termios. If this class is used, other uses of standard input from within the same process should be handled carefully. This approach should be fairly portable, and it doesn't require a graphical environment or low-\/level operating system inputs. 
 
-Definition at line 76 of file teleop\_\-source\_\-keyboard.hpp.
+Definition at line 74 of file teleop\_\-source\_\-keyboard.hpp.
 
 
 
@@ -86,7 +82,7 @@ Definition at line 76 of file teleop\_\-source\_\-keyboard.hpp.
 )}\label{classteleop_1_1TeleopSourceKeyboard_a0507ac337a50bcfbbb82bc7519d3e071}
 Constructor. 
 
-Definition at line 75 of file teleop\_\-source\_\-keyboard.cpp.
+Definition at line 74 of file teleop\_\-source\_\-keyboard.cpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!$\sim$TeleopSourceKeyboard@{$\sim$TeleopSourceKeyboard}}
 \index{$\sim$TeleopSourceKeyboard@{$\sim$TeleopSourceKeyboard}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
@@ -97,7 +93,7 @@ Definition at line 75 of file teleop\_\-source\_\-keyboard.cpp.
 )}\label{classteleop_1_1TeleopSourceKeyboard_a30ef4fbadec4e60b35d758c105101c12}
 Destructor. 
 
-Definition at line 81 of file teleop\_\-source\_\-keyboard.cpp.
+Definition at line 80 of file teleop\_\-source\_\-keyboard.cpp.
 
 
 
@@ -116,7 +112,7 @@ steps
 \end{DoxyReturn}
 
 
-Definition at line 106 of file teleop\_\-source\_\-keyboard.cpp.
+Definition at line 105 of file teleop\_\-source\_\-keyboard.cpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!handleEvent@{handleEvent}}
 \index{handleEvent@{handleEvent}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
@@ -143,7 +139,7 @@ true on success
 \end{DoxyReturn}
 
 
-Definition at line 227 of file teleop\_\-source\_\-keyboard.cpp.
+Definition at line 226 of file teleop\_\-source\_\-keyboard.cpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!init@{init}}
 \index{init@{init}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
@@ -154,7 +150,7 @@ Definition at line 227 of file teleop\_\-source\_\-keyboard.cpp.
 )\hspace{0.3cm}{\ttfamily  [virtual]}}\label{classteleop_1_1TeleopSourceKeyboard_acb6dc7945969ccae2c4f51c8f96c8b24}
 Override virtual method from parent. 
 
-Definition at line 114 of file teleop\_\-source\_\-keyboard.cpp.
+Definition at line 113 of file teleop\_\-source\_\-keyboard.cpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!listen@{listen}}
 \index{listen@{listen}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
@@ -167,7 +163,7 @@ Definition at line 114 of file teleop\_\-source\_\-keyboard.cpp.
 )\hspace{0.3cm}{\ttfamily  [virtual]}}\label{classteleop_1_1TeleopSourceKeyboard_a6db4e5b72630d453e8c83eb344a957a0}
 Override virtual method from parent. 
 
-Definition at line 144 of file teleop\_\-source\_\-keyboard.cpp.
+Definition at line 143 of file teleop\_\-source\_\-keyboard.cpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!setSteps@{setSteps}}
 \index{setSteps@{setSteps}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
@@ -188,7 +184,7 @@ true on success
 \end{DoxyReturn}
 
 
-Definition at line 88 of file teleop\_\-source\_\-keyboard.cpp.
+Definition at line 87 of file teleop\_\-source\_\-keyboard.cpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!shutdown@{shutdown}}
 \index{shutdown@{shutdown}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
@@ -199,7 +195,7 @@ Definition at line 88 of file teleop\_\-source\_\-keyboard.cpp.
 )\hspace{0.3cm}{\ttfamily  [virtual]}}\label{classteleop_1_1TeleopSourceKeyboard_ac238622c5e702be5b778132918877e9b}
 Override virtual method from parent. 
 
-Definition at line 207 of file teleop\_\-source\_\-keyboard.cpp.
+Definition at line 206 of file teleop\_\-source\_\-keyboard.cpp.
 
 
 
@@ -209,91 +205,91 @@ Definition at line 207 of file teleop\_\-source\_\-keyboard.cpp.
 \subsubsection[{KEYCODE\_\-DOWN}]{\setlength{\rightskip}{0pt plus 5cm}const unsigned int {\bf teleop::TeleopSourceKeyboard::KEYCODE\_\-DOWN} = 0x42\hspace{0.3cm}{\ttfamily  [static, private]}}\label{classteleop_1_1TeleopSourceKeyboard_abe548a06d67edb0f75672ee2d386cdfc}
 
 
-Definition at line 132 of file teleop\_\-source\_\-keyboard.hpp.
+Definition at line 131 of file teleop\_\-source\_\-keyboard.hpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!KEYCODE\_\-LEFT@{KEYCODE\_\-LEFT}}
 \index{KEYCODE\_\-LEFT@{KEYCODE\_\-LEFT}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
 \subsubsection[{KEYCODE\_\-LEFT}]{\setlength{\rightskip}{0pt plus 5cm}const unsigned int {\bf teleop::TeleopSourceKeyboard::KEYCODE\_\-LEFT} = 0x44\hspace{0.3cm}{\ttfamily  [static, private]}}\label{classteleop_1_1TeleopSourceKeyboard_afbed9335a8e3178b1e231700e3bd9439}
 
 
-Definition at line 134 of file teleop\_\-source\_\-keyboard.hpp.
+Definition at line 133 of file teleop\_\-source\_\-keyboard.hpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!KEYCODE\_\-RIGHT@{KEYCODE\_\-RIGHT}}
 \index{KEYCODE\_\-RIGHT@{KEYCODE\_\-RIGHT}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
 \subsubsection[{KEYCODE\_\-RIGHT}]{\setlength{\rightskip}{0pt plus 5cm}const unsigned int {\bf teleop::TeleopSourceKeyboard::KEYCODE\_\-RIGHT} = 0x43\hspace{0.3cm}{\ttfamily  [static, private]}}\label{classteleop_1_1TeleopSourceKeyboard_a9bfab5df9ab3df814bf7ce6ab39e0623}
 
 
-Definition at line 133 of file teleop\_\-source\_\-keyboard.hpp.
+Definition at line 132 of file teleop\_\-source\_\-keyboard.hpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!KEYCODE\_\-SPACE@{KEYCODE\_\-SPACE}}
 \index{KEYCODE\_\-SPACE@{KEYCODE\_\-SPACE}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
 \subsubsection[{KEYCODE\_\-SPACE}]{\setlength{\rightskip}{0pt plus 5cm}const unsigned int {\bf teleop::TeleopSourceKeyboard::KEYCODE\_\-SPACE} = 0x20\hspace{0.3cm}{\ttfamily  [static, private]}}\label{classteleop_1_1TeleopSourceKeyboard_aaeaf99220d79f9b4221efb4cdfd27f80}
-Keycodes 
 
-Definition at line 130 of file teleop\_\-source\_\-keyboard.hpp.
+
+Definition at line 129 of file teleop\_\-source\_\-keyboard.hpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!KEYCODE\_\-UP@{KEYCODE\_\-UP}}
 \index{KEYCODE\_\-UP@{KEYCODE\_\-UP}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
 \subsubsection[{KEYCODE\_\-UP}]{\setlength{\rightskip}{0pt plus 5cm}const unsigned int {\bf teleop::TeleopSourceKeyboard::KEYCODE\_\-UP} = 0x41\hspace{0.3cm}{\ttfamily  [static, private]}}\label{classteleop_1_1TeleopSourceKeyboard_a4da8566192b9c90e07f9bc1bf283d1d4}
 
 
-Definition at line 131 of file teleop\_\-source\_\-keyboard.hpp.
+Definition at line 130 of file teleop\_\-source\_\-keyboard.hpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!mIsInitialised@{mIsInitialised}}
 \index{mIsInitialised@{mIsInitialised}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
 \subsubsection[{mIsInitialised}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf teleop::TeleopSourceKeyboard::mIsInitialised}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceKeyboard_a83ec820735c831ac44344094548a7ccf}
 Flag indicating if we are prepared to listen 
 
-Definition at line 141 of file teleop\_\-source\_\-keyboard.hpp.
+Definition at line 139 of file teleop\_\-source\_\-keyboard.hpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!mMemberMutex@{mMemberMutex}}
 \index{mMemberMutex@{mMemberMutex}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
 \subsubsection[{mMemberMutex}]{\setlength{\rightskip}{0pt plus 5cm}boost::recursive\_\-mutex {\bf teleop::TeleopSourceKeyboard::mMemberMutex}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceKeyboard_a16e92fa0ca9ba2c2338c7a32778d482e}
 Mutex for protecting all members from multi-\/threaded access 
 
-Definition at line 138 of file teleop\_\-source\_\-keyboard.hpp.
+Definition at line 136 of file teleop\_\-source\_\-keyboard.hpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!mOldTermios@{mOldTermios}}
 \index{mOldTermios@{mOldTermios}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
 \subsubsection[{mOldTermios}]{\setlength{\rightskip}{0pt plus 5cm}struct termios {\bf teleop::TeleopSourceKeyboard::mOldTermios}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceKeyboard_a9eae880b1b2c83e02d9aa102adc5fe47}
 Old termios settings 
 
-Definition at line 150 of file teleop\_\-source\_\-keyboard.hpp.
+Definition at line 148 of file teleop\_\-source\_\-keyboard.hpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!mSteps@{mSteps}}
 \index{mSteps@{mSteps}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
 \subsubsection[{mSteps}]{\setlength{\rightskip}{0pt plus 5cm}unsigned int {\bf teleop::TeleopSourceKeyboard::mSteps}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceKeyboard_a98fc7a02e157f4fa586f32731a93bb0a}
 Number of steps needed to reach max value for each axis 
 
-Definition at line 144 of file teleop\_\-source\_\-keyboard.hpp.
+Definition at line 142 of file teleop\_\-source\_\-keyboard.hpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!mStepSize@{mStepSize}}
 \index{mStepSize@{mStepSize}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
 \subsubsection[{mStepSize}]{\setlength{\rightskip}{0pt plus 5cm}TeleopAxisValue {\bf teleop::TeleopSourceKeyboard::mStepSize}\hspace{0.3cm}{\ttfamily  [private]}}\label{classteleop_1_1TeleopSourceKeyboard_a84793b148b522a324a52d5102f7c1266}
 Size of each step for each axis 
 
-Definition at line 147 of file teleop\_\-source\_\-keyboard.hpp.
+Definition at line 145 of file teleop\_\-source\_\-keyboard.hpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!STEPS\_\-DEFAULT@{STEPS\_\-DEFAULT}}
 \index{STEPS\_\-DEFAULT@{STEPS\_\-DEFAULT}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
-\subsubsection[{STEPS\_\-DEFAULT}]{\setlength{\rightskip}{0pt plus 5cm}home klc Code github com teleop teleop\_\-source\_\-keyboard src teleop\_\-source\_\-keyboard cpp const unsigned int {\bf teleop::TeleopSourceKeyboard::STEPS\_\-DEFAULT} = 3\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceKeyboard_a24308747c5d7de74b0220f1e7b9b6030}
-Number of steps to reach the maximum level for each axis 
+\subsubsection[{STEPS\_\-DEFAULT}]{\setlength{\rightskip}{0pt plus 5cm}const unsigned int {\bf teleop::TeleopSourceKeyboard::STEPS\_\-DEFAULT} = 3\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceKeyboard_a798dfd6b95ffa7394f4b610e08355fb7}
+Default number of steps to reach the maximum level for each axis 
 
-Definition at line 81 of file teleop\_\-source\_\-keyboard.hpp.
+Definition at line 79 of file teleop\_\-source\_\-keyboard.hpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!STEPS\_\-MAX@{STEPS\_\-MAX}}
 \index{STEPS\_\-MAX@{STEPS\_\-MAX}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
 \subsubsection[{STEPS\_\-MAX}]{\setlength{\rightskip}{0pt plus 5cm}const unsigned int {\bf teleop::TeleopSourceKeyboard::STEPS\_\-MAX} = 5\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceKeyboard_a82e7603533531b605f3e148d1de7366e}
-
+Max number of steps to reach the maximum level for each axis 
 
 Definition at line 83 of file teleop\_\-source\_\-keyboard.hpp.
 
 \index{teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}!STEPS\_\-MIN@{STEPS\_\-MIN}}
 \index{STEPS\_\-MIN@{STEPS\_\-MIN}!teleop::TeleopSourceKeyboard@{teleop::TeleopSourceKeyboard}}
 \subsubsection[{STEPS\_\-MIN}]{\setlength{\rightskip}{0pt plus 5cm}const unsigned int {\bf teleop::TeleopSourceKeyboard::STEPS\_\-MIN} = 1\hspace{0.3cm}{\ttfamily  [static]}}\label{classteleop_1_1TeleopSourceKeyboard_a13a423ce5ce0d7358f9c6b5d0d820dde}
+Min number of steps to reach the maximum level for each axis 
 
-
-Definition at line 82 of file teleop\_\-source\_\-keyboard.hpp.
+Definition at line 81 of file teleop\_\-source\_\-keyboard.hpp.
 
 
 

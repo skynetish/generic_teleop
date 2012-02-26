@@ -1,27 +1,3 @@
 <map id="G" name="G">
-<area shape="rect" id="node3" href="$teleop__common_8hpp.html" title="teleop_common.hpp" alt="" coords="1530,237,1669,267"/>
-<area shape="rect" id="node9" href="$State_8h.html" title="teleop_msgs/State.h" alt="" coords="3611,83,3753,112"/>
-<area shape="rect" id="node79" href="$Twist_8h.html" title="geometry_msgs/Twist.h" alt="" coords="775,160,938,189"/>
-<area shape="rect" id="node105" href="$ros_8h.html" title="ros/ros.h" alt="" coords="2570,160,2642,189"/>
-<area shape="rect" id="node17" href="$serialization_8h.html" title="ros/serialization.h" alt="" coords="4282,160,4405,189"/>
-<area shape="rect" id="node44" href="$message__operations_8h.html" title="ros/message_operations.h" alt="" coords="3821,160,3994,189"/>
-<area shape="rect" id="node50" href="$assert_8h.html" title="ros/assert.h" alt="" coords="3351,160,3442,189"/>
-<area shape="rect" id="node52" href="$Axis_8h.html" title="teleop_msgs/Axis.h" alt="" coords="1191,237,1327,267"/>
-<area shape="rect" id="node67" href="$Button_8h.html" title="teleop_msgs/Button.h" alt="" coords="967,237,1117,267"/>
-<area shape="rect" id="node19" href="$roscpp__serialization__macros_8h.html" title="roscpp_serialization_macros.h" alt="" coords="4634,237,4831,267"/>
-<area shape="rect" id="node21" href="$types_8h.html" title="ros/types.h" alt="" coords="5114,237,5199,267"/>
-<area shape="rect" id="node25" href="$time_8h.html" title="ros/time.h" alt="" coords="4090,237,4170,267"/>
-<area shape="rect" id="node27" href="$serialized__message_8h.html" title="serialized_message.h" alt="" coords="4194,237,4341,267"/>
-<area shape="rect" id="node29" href="$message__traits_8h.html" title="ros/message_traits.h" alt="" coords="3871,237,4015,267"/>
-<area shape="rect" id="node34" href="$builtin__message__traits_8h.html" title="ros/builtin_message_traits.h" alt="" coords="4855,237,5039,267"/>
-<area shape="rect" id="node91" href="$Vector3_8h.html" title="geometry_msgs/Vector3.h" alt="" coords="770,237,943,267"/>
-<area shape="rect" id="node108" href="$rate_8h.html" title="ros/rate.h" alt="" coords="3567,237,3645,267"/>
-<area shape="rect" id="node114" href="$common_8h.html" title="ros/common.h" alt="" coords="1351,237,1455,267"/>
-<area shape="rect" id="node122" href="$node__handle_8h.html" title="ros/node_handle.h" alt="" coords="3021,237,3149,267"/>
-<area shape="rect" id="node126" href="$single__subscriber__publisher_8h.html" title="ros/single_subscriber_publisher.h" alt="" coords="381,237,594,267"/>
-<area shape="rect" id="node133" href="$service_8h.html" title="ros/service.h" alt="" coords="1743,237,1839,267"/>
-<area shape="rect" id="node138" href="$master_8h.html" title="ros/master.h" alt="" coords="2199,237,2293,267"/>
-<area shape="rect" id="node140" href="$this__node_8h.html" title="ros/this_node.h" alt="" coords="2317,237,2426,267"/>
-<area shape="rect" id="node142" href="$param_8h.html" title="ros/param.h" alt="" coords="2450,237,2541,267"/>
-<area shape="rect" id="node144" href="$topic_8h.html" title="ros/topic.h" alt="" coords="2565,237,2647,267"/>
+<area shape="rect" id="node3" href="$teleop__sink__twist__node_8hpp.html" title="teleop_sink_twist_node.hpp" alt="" coords="353,83,535,112"/>
 </map>
