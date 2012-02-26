@@ -1,15 +1,15 @@
 <package>
 
   <!-- Package summary -->
-  <description brief="Tele-operation source which uses a joystick as input.">
+  <description brief="Tele-operation source which uses a joystick as input." >
 
     This package provides header files and a library which implement a
     tele-operation source which uses a joystick as input.
 
   </description>
-  <author>Kevin LeBlanc</author>
+  <author>Kevin LeBlanc (kevin.canadian@gmail.com)</author>
   <license>BSD</license>
-  <url></url>
+  <url>https://github.com/skynetish/teleop/wiki</url>
 
   <!-- External dependencies -->
   <rosdep name="boost" />
@@ -17,7 +17,7 @@
   <!-- Package dependencies -->
   <depend package="teleop_framework" />
 
-  <!-- Export -->
+  <!-- Exports -->
   <export>
     <cpp
       cflags="-I${prefix}/include"

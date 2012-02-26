@@ -1,7 +1,7 @@
 <package>
 
   <!-- Package summary -->
-  <description brief="Tele-operation nodes and utilities for ROS.">
+  <description brief="Tele-operation nodes and utilities for ROS." >
 
     This package provides ROS nodes and utilities related to tele-operation.
 
@@ -12,10 +12,12 @@
     source device (e.g. keyboard, joystick, etc.), and converts this state
     into a generic twist message, which is then published.
 
+    The twist.sh utility simply publishes twist values to a given twist topic.
+
   </description>
-  <author>Kevin LeBlanc</author>
+  <author>Kevin LeBlanc (kevin.canadian@gmail.com)</author>
   <license>BSD</license>
-  <url></url>
+  <url>https://github.com/skynetish/teleop/wiki</url>
 
   <!-- External dependencies -->
   <rosdep name="boost" />

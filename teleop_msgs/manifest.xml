@@ -1,13 +1,13 @@
 <package>
 
   <!-- Package summary -->
-  <description brief="Tele-operation messages.">
+  <description brief="Tele-operation messages." >
 
     This package provides tele-operation message types.
 
   </description>
-  <author>Kevin LeBlanc</author>
+  <author>Kevin LeBlanc (kevin.canadian@gmail.com)</author>
   <license>BSD</license>
-  <url></url>
+  <url>https://github.com/skynetish/teleop/wiki</url>
 
 </package>

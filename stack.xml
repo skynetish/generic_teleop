@@ -1,22 +1,19 @@
 <stack>
 
   <!-- Stack summary -->
-  <description brief="Tele-operation framework.">
+  <description brief="Generic tele-operation framework." >
 
     This stack contains packages which define and use a framework for managing
     generic tele-operation source and sink devices.
 
   </description>
-  <author>Kevin LeBlanc</author>
+  <author>Kevin LeBlanc (kevin.canadian@gmail.com)</author>
   <license>BSD</license>
+  <url>https://github.com/skynetish/teleop/wiki</url>
 
-  <!-- roslib, rosbuild, etc. -->
+  <!-- Stack dependencies -->
   <depend stack="ros"/>
-
-  <!-- geometry_msgs, nav_msgs, etc. -->
   <depend stack="common_msgs"/>
-
-  <!-- roscpp, rospy, etc. -->
   <depend stack="ros_comm" />
 
 </stack>

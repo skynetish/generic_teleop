@@ -1,24 +1,31 @@
 <package>
 
   <!-- Package summary -->
-  <description brief="Tele-operation framework.">
+  <description brief="Generic tele-operation framework." >
 
-    This package provides header files and libraries which implement a
-    framework for generic handling of tele-operation devices.  Different types
-    of tele-operation sources can be implemented as sub-classes of the provided
-    TeleopSource class (e.g. keyboards, joysticks, etc.), and these can be used
-    by different types of tele-operation sinks (e.g. mobile robot bases, robot
-    arms, pan-tilt units, robot swarms, etc.).
+    This package provides header files and a library which implement a
+    framework for managing generic tele-operation source (e.g. keyboard,
+    joystick, etc.) and sink (e.g. mobile robot base, pan-tilt unit, etc.)
+    devices.
+
+    Structures are provided which describe the state of tele-operation source
+    devices.  Using these structures, a simple interface class is provided
+    which defines low-level interactions with source devices.  Each type of
+    tele-operation source device must implement this interface in order to
+    be accessible to the framework.  This interface can also be used to
+    interact with tele-operation source devices.  An adapter class is also
+    provided which allows high-level interaction with tele-operation source
+    devices.
 
   </description>
-  <author>Kevin LeBlanc</author>
+  <author>Kevin LeBlanc (kevin.canadian@gmail.com)</author>
   <license>BSD</license>
-  <url></url>
+  <url>https://github.com/skynetish/teleop/wiki</url>
 
   <!-- External dependencies -->
   <rosdep name="boost" />
 
-  <!-- Export -->
+  <!-- Exports -->
   <export>
     <cpp
       cflags="-I${prefix}/include"
