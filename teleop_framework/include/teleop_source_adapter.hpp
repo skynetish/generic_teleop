@@ -234,7 +234,7 @@ public:
   /**
    * Set axis dead zone for all axes.
    *
-   *   @param deadZone [in] - axis dead zone
+   *   @param axisDeadZone [in] - axis dead zone
    *
    *   @return true on success
    */
