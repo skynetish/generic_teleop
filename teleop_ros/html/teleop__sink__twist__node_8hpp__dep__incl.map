@@ -1,4 +1,4 @@
 <map id="G" name="G">
-<area shape="rect" id="node3" href="$teleop__sink__twist__node_8cpp.html" title="/home/klc/Code/github.com/teleop/teleop_ros/src/teleop_sink_twist_node.cpp" alt="" coords="5,83,477,112"/>
-<area shape="rect" id="node5" href="$teleop__sink__twist__node__main_8cpp.html" title="/home/klc/Code/github.com/teleop/teleop_ros/src/teleop_sink_twist_node_main.cpp" alt="" coords="501,83,1008,112"/>
+<area shape="rect" id="node3" href="$teleop__sink__twist__node_8cpp.html" title="teleop_sink_twist_node.cpp" alt="" coords="5,83,187,112"/>
+<area shape="rect" id="node5" href="$teleop__sink__twist__node__main_8cpp.html" title="teleop_sink_twist_node_main.cpp" alt="" coords="211,83,429,112"/>
 </map>
