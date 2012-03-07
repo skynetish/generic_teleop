@@ -17,7 +17,7 @@
   </description>
   <author>Kevin LeBlanc (kevin.canadian@gmail.com)</author>
   <license>BSD</license>
-  <url>https://github.com/skynetish/teleop/wiki</url>
+  <url>https://github.com/skynetish/generic_teleop/wiki</url>
 
   <!-- External dependencies -->
   <rosdep name="boost" />
