@@ -76,7 +76,8 @@ typedef enum {
   TELEOP_AXIS_TYPE_HAT3_Y,
   TELEOP_AXIS_TYPE_THROTTLE,
   TELEOP_AXIS_TYPE_UNKNOWN,
-  TELEOP_AXIS_TYPE_LAST = TELEOP_AXIS_TYPE_UNKNOWN
+  TELEOP_AXIS_TYPE_LAST = TELEOP_AXIS_TYPE_UNKNOWN,
+  TELEOP_AXIS_TYPE_COUNT
 } TeleopAxisType;
 
 /** Axis value (typedef makes it easier to change width) */
@@ -108,7 +109,8 @@ typedef enum {
   TELEOP_BUTTON_TYPE_STOP,
   TELEOP_BUTTON_TYPE_TRIGGER,
   TELEOP_BUTTON_TYPE_UNKNOWN,
-  TELEOP_BUTTON_TYPE_LAST = TELEOP_BUTTON_TYPE_UNKNOWN
+  TELEOP_BUTTON_TYPE_LAST = TELEOP_BUTTON_TYPE_UNKNOWN,
+  TELEOP_BUTTON_TYPE_COUNT
 } TeleopButtonType;
 
 /** Button value type (typedef makes it easier to change signed/width) */
@@ -141,14 +143,9 @@ typedef struct {
 
 /** Axis value min (0=off) */
 static const TeleopAxisValue TELEOP_AXIS_MIN = -1.0;
+
 /** Axis value max (0=off) */
 static const TeleopAxisValue TELEOP_AXIS_MAX = 1.0;
-
-/** Number of axis types */
-static const int TELEOP_AXIS_TYPE_COUNT = (TELEOP_AXIS_TYPE_LAST - TELEOP_AXIS_TYPE_FIRST + 1);
-
-/** Number of button types */
-static const int TELEOP_BUTTON_TYPE_COUNT = (TELEOP_BUTTON_TYPE_LAST - TELEOP_BUTTON_TYPE_FIRST + 1);
 
 
 
