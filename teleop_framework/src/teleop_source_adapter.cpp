@@ -351,7 +351,7 @@ void TeleopSourceAdapter::listeningThread() {
   //Note that we're no longer running
   mIsRunning = false;
 }
-  //=============================================================================
+//=============================================================================
 bool TeleopSourceAdapter::setListenTimeout(unsigned int listenTimeout) {
   //Set listen timeout
   boost::lock_guard<boost::mutex> listenTimeoutLock(mListenTimeoutMutex);
